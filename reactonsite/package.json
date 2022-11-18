@@ -1,5 +1,5 @@
 {
-  "name": "siteonreact",
+  "name": "reactonsite",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -39,6 +39,6 @@
   },
   "devDependencies": {
     "eslint-config-react-app": "^7.0.1",
-    "jest-editor-support": "^30.2.1"
+    "jest-editor-support": "^30.3.0"
   }
 }

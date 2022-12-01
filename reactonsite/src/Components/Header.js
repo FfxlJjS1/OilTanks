@@ -14,7 +14,7 @@ export default class Header extends Component{
                 <Navbar collapseOnSelect expand="md" bg="dark" variant="dark" >
                     <Container>
                         <Navbar.Brand hrefs="/">
-                            <img 
+                            <img
                                 src={logo}
                                 height="40"
                                 width="40"
@@ -33,17 +33,17 @@ export default class Header extends Component{
                                 <FormControl
                                     type="text"
                                     placeholder="Search"
-                                    className="me-sm-3"/>
+                                    className="me-sm-3" />
                             </Form>
-                            <Button  variant="outline-info"> Search </Button> 
+                            <Button variant="outline-info"> Search </Button>
                         </Navbar.Collapse>
                     </Container>
                 </Navbar>
                 <Router>
                     <Routes>
-                        <Route exact path="/" element={<Home/>}/>
-                        <Route exact path="/tank" element={<Tank/>}/>
-                        <Route exact path="/about" element={<About/>}/>
+                        <Route exact path="/" element={<Home />} />
+                        <Route exact path="/tank" element={<Tank apiUrl="/api/Tank" />} />
+                        <Route exact path="/about" element={<About apiUrl="/api/Calculator" />} />
                     </Routes>
                 </Router>
             </>

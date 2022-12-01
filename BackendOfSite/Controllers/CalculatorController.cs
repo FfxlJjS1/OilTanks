@@ -16,7 +16,7 @@ namespace BackendOfSite.Controllers
             db = context;
         }
 
-        [HttpGet(Name = "DbCisternBackend")]
+        [HttpGet]
         public IActionResult Get()
         {
             return Ok();

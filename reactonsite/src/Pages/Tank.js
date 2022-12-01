@@ -3,66 +3,58 @@ import { Col, Container, Nav, Row, Tab } from "react-bootstrap"
 import { Table } from "react-bootstrap"
 
 export class Tank extends Component{
-    render(){
+    constructor(props) {
+        super(props);
+
+        this.state = { tanksName: [], loading: true };
+    }
+
+    async loadTanksList() {
+        const response = await fetch("api/Tank");
+
+        console.log(response);
+
+        if (response.ok) {
+            var data = await response.json();
+
+            this.setState({ tanksName: data, loading: false });
+        }
+        else {
+            this.setState({ loading: false });
+        }
+    }
+
+    componentDidMount() {
+        this.loadTanksList();
+    }
+
+    static renderTanksNameList(tanksName) {
+        return (
+                tanksName.map(tankName =>
+                    <Nav.Item>
+                        <Nav.Link eventKey={tankName.id}>{tankName.cisternName}</Nav.Link>
+                    </Nav.Item>
+                )
+        );
+    }
+
+    render() {
+        let tanksNameList = this.state.loading
+            ? <>Loading...</>
+            : Tank.renderTanksNameList(this.state.tanksName);
+
         return (
             <Container>
-                <Tab.Container id="ledt--tabs-example" defaultActiveKey="first" >
+                <Tab.Container id="ledt--tabs-example" defaultActiveKey="1" >
                     <Row>
                         <Col sm={3}>
                             <Nav variant="pills" className="flex-column mt-2">
-                                <Nav.Item>
-                                    <Nav.Link eventKey="first"> РВС-100 м³ </Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item>
-                                    <Nav.Link eventKey="second"> РВС-200 м³ </Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item>
-                                    <Nav.Link eventKey="third"> РВС-250 м³ </Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item>
-                                    <Nav.Link eventKey="fourth"> РВС-300 м³ </Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item>
-                                    <Nav.Link eventKey="fifth"> РВС-400 м³ </Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item>
-                                    <Nav.Link eventKey="sixth"> РВС-500 м³ </Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item>
-                                    <Nav.Link eventKey="seventh"> РВС-700 м³ </Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item>
-                                    <Nav.Link eventKey="eighth"> РВС-1000 м³ </Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item>
-                                    <Nav.Link eventKey="ninth"> РВС-2000 м³ </Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item>
-                                    <Nav.Link eventKey="tenth"> РВС-3000 м³ </Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item>
-                                    <Nav.Link eventKey="eleventh"> РВС-5000 м³ </Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item>
-                                    <Nav.Link eventKey="twelfth"> РВС-10000 м³ </Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item>
-                                    <Nav.Link eventKey="thirteenth"> РВС-20000 м³ </Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item>
-                                    <Nav.Link eventKey="fourteenth"> РВС-30000 м³ </Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item>
-                                    <Nav.Link eventKey="fifteenth"> РВС-50000 м³ </Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item>
-                                    <Nav.Link eventKey="sixteenth"> РВС-100000 м³ </Nav.Link>
-                                </Nav.Item>
+                                {tanksNameList}
                             </Nav>
                         </Col>
                         <Col sm={9}>
                             <Tab.Content>
-                                <Tab.Pane eventKey="first">
+                                <Tab.Pane eventKey="1">
                                     <h2>
                                     Резервуар вертикальный стальной РВС-100 м³
                                     </h2>
@@ -332,7 +324,7 @@ export class Tank extends Component{
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
-                                <Tab.Pane eventKey="second">
+                                <Tab.Pane eventKey="2">
                                     <h2>Резервуар вертикальный стальной РВС-200 м³</h2>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
                                     <p>Резервуары вертикальные стальные РВС- 200 м3 - это цилиндрические резервуары, используемые на предприятиях для приема, хранения и выдачи нефти или нефтепродуктов, технической или питьевое воды, а также других жидкостей с плотностью до 1015 кг/м3.</p>
@@ -587,7 +579,7 @@ export class Tank extends Component{
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
-                                <Tab.Pane eventKey="third">
+                                <Tab.Pane eventKey="3">
                                     <h2>Резервуар вертикальный стальной РВС-250 м³</h2>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
                                     <p>Вертикальные резервуары РВС-250 м3 применяются для хранения и выдачи светлых и темных нефтепродуктов, масел, ГСМ, топлива, спирта (например, синтанола) и других жидкостей.</p>
@@ -739,7 +731,7 @@ export class Tank extends Component{
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
-                                <Tab.Pane eventKey="fourth">
+                                <Tab.Pane eventKey="4">
                                     <h2>Резервуар вертикальный стальной РВС-300 м³</h2>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
                                     <p>Вертикальные резервуары РВС-300 м3 устанавливаются на предприятиях для хранения различных нефтепродуктов, дизельного топлива, бензина, ГСМ, технической или питьевое воды, а также других жидкостей с плотностью до 1015 кг/м3.</p>
@@ -785,7 +777,7 @@ export class Tank extends Component{
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
-                                <Tab.Pane eventKey="fifth">
+                                <Tab.Pane eventKey="5">
                                     <h2>Резервуар вертикальный стальной РВС-400 м³</h2>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
                                     <p>ГК Газовик занимается производством и поставкой вертикальных стальных резервуаров РВС-400, входящих в состав резервуарных парков или использующихся для нужд пищевой промышленности. Внешне резервуар представляет собой цилиндрическую емкость объемом 400 м3 с сопутствующим технологическим оборудованием.</p>
@@ -846,7 +838,7 @@ export class Tank extends Component{
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
-                                <Tab.Pane eventKey="sixth">
+                                <Tab.Pane eventKey="6">
                                     <h2>Резервуар вертикальный стальной РВС-500 м³</h2>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
                                     <p>Резервуары вертикальные стальные РВС- 500 м3 - это наземные цилиндрические резервуары, применяемые на нефтедобывающих и нефтетранспортных предприятиях для приема, хранения и выдачи нефтепродуктов или самой нефти, технической воды, а также других жидкостей.</p>
@@ -896,7 +888,7 @@ export class Tank extends Component{
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
-                                <Tab.Pane eventKey="seventh">
+                                <Tab.Pane eventKey="7">
                                     <h2>Резервуар вертикальный стальной РВС-700 м³</h2>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
                                     <p>Вертикальные резервуары РВС-700 м3 эксплуатируются на нефтедобывающих, нефтедобывающих и нефтетранспортных предприятиях для временного или постоянного хранения нефтепродуктов, топлива, ГСМ, технической или пласовой воды.</p>
@@ -955,7 +947,7 @@ export class Tank extends Component{
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
-                                <Tab.Pane eventKey="eighth">
+                                <Tab.Pane eventKey="8">
                                     <h2>Резервуар вертикальный стальной РВС-1000 м³</h2>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
                                     <p>Вертикальный стальной резервуар РВС-1000 представляет собой вертикальную емкость цилиндрической формы, вместимостью 1000 м³.</p>
@@ -1005,7 +997,7 @@ export class Tank extends Component{
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
-                                <Tab.Pane eventKey="ninth">
+                                <Tab.Pane eventKey="9">
                                     <h2>Резервуар вертикальный стальной РВС-2000 м³</h2>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
                                     <p>Резервуары вертикальные стальные РВС- 2000 м3 - это цилиндрические наземные резервуары служащие для приема, хранения, накопления и выдачи темных и светлых нефтепродуктов, ГСМ, дизельного топлива, бензина, а также технической или питьевой воды (при соответствующей обработке внутренней поверхности). Резервуары такого объема чаще всего устанавливают на нефтедобывающих и нефтеперерабатывающих предприятиях, а также нефтеперевалочных пунктах и терминалах.</p>
@@ -1063,7 +1055,7 @@ export class Tank extends Component{
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
-                                <Tab.Pane eventKey="tenth">
+                                <Tab.Pane eventKey="10">
                                     <h2>Резервуар вертикальный стальной РВС-3000 м³</h2>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
                                     <p>Вертикальные резервуары РВС-3000 м3 применяются на нефтедобывающих и нефтеперерабатывающих предприятиях, а также нефтеперевалочных пунктах и терминалах для хранения светлых и темных нефтепродуктов, топлива (дизельного, бензаниа), ГСМ, а также технической и питьевой воды (при соответствующей обработке внутренней поверхности).</p>
@@ -1113,7 +1105,7 @@ export class Tank extends Component{
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
-                                <Tab.Pane eventKey="eleventh">
+                                <Tab.Pane eventKey="11">
                                     <h2>Резервуар вертикальный стальной РВС-5000 м³</h2>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
                                     <h4>Описание стального вертикального резервуара РВС-5000</h4>
@@ -1175,7 +1167,7 @@ export class Tank extends Component{
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
-                                <Tab.Pane eventKey="twelfth">
+                                <Tab.Pane eventKey="12">
                                     <h2>Резервуар вертикальный стальной РВС-10000 м³</h2>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
                                     <p>Резервуары вертикальные стальные РВС- 10000 м3 - это наземные строительные сооружения цилиндрической формы предназначенные для приема, накопления, хранения и выдачи ГСМ, дизельного топлива, бензина, темных и светлых нефтепродуктов, а также технической или питьевой воды (при соответствующей обработке внутренней поверхности). Резервуары такого объема чаще всего применяются на крупных нефтедобывающих или нефтеперерабатывающих предприятиях, а также нефтеперевалочных терминалах.</p>
@@ -1226,7 +1218,7 @@ export class Tank extends Component{
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
-                                <Tab.Pane eventKey="thirteenth">
+                                <Tab.Pane eventKey="13">
                                     <h2>Резервуар вертикальный стальной РВС-20000 м³</h2>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
                                     <p>Вертикальные резервуары РВС-20000 м3 устанавливаются на нефтедобывающих предприятиях и перевалочных пунктах для хранения светлых и темных нефтепродуктов (нефти, дизельного топлива, бензина, мазута и др.), пластовой и пожарной воды, жидких минеральных продуктов, а также питьевой воды. В зависимости от свойств хранимого продукта резервуары изготавливаются из малоуглеродистой, низколегированной или нержавеющей стали.</p>
@@ -1278,7 +1270,7 @@ export class Tank extends Component{
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
-                                <Tab.Pane eventKey="fourteenth">
+                                <Tab.Pane eventKey="14">
                                     <h2>Резервуар вертикальный стальной РВС-30000 м³</h2>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
                                     <p>Резервуары РВС-30000 производства ГК Газовик представляют собой вертикальные цилиндрические резервуарные металлоконструкции объемом 30000 м3, используемые для хранения больших объемов нефти и нефтепродуктов. Устанавливается резервуар на фундамент. РВС-30000 изготавливаются по индивидуальным (с учетом особенностей расположения объекта) и типовым проектам для применения в различных сферах (нефтяной и легкой промышленности, хранения технической воды и топлива). Вертикальные резервуары объемом 30000 м3 могут изготавливаться из трех видов стали: малоуглеродистая, нержавеющая, низколегированная. На сталь наносится несколько слоев грунта и антикоррозионное покрытие.</p>
@@ -1330,7 +1322,7 @@ export class Tank extends Component{
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
-                                <Tab.Pane eventKey="fifteenth">
+                                <Tab.Pane eventKey="15">
                                     <h2>Резервуар вертикальный стальной РВС-50000 м³</h2>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
                                     <p>Резервуары вертикальные стальные РВС- 50000 м3 - это крупные наземные сооружения цилиндрической формы разработанные для приема, накопления, хранения и выдачи дизельного топлива, ГСМ, бензина, светлых и темных нефтепродуктов или питьевой/технической воды. Резервуары объемом 50000 м3 чаще всего устанавливаются на крупных предприятиях, занимающихся нефтедобычей или нефтепереработкой или на нефтеперевалочных терминалах.</p>
@@ -1581,7 +1573,7 @@ export class Tank extends Component{
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
-                                <Tab.Pane eventKey="sixteenth">
+                                <Tab.Pane eventKey="16">
                                     <h2>Резервуар вертикальный стальной РВС-100000 м³</h2>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
                                     <p>Вертикальные резервуары РВС-100000 м3 применяются для хранения светлых и темных нефтепродуктов на предприятиях добычи и транспортировки нефти.</p>

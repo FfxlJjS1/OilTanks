@@ -14,9 +14,8 @@ namespace BackendOfSite.Controllers
             db = new DbCisternContext();
         }
 
-        [HttpGet]
-        // GET: api/Tanks
-        public IActionResult GetTanks()
+        [HttpGet("")]
+        public IActionResult GetTankNames()
         {
             return Ok(from cistern in db.Cisterns.ToList()
                       select new
@@ -24,6 +23,21 @@ namespace BackendOfSite.Controllers
                           Id = cistern.CisternId,
                           CisternName = "РВС-" + cistern.NominalVolumeM3.ToString() + " м^3"
                       });
+        }
+
+        [HttpGet("TankCharacters/{tankId:int}")]
+        public IActionResult GetTankCharacters(int tankId)
+        {
+            var cistern = db.Cisterns.ToList().FirstOrDefault(cistern => cistern.CisternId == tankId);
+
+            if(cistern != null)
+            {
+                return Ok(cistern);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
     }
 }

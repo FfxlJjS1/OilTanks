@@ -4,6 +4,12 @@ import { Table } from "react-bootstrap"
 
 
 export class About extends Component{
+    constructor(props) {
+        super(props);
+
+        this.apiUrl = props.apiUrl;
+    }
+
     render(){
         return (
             <Container style={{widrh: '500px'}}>

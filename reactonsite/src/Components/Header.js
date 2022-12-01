@@ -42,8 +42,8 @@ export default class Header extends Component{
                 <Router>
                     <Routes>
                         <Route exact path="/" element={<Home />} />
-                        <Route exact path="/tank" element={<Tank apiUrl="/api/Tank" />} />
-                        <Route exact path="/about" element={<About apiUrl="/api/Calculator" />} />
+                        <Route exact path="/tank" element={<Tank apiUrl="api/Tank" />} />
+                        <Route exact path="/about" element={<About apiUrl="api/Calculator" />} />
                     </Routes>
                 </Router>
             </>

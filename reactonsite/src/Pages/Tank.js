@@ -2,25 +2,47 @@ import React, { Component }  from "react"
 import { Col, Container, Nav, Row, Tab } from "react-bootstrap"
 import { Table } from "react-bootstrap"
 
-export class Tank extends Component{
+export class Tank extends Component {
     constructor(props) {
         super(props);
 
-        this.state = { tanksName: [], loading: true };
+        this.apiUrl = props.apiUrl;
+
+        this.state = {
+            selectedeTankId: 1,
+            tanksName: [], tableNamesIsLoading: true,
+            tankCharacters: [], tableCharactersIsLoading: true
+        };
     }
 
     async loadTanksList() {
-        const response = await fetch("api/Tank");
-
-        console.log(response);
+        const response = await fetch(this.apiUrl);
 
         if (response.ok) {
-            var data = await response.json();
+            const data = await response.json();
 
-            this.setState({ tanksName: data, loading: false });
+            this.setState({ tanksName: data, tableNamesIsLoading: false });
         }
         else {
-            this.setState({ loading: false });
+            this.setState({ tableNamesIsLoading: false });
+        }
+    }
+
+    async loadTankCharacter(tankId) {
+        this.setState({ tableCharactersIsLoading: true });
+        this.setState({ selectedTankId: tankId });
+
+        const response = await fetch(this.apiUrl + "/TankCharacters/" + tankId);
+
+        if (response.ok) {
+            const data = await response.json();
+
+            console.log(data);
+
+            this.setState({ tankCharacters: data, tableCharactersIsLoading: false });
+        }
+        else {
+            this.setState({ tableCharactersIsLoading: false });
         }
     }
 
@@ -30,25 +52,253 @@ export class Tank extends Component{
 
     static renderTanksNameList(tanksName) {
         return (
-                tanksName.map(tankName =>
-                    <Nav.Item>
-                        <Nav.Link eventKey={tankName.id}>{tankName.cisternName}</Nav.Link>
-                    </Nav.Item>
-                )
+            tanksName.map(tankName =>
+                <Nav.Item>
+                    <Nav.Link eventKey={tankName.id}>{tankName.cisternName}</Nav.Link>
+                </Nav.Item>
+            )
+        );
+    }
+
+    renderTankCharactersTable() {
+        return (
+            <Table striped bordred hover>
+                <tbody>
+                    <tr>
+                        <th>№</th>
+                        <th>Номинальный объем, м³</th>
+                        <th>1{this.state.tankCharacters.nominalVolumeM3 }</th>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td className="left">Внутренний диаметр стенки, мм</td>
+                        <td>{this.state.tankCharacters.wallInnerDrMm }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>2</td>
+                        <td className="left">Высота стенки, мм</td>
+                        <td>{this.state.tankCharacters.wallHeightMm }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>3</td>
+                        <td className="left">Плотность продукта, т/м3</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>4</td>
+                        <td className="left">Расчетная высота налива, мм</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <th></th>
+                        <th>Стенка РВС–100:</th>
+                        <th></th>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>5</td>
+                        <td className="left">Количество поясов, шт</td>
+                        <td>{this.state.tankCharacters.wallBeltUnit }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>6</td>
+                        <td className="left">Припуск на коррозию, мм</td>
+                        <td>{this.state.tankCharacters.wallMarginRustMm }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>7</td>
+                        <td className="left">Толщина верхнего пояса, мм</td>
+                        <td>{this.state.tankCharacters.wallUpperBeltMm }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>8</td>
+                        <td className="left">Толщина нижнего пояса, мм</td>
+                        <td>{this.state.tankCharacters.wallLowerBeltMm }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <th></th>
+                        <th>Днище РВС–100:</th>
+                        <th></th>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>9</td>
+                        <td className="left">Количество окраек, шт</td>
+                        <td>{this.state.tankCharacters.bottomEdgeUnit }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>10</td>
+                        <td className="left">Припуск на коррозию, мм</td>
+                        <td>{this.state.tankCharacters.bottomMarginRustMm }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>11</td>
+                        <td className="left">Толщина центральной части, мм</td>
+                        <td>{this.state.tankCharacters.bottomCentreMm }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>12</td>
+                        <td className="left">Толщина окраек, мм</td>
+                        <td>{this.state.tankCharacters.bottomEdgeMm }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <th></th>
+                        <th>Крыша РВС–100:</th>
+                        <th></th>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>13</td>
+                        <td className="left">Количество балок, шт.</td>
+                        <td>{this.state.tankCharacters.roofBeamUnit }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>14</td>
+                        <td className="left">Припуск на коррозию, мм</td>
+                        <td>{this.state.tankCharacters.RoofMarginRustMm }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>15</td>
+                        <td className="left">Несущий элемент</td>
+                        <td>{this.state.tankCharacters.roofBearingElement }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>16</td>
+                        <td className="left">Толщина настила, мм</td>
+                        <td>{this.state.tankCharacters.roofFlooringMm }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <th></th>
+                        <th>Масса конструкций РВС-100, кг:</th>
+                        <th></th>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>17</td>
+                        <td className="left">Стенка</td>
+                        <td>{this.state.tankCharacters.wallWeightKg }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>18</td>
+                        <td className="left">Днище</td>
+                        <td>{this.state.tankCharacters.bottomWeightKg }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>19</td>
+                        <td className="left">Крыша</td>
+                        <td>{this.state.tankCharacters.roofWeightKg }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>20</td>
+                        <td className="left">Лестница</td>
+                        <td>{this.state.tankCharacters.ladderWeightKg }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>21</td>
+                        <td className="left">Площадки на крыше</td>
+                        <td>{this.state.tankCharacters.roofPlatformKg }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>22</td>
+                        <td className="left">Люки и патрубки</td>
+                        <td>{this.state.tankCharacters.hatchPipeKg }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>23</td>
+                        <td className="left">Комплектующие конструкции</td>
+                        <td>{this.state.tankCharacters.accessoriesKg }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>24</td>
+                        <td className="left">Каркасы и упаковка</td>
+                        <td>{this.state.tankCharacters.carcassPackKg }</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>25</td>
+                        <td className="left">Всего:</td>
+                        <td>{this.state.tankCharacters.wallWeightKg +
+                            this.state.tankCharacters.bottomWeightKg +
+                            this.state.tankCharacters.roofWeightKg +
+                            this.state.tankCharacters.ladderWeightKg +
+                            this.state.tankCharacters.roofPlatformKg +
+                            this.state.tankCharacters.hatchPipeKg +
+                            this.state.tankCharacters.accessoriesKg +
+                            this.state.tankCharacters.carcassPackKg
+}</td>
+                    </tr>
+                </tbody>
+            </Table>
         );
     }
 
     render() {
-        let tanksNameList = this.state.loading
-            ? <>Loading...</>
+        let tanksNameList = this.state.tableNamesIsLoading
+            ? <>Cistern's names is loading...</>
             : Tank.renderTanksNameList(this.state.tanksName);
+        let tankCharacterTable = this.state.tableCharactersIsLoading
+            ? <>Table is loading...</>
+            : this.renderTankCharactersTable();
 
         return (
             <Container>
                 <Tab.Container id="ledt--tabs-example" defaultActiveKey="1" >
                     <Row>
                         <Col sm={3}>
-                            <Nav variant="pills" className="flex-column mt-2">
+                            <Nav onSelect={(tankId) => this.loadTankCharacter(tankId)} variant="pills" className="flex-column mt-2">
                                 {tanksNameList}
                             </Nav>
                         </Col>
@@ -56,20 +306,20 @@ export class Tank extends Component{
                             <Tab.Content>
                                 <Tab.Pane eventKey="1">
                                     <h2>
-                                    Резервуар вертикальный стальной РВС-100 м³
+                                        Резервуар вертикальный стальной РВС-100 м³
                                     </h2>
-                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
+                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg" />
                                     <p>
-                                    ГК Газовик изготавливает и поставляет вертикальные стальные цилиндрические резервуары РВС-100, предназначенные для наземного хранения различных нефтепродуктов или других жидких сред.
+                                        ГК Газовик изготавливает и поставляет вертикальные стальные цилиндрические резервуары РВС-100, предназначенные для наземного хранения различных нефтепродуктов или других жидких сред.
                                     </p>
                                     <p>
-                                    Выдача и прием жидких рабочих сред осуществляется с помощью сопутствующего оборудования резервуара: сливо-наливных устройств и патрубков.
+                                        Выдача и прием жидких рабочих сред осуществляется с помощью сопутствующего оборудования резервуара: сливо-наливных устройств и патрубков.
                                     </p>
                                     <p>
-                                    Вертикальные резервуары РВС-100 - это надежное и недорогое нефтехранилище, строительство которого осуществляется в короткие сроки (методом полистовой сборки, рулонирования).   
+                                        Вертикальные резервуары РВС-100 - это надежное и недорогое нефтехранилище, строительство которого осуществляется в короткие сроки (методом полистовой сборки, рулонирования).
                                     </p>
                                     <h4>
-                                    Виды рабочих сред, хранение которых возможно в резервуаре РВС-100:    
+                                        Виды рабочих сред, хранение которых возможно в резервуаре РВС-100:
                                     </h4>
                                     <ul>
                                         <li>нефть</li>
@@ -81,7 +331,7 @@ export class Tank extends Component{
                                         <li>дизельное топливо</li>
                                         <li>растительные масла</li>
                                         <li>сахарные сиропы</li>
-                                        <li>мазут</li>  
+                                        <li>мазут</li>
                                     </ul>
                                     <h4>Конструкция* РВС-100 включает в себя следующие составляющие:</h4>
                                     <ul>
@@ -94,14 +344,14 @@ export class Tank extends Component{
                                         <li>аварийный клапан</li>
                                         <li>вентиляционный патрубок</li>
                                         <li>люки: замерный, монтажный, световой</li>
-                                        <li>генератор пены средней кратности</li>  
-                                        <li>пробоотборники: плавающий, стационарный органного типа, стационарный секционный</li> 
-                                        <li>механизмы управления хлопушкой боковой и верхний</li> 
-                                        <li>хлопушка</li> 
-                                        <li>приемо-раздаточное устройство</li> 
-                                        <li>сифонный кран</li> 
-                                        <li>лестница</li> 
-                                        <li>площадка</li> 
+                                        <li>генератор пены средней кратности</li>
+                                        <li>пробоотборники: плавающий, стационарный органного типа, стационарный секционный</li>
+                                        <li>механизмы управления хлопушкой боковой и верхний</li>
+                                        <li>хлопушка</li>
+                                        <li>приемо-раздаточное устройство</li>
+                                        <li>сифонный кран</li>
+                                        <li>лестница</li>
+                                        <li>площадка</li>
                                     </ul>
                                     <p>По желанию Заказчика резервуар РВС-100 может быть укомплектован понтоном. Понтон - это покрытие, плавающее на поверхности нефтепродукта. Необходимо для предотвращения испарения и возгорания рабочего вещества. Они различаются по материалу изготовления: сталь/алюминий. Масса открытого стального понтона с толщиной настила в 5 мм составляет около 2 000 кг.</p>
                                     <p>В комплект оборудования понтона входит: настил, направляющая труба, специальные кронштейны, кольцевые рбера, уплотняющий затвор, периферийное уплотнение, противоповоротные устройства, дыхательный клапан, люк-лаз, вентиляционные окна, дренажные патрубки, опорные стойки и заземление.</p>
@@ -109,224 +359,13 @@ export class Tank extends Component{
                                     <h4>Чертеж резервуара РВС-100</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-100 м³</h4>
-                                    <Table striped bordred hover>
-                                        <tbody>
-                                            <tr>
-                                                <th>№</th>
-                                                <th>Номинальный объем, м³</th>
-                                                <th>100</th>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>1</td>
-                                                <td className="left">Внутренний диаметр стенки, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>2</td>
-                                                <td className="left">Высота стенки, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>3</td>
-                                                <td className="left">Плотность продукта, т/м3</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>4</td>
-                                                <td className="left">Расчетная высота налива, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <th></th>
-                                                <th>Стенка РВС–100:</th>
-                                                <th></th>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>5</td>
-                                                <td className="left">Количество поясов, шт</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>6</td>
-                                                <td className="left">Припуск на коррозию, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>7</td>
-                                                <td className="left">Толщина верхнего пояса, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>8</td>
-                                                <td className="left">Толщина нижнего пояса, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <th></th>
-                                                <th>Днище РВС–100:</th>
-                                                <th></th>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>9</td>
-                                                <td className="left">Количество окраек, шт</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>10</td>
-                                                <td className="left">Припуск на коррозию, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>11</td>
-                                                <td className="left">Толщина центральной части, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>12</td>
-                                                <td className="left">Толщина окраек, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <th></th>
-                                                <th>Крыша РВС–100:</th>
-                                                <th></th>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>13</td>
-                                                <td className="left">Количество балок, шт.</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>14</td>
-                                                <td className="left">Припуск на коррозию, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>15</td>
-                                                <td className="left">Несущий элемент</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>16</td>
-                                                <td className="left">Толщина настила, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <th></th>
-                                                <th>Масса конструкций РВС-100, кг:</th>
-                                                <th></th>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>17</td>
-                                                <td className="left">Стенка</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>18</td>
-                                                <td className="left">Днище</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>19</td>
-                                                <td className="left">Крыша</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>20</td>
-                                                <td className="left">Лестница</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>21</td>
-                                                <td className="left">Площадки на крыше</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>22</td>
-                                                <td className="left">Люки и патрубки</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>23</td>
-                                                <td className="left">Комплектующие конструкции</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>24</td>
-                                                <td className="left">Каркасы и упаковка</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>25</td>
-                                                <td className="left">Всего:</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                    </Table>
+                                    {tankCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
                                 <Tab.Pane eventKey="2">
                                     <h2>Резервуар вертикальный стальной РВС-200 м³</h2>
-                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
+                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg" />
                                     <p>Резервуары вертикальные стальные РВС- 200 м3 - это цилиндрические резервуары, используемые на предприятиях для приема, хранения и выдачи нефти или нефтепродуктов, технической или питьевое воды, а также других жидкостей с плотностью до 1015 кг/м3.</p>
                                     <p>Прием и выдача жидких рабочих сред из резервуара происходит при помощи сопутствующего оборудования, а именно сливо-наливных устройств и патрубков.</p>
                                     <p>Технические характеристики РВС-200 зависят от его конструктивных особенностей, марки использованной стали, типа антикоррозионной защиты, а так же установленного оборудования. Для надежной и долголетней работы вертикальные резервуары должны соответствовать следующим требованиям:</p>
@@ -335,7 +374,7 @@ export class Tank extends Component{
                                         <li>избыточное давление в резервуарах не должно превышать 5,0 кПа</li>
                                         <li>относительное разряжение в газовом пространстве - не более 0,25 кПа</li>
                                         <li>вакуум - не более 0,5 кПа</li>
-                                        <li>сейсмичность района эксплуатации - до 9 баллов</li> 
+                                        <li>сейсмичность района эксплуатации - до 9 баллов</li>
                                     </ul>
                                     <h4>Конструкция РВС-200</h4>
                                     <p>Для изготовления вертикальных резервуаров РВС-200 применяется метод рулонирования. Стенка и другие составляющие конструкции РВС поставляются на место установки в виде рулонов. На заранее подготовленной площадке рулоны устанавливают на днище резервуара и разворачивают в вертикальную конструкцию. Сверху устанавливается крыша.</p>
@@ -355,8 +394,8 @@ export class Tank extends Component{
                                         <li>устройства для зачистки днища</li>
                                         <li>пробоотборники: плавающий, стационарный органного типа, стационарный секционный</li>
                                         <li>хлопушка</li>
-                                        <li>механизмы управления хлопушкой боковой и верхний</li> 
-                                        <li>приемо-раздаточное устройство</li> 
+                                        <li>механизмы управления хлопушкой боковой и верхний</li>
+                                        <li>приемо-раздаточное устройство</li>
                                     </ul>
                                     <p>По желанию Заказчика резервуар РВС-100 может быть укомплектован понтоном. Понтон - это покрытие, плавающее на поверхности нефтепродукта. Необходимо для предотвращения испарения и возгорания рабочего вещества. Они различаются по материалу изготовления: сталь/алюминий. Масса открытого стального понтона с толщиной настила в 5 мм составляет около 2 000 кг.</p>
                                     <p>В комплект оборудования понтона входит: настил, направляющая труба, специальные кронштейны, кольцевые рбера, уплотняющий затвор, периферийное уплотнение, противоповоротные устройства, дыхательный клапан, люк-лаз, вентиляционные окна, дренажные патрубки, опорные стойки и заземление.</p>
@@ -364,224 +403,13 @@ export class Tank extends Component{
                                     <h4>Чертеж резервуара РВС-200</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-200 м³</h4>
-                                    <Table striped bordred hover>
-                                        <tbody>
-                                            <tr>
-                                                <th>№</th>
-                                                <th>Номинальный объем, м³</th>
-                                                <th>200</th>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>1</td>
-                                                <td className="left">Внутренний диаметр стенки, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>2</td>
-                                                <td className="left">Высота стенки, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>3</td>
-                                                <td className="left">Плотность продукта, т/м3</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>4</td>
-                                                <td className="left">Расчетная высота налива, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <th></th>
-                                                <th>Стенка РВС–200:</th>
-                                                <th></th>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>5</td>
-                                                <td className="left">Количество поясов, шт</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>6</td>
-                                                <td className="left">Припуск на коррозию, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>7</td>
-                                                <td className="left">Толщина верхнего пояса, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>8</td>
-                                                <td className="left">Толщина нижнего пояса, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <th></th>
-                                                <th>Днище РВС–200:</th>
-                                                <th></th>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>9</td>
-                                                <td className="left">Количество окраек, шт</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>10</td>
-                                                <td className="left">Припуск на коррозию, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>11</td>
-                                                <td className="left">Толщина центральной части, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>12</td>
-                                                <td className="left">Толщина окраек, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <th></th>
-                                                <th>Крыша РВС–200:</th>
-                                                <th></th>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>13</td>
-                                                <td className="left">Количество балок, шт.</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>14</td>
-                                                <td className="left">Припуск на коррозию, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>15</td>
-                                                <td className="left">Несущий элемент</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>16</td>
-                                                <td className="left">Толщина настила, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <th></th>
-                                                <th>Масса конструкций РВС-200, кг:</th>
-                                                <th></th>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>17</td>
-                                                <td className="left">Стенка</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>18</td>
-                                                <td className="left">Днище</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>19</td>
-                                                <td className="left">Крыша</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>20</td>
-                                                <td className="left">Лестница</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>21</td>
-                                                <td className="left">Площадки на крыше</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>22</td>
-                                                <td className="left">Люки и патрубки</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>23</td>
-                                                <td className="left">Комплектующие конструкции</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>24</td>
-                                                <td className="left">Каркасы и упаковка</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>25</td>
-                                                <td className="left">Всего:</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                    </Table>
+                                    {tankCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
                                 <Tab.Pane eventKey="3">
                                     <h2>Резервуар вертикальный стальной РВС-250 м³</h2>
-                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
+                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg" />
                                     <p>Вертикальные резервуары РВС-250 м3 применяются для хранения и выдачи светлых и темных нефтепродуктов, масел, ГСМ, топлива, спирта (например, синтанола) и других жидкостей.</p>
                                     <p>РВС-250 м3 представляет собой вертикальный цилиндрический резервуар со стационарной крышей.</p>
                                     <p>РВС-250 изготовлен методом рулонирования: стенка и днище представляют собой рулонируемые полотнища, которые разворачиваются, монтируются и свариваются на строительной площадке.</p>
@@ -593,147 +421,13 @@ export class Tank extends Component{
                                     <h4>Общий вид вертикального резервуара РВС-250</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики вертикальных резервуаров РВС-250</h4>
-                                    <Table striped bordred hover>
-                                        <tbody>
-                                            <tr>
-                                                <th>№</th>
-                                                <th>Номинальный объем, м³</th>
-                                                <th>250</th>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>1</td>
-                                                <td className="left">Полезный объем, м3</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>2</td>
-                                                <td className="left">Максимальный уровень налива, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>3</td>
-                                                <td className="left">Рабочий уровень налива, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>4</td>
-                                                <td className="left">Количество поясов, шт.</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>5</td>
-                                                <td className="left">Плотность хранимого продукта, т/м3</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>6</td>
-                                                <td className="left">Максимальная температура продукта, ºС</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>7</td>
-                                                <td className="left">Внутреннее избыточное давление, кПа</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>8</td>
-                                                <td className="left">Габаритные размеры, мм* (высота, ширина)</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>9</td>
-                                                <td className="left">Толщина теплоизоляции на стенке, мм*</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>10</td>
-                                                <td className="left">Толщина теплоизоляции на крыше, мм*</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>11</td>
-                                                <td className="left">Припуск на коррозию стенки и днища, мм*</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>12</td>
-                                                <td className="left">Припуск на коррозию крыши, мм*</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>13</td>
-                                                <td className="left">Нормативный срок службы, лет</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <th></th>
-                                                <th>Масса конструкций РВС-250, кг:</th>
-                                                <th></th>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>17</td>
-                                                <td className="left">Стенка</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>18</td>
-                                                <td className="left">Днище</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>19</td>
-                                                <td className="left">Крыша</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>22</td>
-                                                <td className="left">Люки и патрубки</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                    </Table>
+                                    {tankCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
                                 <Tab.Pane eventKey="4">
                                     <h2>Резервуар вертикальный стальной РВС-300 м³</h2>
-                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
+                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg" />
                                     <p>Вертикальные резервуары РВС-300 м3 устанавливаются на предприятиях для хранения различных нефтепродуктов, дизельного топлива, бензина, ГСМ, технической или питьевое воды, а также других жидкостей с плотностью до 1015 кг/м3.</p>
                                     <p>К вертикальным резервуарам предъявляются также следующие требования:</p>
                                     <ul>
@@ -741,11 +435,11 @@ export class Tank extends Component{
                                         <li>вакуум - не более 0,5 кПа</li>
                                         <li>относительное разряжение в газовом пространстве - не более 0,25 кПа</li>
                                         <li>температурный диапазон эксплуатации продукта - от -65ºС до +260ºС</li>
-                                        <li>сейсмичность района эксплуатации - до 9 баллов</li> 
+                                        <li>сейсмичность района эксплуатации - до 9 баллов</li>
                                     </ul>
                                     <p>Другие параметры РВС-300 (марка стали, габаритные размеры, конструктивные особенности, антикоррозионная защита и др.) рассчитываются инженерами-проектировщиками на основании государственных стандартов:</p>
                                     <ul>
-                                       <li>ГОСТ 31385-2008 "Резервуары вертикальные цилиндрические стальные для нефти и нефтепродуктов. Общие технические условия"</li>
+                                        <li>ГОСТ 31385-2008 "Резервуары вертикальные цилиндрические стальные для нефти и нефтепродуктов. Общие технические условия"</li>
                                         <li>СТО 0048-2005 "Резервуары вертикальные цилиндрические стальные для хранения жидких продуктов. Правила проектирования"</li>
                                         <li>СТО-СА-03-002-2009 "Правила проектирования, изготовления и монтажа вертикальных цилиндрических стальных резервуаров для нефти и нефтепродуктов"</li>
                                     </ul>
@@ -762,24 +456,13 @@ export class Tank extends Component{
                                     <h4>Чертеж резервуара РВС-300</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-300 м³</h4>
-                                    <table className="description">
-                                        <tbody>
-                                            <tr>
-                                                <th>Номинальный объем, м³</th>
-                                                <th>300</th>
-                                            </tr>
-                                            <tr>
-                                                <td className="left">Внутренний диаметр стенки, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    {tankCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
                                 <Tab.Pane eventKey="5">
                                     <h2>Резервуар вертикальный стальной РВС-400 м³</h2>
-                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
+                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg" />
                                     <p>ГК Газовик занимается производством и поставкой вертикальных стальных резервуаров РВС-400, входящих в состав резервуарных парков или использующихся для нужд пищевой промышленности. Внешне резервуар представляет собой цилиндрическую емкость объемом 400 м3 с сопутствующим технологическим оборудованием.</p>
                                     <p>Основные функции вертикального резервуара РВС-400:</p>
                                     <ul>
@@ -790,57 +473,46 @@ export class Tank extends Component{
                                     </ul>
                                     <p>Резервуар РВС-400 может применяться при работе с различными жидкостями:</p>
                                     <ul>
-                                       <li>пластовой водой</li>
-                                       <li>пожарной водой</li>
-                                       <li>нефтью</li>
-                                       <li>минеральным удобрением</li>
-                                       <li>нефтепродуктами</li>
-                                       <li>пищевыми жидкими продуктами (маслами, сиропами и др.)</li>
+                                        <li>пластовой водой</li>
+                                        <li>пожарной водой</li>
+                                        <li>нефтью</li>
+                                        <li>минеральным удобрением</li>
+                                        <li>нефтепродуктами</li>
+                                        <li>пищевыми жидкими продуктами (маслами, сиропами и др.)</li>
                                     </ul>
                                     <p>РВС-400 относится к 4 классу опасности (класс определяется по объему хранимого вещества).</p>
                                     <p>Вертикальный резервуар РВС-400 чаще всего изготавливается в двух вариациях:</p>
                                     <ul>
-                                       <li>РВС-400 со стационарной крышей</li>
-                                       <li>РВС-400 с понтоном и стационарной крышей</li>
+                                        <li>РВС-400 со стационарной крышей</li>
+                                        <li>РВС-400 с понтоном и стационарной крышей</li>
                                     </ul>
                                     <h4>В соответствии с ГОСТ 31385-2008 к резервуару для нефти могут предъявляться перечисленные требования:</h4>
                                     <ul>
-                                       <li>наземное расположение</li>
-                                       <li>плотность не более 1015 кг/м3</li>
-                                       <li>сейсмичность до 9 баллов</li>
-                                       <li>температура корпуса не более +180 °C</li>
-                                       <li>минимальная температура корпуса не ниже -65 °C</li>
+                                        <li>наземное расположение</li>
+                                        <li>плотность не более 1015 кг/м3</li>
+                                        <li>сейсмичность до 9 баллов</li>
+                                        <li>температура корпуса не более +180 °C</li>
+                                        <li>минимальная температура корпуса не ниже -65 °C</li>
                                     </ul>
                                     <h4>Комплектация РВС-400</h4>
                                     <p>Вертикальный резервуар РВС-400 состоит из основных и ограждающих конструкций*:</p>
                                     <ul>
-                                       <li>К основным конструкциям резервуара относятся: стенка, врезки патрубков и люков, окрайка днища, крыша, каркас, опорное кольцо каркасной крыши, анкерное крепление стенки, кольца жесткости.</li>
-                                       <li>К ограждающим конструкциям резервуара относятся: центр днища, настил крыши и понтон.</li>
-                                       <li>К вспомогательным конструкциям относят: площадки, лестницы, переходы и ограждения.</li>
+                                        <li>К основным конструкциям резервуара относятся: стенка, врезки патрубков и люков, окрайка днища, крыша, каркас, опорное кольцо каркасной крыши, анкерное крепление стенки, кольца жесткости.</li>
+                                        <li>К ограждающим конструкциям резервуара относятся: центр днища, настил крыши и понтон.</li>
+                                        <li>К вспомогательным конструкциям относят: площадки, лестницы, переходы и ограждения.</li>
                                     </ul>
                                     <p>Общая масса резервуара РВС-400 (из стали) будет варьироваться в зависимости от конструктивных особенностей, но примерно составляет 19000 кг.</p>
                                     <p>Определение размера будущего резервуара осуществляется при учете Ваших пожеланий и условий компоновки РВС на объекте. Мы постараемся рассчитать минимальный вес корпуса Вашего будущего РВС-400, с учетом технических требований к диаметру (D=8,53 м)  и высоте стенки (Н=7,5 м).</p>
                                     <h4>Чертеж резервуара РВС-400</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-400 м³</h4>
-                                    <table className="description">
-                                        <tbody>
-                                            <tr>
-                                                <th>Номинальный объем, м³</th>
-                                                <th>400</th>
-                                            </tr>
-                                            <tr>
-                                                <td className="left">Внутренний диаметр стенки, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    {tankCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
                                 <Tab.Pane eventKey="6">
                                     <h2>Резервуар вертикальный стальной РВС-500 м³</h2>
-                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
+                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg" />
                                     <p>Резервуары вертикальные стальные РВС- 500 м3 - это наземные цилиндрические резервуары, применяемые на нефтедобывающих и нефтетранспортных предприятиях для приема, хранения и выдачи нефтепродуктов или самой нефти, технической воды, а также других жидкостей.</p>
                                     <p>Для приема и выдачи жидких рабочих сред резервуары комплектуются специальным сопутствующим оборудованием, а именно сливо-наливными устройствами и патрубками.</p>
                                     <p>На технические характеристики РВС-500 влияют его конструктивные особенности, марка использованной стали, тип антикоррозионной защиты, а так же комплектация установленного оборудования. Для долголетней и надежной работы вертикальный стальной резервуар должен соответствовать следующим требованиям:</p>
@@ -858,39 +530,28 @@ export class Tank extends Component{
                                     <p>В число вспомогательных конструкций вертикальных резервуаров РВС входят ограждения на крыше, люки, площадки для установки пеногенераторов, площадки обслуживания, лестницы и т.д. Список дополнительного оборудования формируется в зависимости от свойств хранимой жидкости и пожеланий Заказчика.</p>
                                     <p>Для обеспечения безаварийности и удобства эксплуатации резервуара на РВС-500 могут быть установлены:</p>
                                     <ul>
-                                       <li>вентиляционные патрубки</li>
-                                       <li>дыхательные клапаны (совмещенный, механический или совмещенный механический)</li>
-                                       <li>сифонные краны</li>
-                                       <li>аварийные клапана</li>
-                                       <li>уровнемеры</li>
-                                       <li>пеногенераторы</li>
-                                       <li>хлопушки</li>
-                                       <li>механизмы управления хлопушкой боковые или верхние</li>
-                                       <li>устройства для зачистки днища</li>
-                                       <li>пробоотборники: плавающий, стационарный органного типа, стационарный секционный</li>
-                                       <li>приемо-раздаточные устройства</li>
+                                        <li>вентиляционные патрубки</li>
+                                        <li>дыхательные клапаны (совмещенный, механический или совмещенный механический)</li>
+                                        <li>сифонные краны</li>
+                                        <li>аварийные клапана</li>
+                                        <li>уровнемеры</li>
+                                        <li>пеногенераторы</li>
+                                        <li>хлопушки</li>
+                                        <li>механизмы управления хлопушкой боковые или верхние</li>
+                                        <li>устройства для зачистки днища</li>
+                                        <li>пробоотборники: плавающий, стационарный органного типа, стационарный секционный</li>
+                                        <li>приемо-раздаточные устройства</li>
                                     </ul>
                                     <h4>Чертеж резервуара РВС-500</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-500 м³</h4>
-                                    <table className="description">
-                                        <tbody>
-                                            <tr>
-                                                <th>Номинальный объем, м³</th>
-                                                <th>500</th>
-                                            </tr>
-                                            <tr>
-                                                <td className="left">Внутренний диаметр стенки, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    {tankCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
                                 <Tab.Pane eventKey="7">
                                     <h2>Резервуар вертикальный стальной РВС-700 м³</h2>
-                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
+                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg" />
                                     <p>Вертикальные резервуары РВС-700 м3 эксплуатируются на нефтедобывающих, нефтедобывающих и нефтетранспортных предприятиях для временного или постоянного хранения нефтепродуктов, топлива, ГСМ, технической или пласовой воды.</p>
                                     <p>В зависимости от характеристик и степени агрессивности рабочей среды и условий эксплуатации рассчитывается марка стали, из которой изготавливается резервуар: углеродистая сталь Ст3сп, низколегированная сталь 09Г2С или нержавеющая сталь.</p>
                                     <p>Проектирование, производство и эксплуатация РВС-700 регламентируются основными государственными стандартами:</p>
@@ -900,7 +561,7 @@ export class Tank extends Component{
                                         <li>СТО-СА-03-002-2009 "Правила проектирования, изготовления и монтажа вертикальных цилиндрических стальных резервуаров для нефти и нефтепродуктов"</li>
                                     </ul>
                                     <p>На основании их можно выделить следующие эксплуатационные требования к вертикальным резервуарам:</p>
-                       		        <ul>
+                                    <ul>
                                         <li>максимальная плотность рабочей среды - 1015 кг/м3</li>
                                         <li>температурный диапазон эксплуатации продукта - от -65ºС до +260ºС</li>
                                         <li>максимальное внутреннее избыточное давление 5,0 кПа</li>
@@ -914,7 +575,7 @@ export class Tank extends Component{
                                     <p>Стенка РВС-700 - это цилиндрическая вертикальная конструкция, состоящая из нескольких поясов в зависимости от высоты и диаметра резервуара. Толщина стали зависит от проектных расчетов и от пояса (чем выше расположение пояса, тем тоньше может быть металл). Если резервуар эксплуатируется в сложных климатических условиях, возможно устройство колец и ребер жесткости.</p>
                                     <p>Днище РВС-700 изготавливается цельнокройным и плоским без окраек. Толщина стали не должна быть меньше 4 мм.</p>
                                     <p>РВС-700 могут изготавливаться с несколькими видами крыш, выбор которых зависит от требований Заказчика, от эксплуатационных параметров. ГК Газовик предлагает вертикальные резервуары объемом 700 м3 со следующими видами крыш:</p>
-                       		        <ul>
+                                    <ul>
                                         <li>РВС-700 со стационарной бескаркасной конической крышей</li>
                                         <li>РВС-700 со стационарной бескаркасной сферической крышей</li>
                                         <li>РВС-700 со стационарной каркасной конической крышей</li>
@@ -922,7 +583,7 @@ export class Tank extends Component{
                                     </ul>
                                     <h4>Оборудование для РВС-700</h4>
                                     <p>Конструкция и оборудование РВС-700 должны обеспечивать безопасную и долгосрочную эксплуатацию. Для этого резервуары могут комплектоваться следующим резервуарным оборудованием:</p>
-                       		        <ul>
+                                    <ul>
                                         <li>устройствами для наполнения и опорожнения резервуара</li>
                                         <li>пеногенераторами и огнепреградителями как часть оборудования для пожаротушения</li>
                                         <li>дыхательными клапанами для защиты РВС от превышения давления</li>
@@ -932,24 +593,13 @@ export class Tank extends Component{
                                     <h4>Чертеж резервуара РВС-700</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-700 м³</h4>
-                                    <table className="description">
-                                        <tbody>
-                                            <tr>
-                                                <th>Номинальный объем, м³</th>
-                                                <th>700</th>
-                                            </tr>
-                                            <tr>
-                                                <td className="left">Внутренний диаметр стенки, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    {tankCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
                                 <Tab.Pane eventKey="8">
                                     <h2>Резервуар вертикальный стальной РВС-1000 м³</h2>
-                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
+                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg" />
                                     <p>Вертикальный стальной резервуар РВС-1000 представляет собой вертикальную емкость цилиндрической формы, вместимостью 1000 м³.</p>
                                     <p>РВС-1000 используется в нефтяной промышленности и других крупных производствах для стационарного хранения, накопления, подготовки, приема и выдачи жидких продуктов (нефтепродуктов, нефти, воды и других жидкостей), в различных климатических условиях. Чаще всего РВС-1000 применяется при добыче и переработке нефти.</p>
                                     <p>Резервуары конструируются с учетом возможности предотвращения аварийных ситуаций. Но не стоит забывать о высокой пожароопасности резервуаров с нефтью: для предотвращения аварий необходимо отслеживать даже мельчайшие дефекты корпуса емкости. Не маловажным условием является правильный подбор материала корпуса (нержавеющая, малоуглеродистая и низколегированная сталь) в зависимости от температурного режима, в котором резервуару предстоит функционировать - слишком низкая температура негативно воздействует на металл.</p>
@@ -960,7 +610,7 @@ export class Tank extends Component{
                                         <li>в полистовом исполнении</li>
                                     </ul>
                                     <h4>Существуют разнообразные варианты исполнения крыши резервуара РВС-1000:</h4>
-                       		        <ul>
+                                    <ul>
                                         <li>с понтоном</li>
                                         <li>с плоской крышей</li>
                                         <li>с конической крышей</li>
@@ -982,24 +632,13 @@ export class Tank extends Component{
                                     <h4>Чертеж резервуара РВС-1000</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-1000 м³</h4>
-                                    <table className="description">
-                                        <tbody>
-                                            <tr>
-                                                <th>Номинальный объем, м³</th>
-                                                <th>1000</th>
-                                            </tr>
-                                            <tr>
-                                                <td className="left">Внутренний диаметр стенки, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    {tankCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
                                 <Tab.Pane eventKey="9">
                                     <h2>Резервуар вертикальный стальной РВС-2000 м³</h2>
-                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
+                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg" />
                                     <p>Резервуары вертикальные стальные РВС- 2000 м3 - это цилиндрические наземные резервуары служащие для приема, хранения, накопления и выдачи темных и светлых нефтепродуктов, ГСМ, дизельного топлива, бензина, а также технической или питьевой воды (при соответствующей обработке внутренней поверхности). Резервуары такого объема чаще всего устанавливают на нефтедобывающих и нефтеперерабатывающих предприятиях, а также нефтеперевалочных пунктах и терминалах.</p>
                                     <p>Для приема и выдачи жидкостей резервуары оснащаются специальным сопутствующим оборудованием, а именно сливо-наливными устройствами и патрубками.</p>
                                     <p>Технические характеристики резервуара РВС-2000 зависят от его конструктивных особенностей, установленного на нем оборудования, марки стали, а так же типа антикоррозионной защиты. Правильный подбор материала корпуса очень важен для долголетней и надежной работы . Это может быть нержавеющая, малоуглеродистая или низколегированная сталь. Выбор делается в зависимости от температурного режима, в котором будет эксплуатироваться резервуар.</p>
@@ -1016,7 +655,7 @@ export class Tank extends Component{
                                     <p>Стенка, крыша и днище - это основные элементы резервуаров РВС-2000. Стенка резервуара состоит из несколько поясов, количество которых зависит от диаметра и высоты РВС, а вместе они представляют собой цилиндр. В случае эксплуатации резервуара в сложных климатических условиях для сохранения геометрии резервуара в процессе эксплуатации его стенки укрепляют ребрами или кольцами жесткости. Кроме того, существуют двустенные резервуары имеющие в своей конструкции дополнительную емкость (с двойной обечайкой и жидкостью в межстенном пространстве). В зависимости от климатического исполнения РВС так же может быть утеплен и укомплектован обогревом.</p>
                                     <p>Днище вертикального резервуара РВС-2000 выполняется из металлопроката толщиной не менее 4 мм и имеет центральную часть и утолщенные кольцевые окрайки с уклоном 1:100 внутрь.</p>
                                     <p>Существует несколько вариантов исполнения верхнего покрытия/крыши для резервуара РВС-2000:</p>
-                       		        <ul>
+                                    <ul>
                                         <li>стационарная каркасная коническая крыша</li>
                                         <li>стационарная бескаркасная сферическая крыша</li>
                                         <li>плавающая крыша</li>
@@ -1024,7 +663,7 @@ export class Tank extends Component{
                                     </ul>
                                     <p>К вспомогательным конструкциям резервуаров РВС относят площадки обслуживания, площадки для установки пеногенераторов, люки, ограждения на крыше, лестницы и т.д. Комплектация дополнительного оборудования напрямую зависит от свойств хранимой в резервуаре жидкости, а так же пожеланий Заказчика</p>
                                     <p>Сделать эксплуатацию резервуара РВС-2000 удобной и безаварийной Вам помогут:</p>
-                       		        <ul>
+                                    <ul>
                                         <li>дыхательные клапаны (совмещенный, механический или совмещенный механический)</li>
                                         <li>вентиляционные патрубки</li>
                                         <li>аварийные клапана</li>
@@ -1040,24 +679,13 @@ export class Tank extends Component{
                                     <h4>Чертеж резервуара РВС-2000</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-2000 м³</h4>
-                                    <table className="description">
-                                        <tbody>
-                                            <tr>
-                                                <th>Номинальный объем, м³</th>
-                                                <th>2000</th>
-                                            </tr>
-                                            <tr>
-                                                <td className="left">Внутренний диаметр стенки, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    {tankCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
                                 <Tab.Pane eventKey="10">
                                     <h2>Резервуар вертикальный стальной РВС-3000 м³</h2>
-                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
+                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg" />
                                     <p>Вертикальные резервуары РВС-3000 м3 применяются на нефтедобывающих и нефтеперерабатывающих предприятиях, а также нефтеперевалочных пунктах и терминалах для хранения светлых и темных нефтепродуктов, топлива (дизельного, бензаниа), ГСМ, а также технической и питьевой воды (при соответствующей обработке внутренней поверхности).</p>
                                     <p>К проектированию, изготовлению, монтаж у и эксплуатации РВС-3000 применяются требования государственных стандартов:</p>
                                     <ul>
@@ -1066,7 +694,7 @@ export class Tank extends Component{
                                         <li>СТО-СА-03-002-2009 "Правила проектирования, изготовления и монтажа вертикальных цилиндрических стальных резервуаров для нефти и нефтепродуктов"</li>
                                     </ul>
                                     <p>В соответствии с ними вертикальные резервуары РВС-3000 должны отвечать следующим требованиям:</p>
-                       		        <ul>
+                                    <ul>
                                         <li>плотность рабочей среды не должна превышать 1015 кг/м3</li>
                                         <li>температура эксплуатации продукта - от -65ºС до +260ºС</li>
                                         <li>внутреннее избыточное давление - до 5,0 кПа</li>
@@ -1090,24 +718,13 @@ export class Tank extends Component{
                                     <h4>Чертеж резервуара РВС-3000</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-3000 м³</h4>
-                                    <table className="description">
-                                        <tbody>
-                                            <tr>
-                                                <th>Номинальный объем, м³</th>
-                                                <th>3000</th>
-                                            </tr>
-                                            <tr>
-                                                <td className="left">Внутренний диаметр стенки, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    {tankCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
                                 <Tab.Pane eventKey="11">
                                     <h2>Резервуар вертикальный стальной РВС-5000 м³</h2>
-                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
+                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg" />
                                     <h4>Описание стального вертикального резервуара РВС-5000</h4>
                                     <p>ГК Газовик осуществляет комплексные поставки нефтяного оборудования для резервуарных парков. В числе поставляемого нами емкостного оборудования нельзя не выделить вертикальный резервуар РВС- 5000. Вертикальный стальной резервуар РВС-5000 - это наземное строительное сооружение, имеющее цилиндрическую форму и объем 5000 м3. Изготавливается резервуар РВС-5000 из стали и имеет антикоррозионное покрытие (эмаль). РВС-5000 может быть произведен из: нержавеющей стали, из малоуглеродистой стали и низколегированной стали.</p>
                                     <h4>Представленный РВС-5000 предназначен для:</h4>
@@ -1117,7 +734,7 @@ export class Tank extends Component{
                                         <li>переработки продукта</li>
                                     </ul>
                                     <p>Конструкция РВС может варьироваться: РВСП-5000 со стационарной крышей и понтоном, РВС-5000 со стационарной крышей и РВСПК-5000 с плавающей крышей.</p>
-                       		        <h4>Производят следующие разновидности РВС:</h4>
+                                    <h4>Производят следующие разновидности РВС:</h4>
                                     <ul>
                                         <li>РВС-5000 для топлива</li>
                                         <li>РВС-5000 для смазочных материалов</li>
@@ -1137,7 +754,7 @@ export class Tank extends Component{
                                     <p>Основные конструкции, входящие в состав РВС: стенка, кольцевые окрайки и центральная часть днища, обечайки, фланцы и заглушки люков и патрубков в стенке, распределительные накладки, кольца жесткости, опорные кольца, каркас стационарных крыш, бескаркасные крыши, настил стационарных крыш, плавающая крыша/понтон, анкерные крепления, обечайки, фланцы и крышки люков и патрубков в крыше.</p>
                                     <p>Вспомогательные конструкции РВС-5000: ограждения, лестница, площадки, переходы.</p>
                                     <p>По индивидуальному заказу РВС может комплектоваться различными дополнительными элементами:</p>
-                       		        <ul>
+                                    <ul>
                                         <li>приборами для контроля уровня</li>
                                         <li>дыхательной аппаратурой</li>
                                         <li>генераторами пены</li>
@@ -1152,24 +769,13 @@ export class Tank extends Component{
                                     <h4>Чертеж резервуара РВС-5000</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-5000 м³</h4>
-                                    <table className="description">
-                                        <tbody>
-                                            <tr>
-                                                <th>Номинальный объем, м³</th>
-                                                <th>5000</th>
-                                            </tr>
-                                            <tr>
-                                                <td className="left">Внутренний диаметр стенки, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    {tankCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
                                 <Tab.Pane eventKey="12">
                                     <h2>Резервуар вертикальный стальной РВС-10000 м³</h2>
-                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
+                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg" />
                                     <p>Резервуары вертикальные стальные РВС- 10000 м3 - это наземные строительные сооружения цилиндрической формы предназначенные для приема, накопления, хранения и выдачи ГСМ, дизельного топлива, бензина, темных и светлых нефтепродуктов, а также технической или питьевой воды (при соответствующей обработке внутренней поверхности). Резервуары такого объема чаще всего применяются на крупных нефтедобывающих или нефтеперерабатывающих предприятиях, а также нефтеперевалочных терминалах.</p>
                                     <p>Для приема и выдачи хранящихся жидкостей резервуары РВС- 10000 м3 комплектуются соответствующим сопутствующим оборудованием: сливо-наливными устройствами и патрубками.</p>
                                     <p>Технические характеристики резервуара объемом 10000 м3 зависят от его комплектации, конструктивных особенностей, наличия или отсутствия антикоррозионной защиты и ее типа, а так же собственно марки стали из которой он изготовлен. Резервуар может быть выполнен из нержавеющей, малоуглеродистой или низколегированной стали. Очень важно правильно подобрать материал корпуса, это обеспечит длительную и надежную работу всей конструкции. Выбор делается на основе информации о температурном режиме, в котором будет эксплуатироваться резервуар, а также плотности и других характеристик планируемой для хранения жидкости.</p>
@@ -1187,7 +793,7 @@ export class Tank extends Component{
                                     <p>Для изготовления днища вертикального резервуара РВС-10000 используется металлопрокат толщиной не менее 4 мм. Днище резервуара такого объема состоит из центральной части и утолщенных кольцевых окраек с уклоном 1:100 внутрь.</p>
                                     <p>Крыша резервуара РВС-10000 может быть стационарной, т.е. опирающейся на стенку РВС, или плавающей на поверхности хранимого продукта. В резервуарах со стационарной крышей для уменьшения потерь продукта за счет испарения дополнительно могут быть установлены понтоны. Их необходимость определяется характеристиками хранимого в резервуаре продукта, а так же технологическими особенностями эксплуатации всего резервуарного парка.</p>
                                     <p>Обеспечить удобство и безаварийность эксплуатации резервуара РВС-10000 Вам помогут:</p>
-                       		    <ul>
+                                    <ul>
                                         <li>аварийные клапана</li>
                                         <li>дыхательные клапаны (совмещенный, механический или совмещенный механический)</li>
                                         <li>сифонные краны</li>
@@ -1203,24 +809,13 @@ export class Tank extends Component{
                                     <h4>Чертеж резервуара РВС-10000</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-10000 м³</h4>
-                                    <table className="description">
-                                        <tbody>
-                                            <tr>
-                                                <th>Номинальный объем, м³</th>
-                                                <th>10000</th>
-                                            </tr>
-                                            <tr>
-                                                <td className="left">Внутренний диаметр стенки, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    {tankCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
                                 <Tab.Pane eventKey="13">
                                     <h2>Резервуар вертикальный стальной РВС-20000 м³</h2>
-                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
+                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg" />
                                     <p>Вертикальные резервуары РВС-20000 м3 устанавливаются на нефтедобывающих предприятиях и перевалочных пунктах для хранения светлых и темных нефтепродуктов (нефти, дизельного топлива, бензина, мазута и др.), пластовой и пожарной воды, жидких минеральных продуктов, а также питьевой воды. В зависимости от свойств хранимого продукта резервуары изготавливаются из малоуглеродистой, низколегированной или нержавеющей стали.</p>
                                     <h4>Условия эксплуатации РВС-20000</h4>
                                     <ul>
@@ -1232,7 +827,7 @@ export class Tank extends Component{
                                         <li>сейсмичность района эксплуатации - до 9 баллов</li>
                                     </ul>
                                     <p>РВС-20000 м3 производятся и эксплуатируются на основании требований следующих государственных стандартов:</p>
-                       		        <ul>
+                                    <ul>
                                         <li>ГОСТ 31385-2008 "Резервуары вертикальные цилиндрические стальные для нефти и нефтепродуктов. Общие технические условия"</li>
                                         <li>СТО 0048-2005 "Резервуары вертикальные цилиндрические стальные для хранения жидких продуктов. Правила проектирования"</li>
                                         <li>СТО-СА-03-002-2009 "Правила проектирования, изготовления и монтажа вертикальных цилиндрических стальных резервуаров для нефти и нефтепродуктов"</li>
@@ -1255,24 +850,13 @@ export class Tank extends Component{
                                     <h4>Чертеж резервуара РВС-20000</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-20000 м³</h4>
-                                    <table className="description">
-                                        <tbody>
-                                            <tr>
-                                                <th>Номинальный объем, м³</th>
-                                                <th>20000</th>
-                                            </tr>
-                                            <tr>
-                                                <td className="left">Внутренний диаметр стенки, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    {tankCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
                                 <Tab.Pane eventKey="14">
                                     <h2>Резервуар вертикальный стальной РВС-30000 м³</h2>
-                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
+                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg" />
                                     <p>Резервуары РВС-30000 производства ГК Газовик представляют собой вертикальные цилиндрические резервуарные металлоконструкции объемом 30000 м3, используемые для хранения больших объемов нефти и нефтепродуктов. Устанавливается резервуар на фундамент. РВС-30000 изготавливаются по индивидуальным (с учетом особенностей расположения объекта) и типовым проектам для применения в различных сферах (нефтяной и легкой промышленности, хранения технической воды и топлива). Вертикальные резервуары объемом 30000 м3 могут изготавливаться из трех видов стали: малоуглеродистая, нержавеющая, низколегированная. На сталь наносится несколько слоев грунта и антикоррозионное покрытие.</p>
                                     <h4>Применение РВС-30000 достаточно широко:</h4>
                                     <ul>
@@ -1282,7 +866,7 @@ export class Tank extends Component{
                                         <li>нефтеперерабатывающие заводы</li>
                                     </ul>
                                     <p>В проектных нормативных документах есть определенные требования предъявляемые к жидкому веществу, которое предполагается хранить в РВС-30000:</p>
-                       		        <ul>
+                                    <ul>
                                         <li>плотность жидкости не должна превышать 1т/м3</li>
                                         <li>хранение продукта может осуществляться без давления</li>
                                         <li>возможно хранение при избыточным давлении 0,002 МПа,</li>
@@ -1307,24 +891,13 @@ export class Tank extends Component{
                                     <h4>Чертеж резервуара РВС-30000</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-30000 м³</h4>
-                                    <table className="description">
-                                        <tbody>
-                                            <tr>
-                                                <th>Номинальный объем, м³</th>
-                                                <th>30000</th>
-                                            </tr>
-                                            <tr>
-                                                <td className="left">Внутренний диаметр стенки, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    {tankCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
                                 <Tab.Pane eventKey="15">
                                     <h2>Резервуар вертикальный стальной РВС-50000 м³</h2>
-                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
+                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg" />
                                     <p>Резервуары вертикальные стальные РВС- 50000 м3 - это крупные наземные сооружения цилиндрической формы разработанные для приема, накопления, хранения и выдачи дизельного топлива, ГСМ, бензина, светлых и темных нефтепродуктов или питьевой/технической воды. Резервуары объемом 50000 м3 чаще всего устанавливаются на крупных предприятиях, занимающихся нефтедобычей или нефтепереработкой или на нефтеперевалочных терминалах.</p>
                                     <p>Прием и выдача хранящихся в РВС- 50000 жидкостей обеспечивается при помощи сопутствующего оборудования: сливо-наливных устройств и патрубков.</p>
                                     <p>Требуемые от резервуара технические характеристики влияют на выбор конструкции, комплектации, типа антикоррозионной защиты, а так же марки стали из которой он будет выполнен. Для изготовления резервуаров РВС- 50000 может быть использована малоуглеродистая, нержавеющая или низколегированная сталь. Правильный подбор марки стали для корпуса обеспечит длительную и надежную работу всей конструкции. Выбор производится на основании информации о температурном режиме, в котором будет эксплуатироваться РВС, а также плотности и других характеристик планируемой для хранения жидкости.</p>
@@ -1342,7 +915,7 @@ export class Tank extends Component{
                                     <p>Днище РВС-50000 изготавливается из металлопроката с минимальной толщиной от 4 мм и больше. Днище вертикальных резервуаров такого объема состоит из плоской центральной части, окруженной утолщенными кольцевыми окрайками с уклоном 1:100 внутрь.</p>
                                     <p>Крыша на резервуары РВС-50000 может устанавливаться как стационарная, т.е. опирающаяся на стенку резервуара, так и плавающая на поверхности хранимого продукта. На резервуары со стационарной крышей для сокращения потерь продукта из-за испарения могут быть дополнительно установлены понтоны. На необходимость их использования влияют характеристиками хранимого в РВС продукта, а так же технологические особенности эксплуатации конкретного резервуарного парка.</p>
                                     <p>Конструкция резервуара так же содержит и вспомогательные элементы, а именно: ограждения на крыше, площадки обслуживания, лестницы, люки, площадки для установки пеногенераторов и т.д. Так же для обеспечения удобства и безаварийной эксплуатации резервуаров РВС-50000 можно использовать:</p>
-                       		    <ul>
+                                    <ul>
                                         <li>дыхательные клапаны (совмещенный, механический или совмещенный механический)</li>
                                         <li>аварийные клапана</li>
                                         <li>хлопушки</li>
@@ -1358,224 +931,13 @@ export class Tank extends Component{
                                     <h4>Чертеж резервуара РВС-50000</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-50000 м³</h4>
-                                    <Table striped bordred hover>
-                                        <tbody>
-                                            <tr>
-                                                <th>№</th>
-                                                <th>Номинальный объем, м³</th>
-                                                <th>50000</th>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>1</td>
-                                                <td className="left">Внутренний диаметр стенки, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>2</td>
-                                                <td className="left">Высота стенки, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>3</td>
-                                                <td className="left">Плотность продукта, т/м3</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>4</td>
-                                                <td className="left">Расчетная высота налива, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <th></th>
-                                                <th>Стенка РВС–50000:(полистовая)</th>
-                                                <th></th>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>5</td>
-                                                <td className="left">Количество поясов, шт</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>6</td>
-                                                <td className="left">Толщина верхнего пояса, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>7</td>
-                                                <td className="left">Расчетная высота налива, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>8</td>
-                                                <td className="left">Толщина нижнего пояса, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <th></th>
-                                                <th>Днище РВС–50000:</th>
-                                                <th></th>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>9</td>
-                                                <td className="left">Количество окраек, шт</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>10</td>
-                                                <td className="left">Припуск на коррозию, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>11</td>
-                                                <td className="left">Толщина центральной части, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>12</td>
-                                                <td className="left">Толщина окраек, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <th></th>
-                                                <th>Крыша РВС–50000:</th>
-                                                <th></th>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>13</td>
-                                                <td className="left">Количество балок, шт.</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>14</td>
-                                                <td className="left">Припуск на коррозию, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>15</td>
-                                                <td className="left">Несущий элемент</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>16</td>
-                                                <td className="left">Толщина настила, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <th></th>
-                                                <th>Масса конструкций РВС-50000, кг:</th>
-                                                <th></th>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>17</td>
-                                                <td className="left">Стенка</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>18</td>
-                                                <td className="left">Днище</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>19</td>
-                                                <td className="left">Крыша</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>20</td>
-                                                <td className="left">Лестница</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>21</td>
-                                                <td className="left">Площадки на крыше</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>22</td>
-                                                <td className="left">Люки и патрубки</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>23</td>
-                                                <td className="left">Комплектующие конструкции</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>24</td>
-                                                <td className="left">Каркасы и упаковка</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>25</td>
-                                                <td className="left">Всего:</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                    </Table>
+                                    {tankCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
                                 <Tab.Pane eventKey="16">
                                     <h2>Резервуар вертикальный стальной РВС-100000 м³</h2>
-                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"/>
+                                    <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg" />
                                     <p>Вертикальные резервуары РВС-100000 м3 применяются для хранения светлых и темных нефтепродуктов на предприятиях добычи и транспортировки нефти.</p>
                                     <p>ГК Газовик предлагает следующие варианты исполнений резервуаров объемом 100000 м3:</p>
                                     <ul>
@@ -1583,13 +945,13 @@ export class Tank extends Component{
                                         <li>РВСП-100000 м3 с понтоном</li>
                                     </ul>
                                     <p>Проектирование, изготовление и эксплуатация вертикальных цилиндрических резервуаров РВС объемом 100000 м3 регламентируется следующими государственными стандартами:</p>
-                       		        <ul>
+                                    <ul>
                                         <li>ГОСТ 31385-2008 "Резервуары вертикальные цилиндрические стальные для нефти и нефтепродуктов. Общие технические условия"</li>
                                         <li>СТО 0048-2005 "Резервуары вертикальные цилиндрические стальные для хранения жидких продуктов. Правила проектирования"</li>
                                         <li>СТО-СА-03-002-2009 "Правила проектирования, изготовления и монтажа вертикальных цилиндрических стальных резервуаров для нефти и нефтепродуктов"</li>
                                     </ul>
                                     <p>В соответствии с вышеперечисленными стандартами резервуары РВС могут использоваться с рабочими средами плотностью до 1015 кг/м3 и при температуре продукта от -65ºС до +260ºС. Кроме этого, к РВС-100000 предъявляются следующие требования:</p>
-                       		        <ul>
+                                    <ul>
                                         <li>внутреннее избыточное давление не должно превышать 5,0 кПа</li>
                                         <li>вакуум - не больше 0,5 кПа</li>
                                         <li>относительное разрежение в газовом пространстве не должно быть более 0,25 кПа</li>
@@ -1628,28 +990,13 @@ export class Tank extends Component{
                                     <h4>Дополнительное оборудование РВС-100000 м³</h4>
                                     <p>Для безопасной эксплуатации резервуаров отдельно подбирается необходимое резервуарное оборудование: дыхательные клапаны, огнепреградители, пеногенераторы, сливо-наливная арматура, контрольно-измерительные приборы и др.</p>
                                     <h4>Технические характеристики резервуара РВС-100000 м³</h4>
-                                    <Table striped bordred hover>
-                                        <tbody>
-                                            <tr>
-                                                <th>№</th>
-                                                <th>Номинальный объем, м³</th>
-                                                <th>100000</th>
-                                            </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr>
-                                                <td>1</td>
-                                                <td className="left">Внутренний диаметр стенки, мм</td>
-                                                <td>-</td>
-                                            </tr>
-                                        </tbody>
-                                    </Table>
+                                    {tankCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                         </Col>
                     </Row>
                 </Tab.Container>
-            </Container>     
-        )         
+            </Container>
+        )
     }
 }

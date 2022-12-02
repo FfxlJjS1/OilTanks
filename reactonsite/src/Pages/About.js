@@ -3,62 +3,127 @@ import { Button, Container, Form } from "react-bootstrap"
 import { Table } from "react-bootstrap"
 
 
-export class About extends Component{
+export class About extends Component {
     constructor(props) {
         super(props);
 
+        this.oilTypes = ["Девонская", "Сернистая"];
         this.apiUrl = props.apiUrl;
+
+        this.state = {
+            oilValue: 0, waterValue: 0, oilType: this.oilTypes[0],
+            loadedResult: null, resultIsLoading: false
+        };
     }
 
-    render(){
+    async enterAndLoadServerCalculation() {
+        this.setState({ resultIsLoading: true });
+
+        const response = await fetch(this.apiUrl + "?" +
+            "oilType=" + this.state.oilType + "&" +
+            "oilValue=" + this.state.oilValue + "&" +
+            "waterValue=" + this.state.waterValue);
+
+        if (response.ok) {
+            const data = await response.json();
+
+            this.setState({ loadedResult: data, resultIsLoading: false });
+        }
+        else {
+            this.setState({ loadedResult: null, resultIsLoading: false });
+        }
+    }
+
+    renderResultTable() {
+        const storageTanksDestinationArr = Object.keys(this.state.loadedResult);
+
+        const tdRows = (storageTanksDestinationArr, data) => {
+            let content = [];
+
+            for (let key of storageTanksDestinationArr) {
+                let firstRow = true;
+                const currentTankData = data[key];
+                const rowsCount = currentTankData.length;
+
+                for (let rowIndex = 0; rowIndex < rowsCount; rowIndex++) {
+                    const currentRow = currentTankData[rowIndex];
+
+                    content.push(
+                        <tr>
+                            {firstRow ? <td rowSpan={rowsCount}>{key}</td> : null}
+                            <td>{currentRow.settlingTimeHour}</td>
+                            <td>{currentRow.requiredVolume}</td>
+                            <td>{currentRow.usefulVolume}</td>
+                            <td>{currentRow.nominalVolume}</td>
+                            <td>{currentRow.needCountForWork}</td>
+                        </tr>);
+
+                    firstRow = false;
+                }
+            }
+
+            return content;
+        }
+
         return (
-            <Container style={{widrh: '500px'}}>
+            <Table striped bordred hover>
+                <tbody>
+                    <tr>
+                        <th>Назначение резервуара (отстойника)</th>
+                        <th>Время отстоя, хранения, час</th>
+                        <th>Требуемая  емкость РВС и отстойников, м3</th>
+                        <th>Полезный объем (коэф.заполнения)</th>
+                        <th>Номинальный объем РВС  (отстойников), м3</th>
+                        <th>Необход. кол-во в работе, шт.</th>
+                    </tr>
+                </tbody>
+                <tbody>
+                    {tdRows(storageTanksDestinationArr, this.state.loadedResult)}
+                </tbody>
+            </Table>
+        );
+    }
+
+    render() {
+        let resultTable = !this.state.resultIsLoading && this.state.loadedResult != null
+            ? this.renderResultTable()
+            : null;
+
+        const handleClick = () => this.enterAndLoadServerCalculation();
+
+        return (
+            <Container style={{ widrh: '500px' }}>
                 <h2 className="text-center"> Введите данные </h2>
                 <Form>
+                    <Form.Group className="mb-3" controlId="formBasicEmail"
+                        value={this.state.oilType}
+                        onChange={e => this.setState({ oilType: e.target.value })}>
+                        <Form.Label>Тип нефти</Form.Label>
+                        <Form.Select>
+                            {this.oilTypes.map(oilType => <option>{oilType}</option>)}
+                        </Form.Select>
+                    </Form.Group>
                     <Form.Group className="mb-3" controlId="formBasicEmail">
                         <Form.Label>Нефть</Form.Label>
-                        <Form.Control type="email" placeholder="обьём м³" />
+                        <Form.Control type="text" placeholder="обьём м³"
+                            value={this.state.oilValue}
+                            onChange={e => this.setState({ oilValue: e.target.value })} />
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formBasicEmail">
                         <Form.Label>Вода</Form.Label>
-                        <Form.Control type="email" placeholder="обьём м³" />
+                        <Form.Control type="text" placeholder="обьём м³"
+                            value={this.state.waterValue}
+                            onChange={e => this.setState({ waterValue: e.target.value })} />
                     </Form.Group>
-                    <Button variant="primary" type="submit">Подробнее</Button>
+                    <Button variant="primary" type="button"
+                        disabled={this.state.resultIsLoading}
+                        onClick={!this.state.resultIsLoading ? handleClick : null}>
+                        {!this.state.resultIsLoading ? "Подробнее" : "Загружается"}
+                    </Button>
                 </Form>
 
-                <Table striped bordred hover>
-                    <tbody>
-                        <tr>
-                            <th>№</th>
-                            <th>Название объекта</th>
-                            <th>Продукция  скважин</th>
-                            <th>Кол-во, т/сутки</th>
-                            <th>Назначение резервуара (отстойника)</th>
-                            <th>Время отстоя, хранения, час</th>
-                            <th>Требуемая  емкость РВС и отстойников, м3</th>
-                            <th>Полезный объем (коэф.заполнения)</th>
-                            <th>Номинальный объем РВС  (отстойников), м3</th>
-                            <th>Полезный объем (коэф.заполнения)</th>
-                            <th>Необход. кол-во в работе, шт.</th>
-                        </tr>
-                    </tbody>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>2</td>
-                            <td>3</td>
-                            <td>4</td>
-                            <td>5</td>
-                            <td>6</td>
-                            <td>7</td>
-                            <td>8</td>
-                            <td>9</td>
-                            <td>10</td>
-                            <td>11</td>
-                        </tr>
-                    </tbody>
-                </Table>
+                {resultTable}
             </Container>
-        ) 
+        )
     }
 }

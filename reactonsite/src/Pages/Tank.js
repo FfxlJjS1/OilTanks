@@ -37,8 +37,6 @@ export class Tank extends Component {
         if (response.ok) {
             const data = await response.json();
 
-            console.log(data);
-
             this.setState({ tankCharacters: data, tableCharactersIsLoading: false });
         }
         else {
@@ -48,6 +46,7 @@ export class Tank extends Component {
 
     componentDidMount() {
         this.loadTanksList();
+        this.loadTankCharacter(1);
     }
 
     static renderTanksNameList(tanksName) {

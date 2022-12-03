@@ -10,8 +10,8 @@ export class Tank extends Component {
 
         this.state = {
             selectedeTankId: 1,
-            tanksName: [], tableNamesIsLoading: true,
-            tankCharacters: [], tableCharactersIsLoading: true
+            tanksName: null, tableNamesIsLoading: true,
+            tankCharacters: null, tableCharactersIsLoading: true
         };
     }
 
@@ -22,9 +22,10 @@ export class Tank extends Component {
             const data = await response.json();
 
             this.setState({ tanksName: data, tableNamesIsLoading: false });
+            this.loadTankCharacter(this.state.tanksName[0].id);
         }
         else {
-            this.setState({ tableNamesIsLoading: false });
+            this.setState({ tanksName: null, tableNamesIsLoading: false });
         }
     }
 
@@ -40,16 +41,15 @@ export class Tank extends Component {
             this.setState({ tankCharacters: data, tableCharactersIsLoading: false });
         }
         else {
-            this.setState({ tableCharactersIsLoading: false });
+            this.setState({ tankCharacters: null, tableCharactersIsLoading: false });
         }
     }
 
     componentDidMount() {
         this.loadTanksList();
-        this.loadTankCharacter(1);
     }
 
-    static renderTanksNameList(tanksName) {
+    renderTanksNameList(tanksName) {
         return (
             tanksName.map(tankName =>
                 <Nav.Item>
@@ -286,11 +286,15 @@ export class Tank extends Component {
 
     render() {
         let tanksNameList = this.state.tableNamesIsLoading
-            ? <>Cistern's names is loading...</>
-            : Tank.renderTanksNameList(this.state.tanksName);
+            ? <>Name of cisterns is loading...</>
+            : this.state.tanksName == null
+                ? <>Loading of name of cisterns is failed</>
+                : this.renderTanksNameList(this.state.tanksName);
         let tankCharacterTable = this.state.tableCharactersIsLoading
             ? <>Table is loading...</>
-            : this.renderTankCharactersTable();
+            : this.state.tankCharacters == null
+                ? <>Loading of table failed</>
+                : this.renderTankCharactersTable();
 
         return (
             <Container>

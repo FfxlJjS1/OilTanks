@@ -7,13 +7,36 @@ export class About extends Component {
     constructor(props) {
         super(props);
 
-        this.oilTypes = ["Девонская", "Сернистая"];
         this.apiUrl = props.apiUrl;
 
         this.state = {
-            oilValue: 0, waterValue: 0, oilType: this.oilTypes[0],
-            loadedResult: null, resultIsLoading: false
+            oilValue: 0, waterValue: 0, oilType: null,
+            loadedResult: null, resultIsLoading: false,
+            oilTypes: null, loadingOilTypes: false
         };
+    }
+
+    componentDidMount() {
+        this.loadOilTypes();
+    }
+
+    async loadOilTypes() {
+        this.setState({ loadingOilTypes: true });
+
+        const response = await fetch(this.apiUrl + "/OilTypes");
+
+        if (response.ok) {
+            const data = await response.json();
+
+            this.setState({ oilTypes: data, loadingOilTypes: false });
+
+            if (this.state.oilTypes != null) {
+                this.state.oilType = this.state.oilTypes[0];
+            }
+        }
+        else {
+            this.setState({ oilTypes: null, loadingOilTypes: false });
+        }
     }
 
     async enterAndLoadServerCalculation() {
@@ -88,6 +111,9 @@ export class About extends Component {
         let resultTable = !this.state.resultIsLoading && this.state.loadedResult != null
             ? this.renderResultTable()
             : null;
+        let oilTypesSelect = !this.state.loadingOilTypes && this.state.oilTypes != null
+            ? this.state.oilTypes.map(oilType => <option>{oilType}</option>)
+            : null;
 
         const handleClick = () => this.enterAndLoadServerCalculation();
 
@@ -99,8 +125,8 @@ export class About extends Component {
                         value={this.state.oilType}
                         onChange={e => this.setState({ oilType: e.target.value })}>
                         <Form.Label>Тип нефти</Form.Label>
-                        <Form.Select>
-                            {this.oilTypes.map(oilType => <option>{oilType}</option>)}
+                        <Form.Select disabled={this.state.oilTypes == null}>
+                            {oilTypesSelect}
                         </Form.Select>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formBasicEmail">
@@ -116,9 +142,9 @@ export class About extends Component {
                             onChange={e => this.setState({ waterValue: e.target.value })} />
                     </Form.Group>
                     <Button variant="primary" type="button"
-                        disabled={this.state.resultIsLoading}
+                        disabled={this.state.resultIsLoading || this.state.oilTypes == null}
                         onClick={!this.state.resultIsLoading ? handleClick : null}>
-                        {!this.state.resultIsLoading ? "Подробнее" : "Загружается"}
+                        {!this.state.resultIsLoading ? "Вычислить" : "Загружается"}
                     </Button>
                 </Form>
 

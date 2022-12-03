@@ -10,6 +10,7 @@ namespace BackendOfSite.Controllers
     public class CalculatorController : ControllerBase
     {
         DbCisternContext db;
+        string[] oilTypes = { "Девонская", "Сернистая" };
 
         public CalculatorController()
         {
@@ -25,16 +26,27 @@ namespace BackendOfSite.Controllers
             public int NeedCountForWork { get; set; }
         }
 
+        [HttpGet("OilTypes")]
+        public IActionResult GetOilTypes()
+        {
+            return Ok(oilTypes);
+        }
+
         [HttpGet]
         public IActionResult Calculate(string oilType, int oilValue, int waterValue)
         {
+            if (!oilTypes.Contains(oilType))
+            {
+                return NotFound();
+            }
+
             int settlingTimeBeforeDropping = 0,
                 settlingTimeBufferMaretial = 0,
                 settlingTimeProduct = 0,
                 settlingTimeTechWasteWater = 0,
                 settlingTimeBufferWasteWater = 0;
 
-            if(oilType == "Девонская")
+            if(oilType == oilTypes[0])
             {
                 settlingTimeBeforeDropping = 4;
                 settlingTimeBufferMaretial = 56;
@@ -42,7 +54,7 @@ namespace BackendOfSite.Controllers
                 settlingTimeTechWasteWater = 8;
                 settlingTimeBufferWasteWater = 6;
             }
-            else if(oilType == "Сернистая")
+            else if(oilType == oilTypes[1])
             {
                 settlingTimeBeforeDropping = 0;
                 settlingTimeBufferMaretial = 56;
@@ -53,35 +65,39 @@ namespace BackendOfSite.Controllers
 
             Dictionary<string, List<LineStruct>> data = new Dictionary<string, List<LineStruct>>();
 
-            int needVolumeM3 = 0;
+            int needVolumeM3 = 0, leftBetweenNominal = 0, rightBetweenNominal = 0;
+            float usefulVolume = 0f, needCount = 0f;
 
             List<LineStruct> beforeDropList = new List<LineStruct>();
 
-            needVolumeM3 = (oilValue + waterValue) / 24 * settlingTimeBeforeDropping;
-            int rightBetweenNominal = db.Cisterns.ToList().First(cistern => cistern.NominalVolumeM3 > needVolumeM3).NominalVolumeM3;
-            int leftBetweenNominal = db.Cisterns.ToList().Last(cistern => cistern.NominalVolumeM3 < needVolumeM3).NominalVolumeM3;
-            float usefulVolume = 0.7f;
-            float needCount = needVolumeM3 / (rightBetweenNominal * usefulVolume);
-
-            beforeDropList.Add(new LineStruct()
+            if (oilType == oilTypes[0])
             {
-                SettlingTimeHour = settlingTimeBeforeDropping,
-                RequiredVolume = needVolumeM3,
-                UsefulVolume = 0.7f,
-                NominalVolume = rightBetweenNominal,
-                NeedCountForWork = (int)Math.Ceiling(needCount)//(int)(needCount % 1 > 0 ? Math.Round(needCount) + 1 : Math.Round(needCount))
-            });
+                needVolumeM3 = (oilValue + waterValue) / 24 * settlingTimeBeforeDropping;
+                rightBetweenNominal = db.Cisterns.ToList().First(cistern => cistern.NominalVolumeM3 > needVolumeM3).NominalVolumeM3;
+                leftBetweenNominal = db.Cisterns.ToList().Last(cistern => cistern.NominalVolumeM3 < needVolumeM3).NominalVolumeM3;
+                usefulVolume = 0.7f;
+                needCount = needVolumeM3 / (rightBetweenNominal * usefulVolume);
 
-            needCount = needVolumeM3 / (leftBetweenNominal * usefulVolume);
+                beforeDropList.Add(new LineStruct()
+                {
+                    SettlingTimeHour = settlingTimeBeforeDropping,
+                    RequiredVolume = needVolumeM3,
+                    UsefulVolume = 0.7f,
+                    NominalVolume = rightBetweenNominal,
+                    NeedCountForWork = (int)Math.Ceiling(needCount)
+                });
 
-            beforeDropList.Add(new LineStruct()
-            {
-                SettlingTimeHour = settlingTimeBeforeDropping,
-                RequiredVolume = needVolumeM3,
-                UsefulVolume = 0.7f,
-                NominalVolume = leftBetweenNominal,
-                NeedCountForWork = (int)Math.Ceiling(needCount)//(int)(needCount % 1 > 0 ? Math.Round(needCount) + 1 : Math.Round(needCount))
-            });
+                needCount = needVolumeM3 / (leftBetweenNominal * usefulVolume);
+
+                beforeDropList.Add(new LineStruct()
+                {
+                    SettlingTimeHour = settlingTimeBeforeDropping,
+                    RequiredVolume = needVolumeM3,
+                    UsefulVolume = 0.7f,
+                    NominalVolume = leftBetweenNominal,
+                    NeedCountForWork = (int)Math.Ceiling(needCount)
+                });
+            }
 
             List<LineStruct> bufferMaterialList = new List<LineStruct>();
 
@@ -98,7 +114,7 @@ namespace BackendOfSite.Controllers
                 RequiredVolume = needVolumeM3,
                 UsefulVolume = usefulVolume,
                 NominalVolume = rightBetweenNominal,
-                NeedCountForWork = (int)Math.Ceiling(needCount)//(int)(needCount % 1 > 0 ? Math.Round(needCount) + 1 : Math.Round(needCount))
+                NeedCountForWork = (int)Math.Ceiling(needCount)
             });
 
             needCount = needVolumeM3 / (leftBetweenNominal * usefulVolume);
@@ -109,7 +125,7 @@ namespace BackendOfSite.Controllers
                 RequiredVolume = needVolumeM3,
                 UsefulVolume = usefulVolume,
                 NominalVolume = leftBetweenNominal,
-                NeedCountForWork = (int)Math.Ceiling(needCount)//(int)(needCount % 1 > 0 ? Math.Round(needCount) + 1 : Math.Round(needCount))
+                NeedCountForWork = (int)Math.Ceiling(needCount)
             });
 
             List<LineStruct> productList = new List<LineStruct>();
@@ -126,7 +142,7 @@ namespace BackendOfSite.Controllers
                 RequiredVolume = needVolumeM3,
                 UsefulVolume = usefulVolume,
                 NominalVolume = rightBetweenNominal,
-                NeedCountForWork = (int)Math.Ceiling(needCount)//(int)(needCount % 1 > 0 ? Math.Round(needCount) + 1 : Math.Round(needCount))
+                NeedCountForWork = (int)Math.Ceiling(needCount)
             });
 
             needCount = needVolumeM3 / (leftBetweenNominal * usefulVolume);
@@ -137,7 +153,7 @@ namespace BackendOfSite.Controllers
                 RequiredVolume = needVolumeM3,
                 UsefulVolume = usefulVolume,
                 NominalVolume = leftBetweenNominal,
-                NeedCountForWork = (int)Math.Ceiling(needCount)//(int)(needCount % 1 > 0 ? Math.Round(needCount) + 1 : Math.Round(needCount))
+                NeedCountForWork = (int)Math.Ceiling(needCount)
             });
 
             List<LineStruct> techWasteWaterList = new List<LineStruct>();
@@ -154,7 +170,7 @@ namespace BackendOfSite.Controllers
                 RequiredVolume = needVolumeM3,
                 UsefulVolume = usefulVolume,
                 NominalVolume = rightBetweenNominal,
-                NeedCountForWork = (int)Math.Ceiling(needCount)//(int)(needCount % 1 > 0 ? Math.Round(needCount) + 1 : Math.Round(needCount))
+                NeedCountForWork = (int)Math.Ceiling(needCount)
             });
 
             needCount = needVolumeM3 / (leftBetweenNominal * usefulVolume);
@@ -165,7 +181,7 @@ namespace BackendOfSite.Controllers
                 RequiredVolume = needVolumeM3,
                 UsefulVolume = usefulVolume,
                 NominalVolume = leftBetweenNominal,
-                NeedCountForWork = (int)Math.Ceiling(needCount)//(int)(needCount % 1 > 0 ? Math.Round(needCount) + 1 : Math.Round(needCount))
+                NeedCountForWork = (int)Math.Ceiling(needCount)
             });
 
             List<LineStruct> bufferWasteWaterList = new List<LineStruct>();
@@ -182,7 +198,7 @@ namespace BackendOfSite.Controllers
                 RequiredVolume = needVolumeM3,
                 UsefulVolume = usefulVolume,
                 NominalVolume = rightBetweenNominal,
-                NeedCountForWork = (int)Math.Ceiling(needCount)//(int)(needCount % 1 > 0 ? Math.Round(needCount) + 1 : Math.Round(needCount))
+                NeedCountForWork = (int)Math.Ceiling(needCount)
             });
 
             needCount = needVolumeM3 / (leftBetweenNominal * usefulVolume);
@@ -193,7 +209,7 @@ namespace BackendOfSite.Controllers
                 RequiredVolume = needVolumeM3,
                 UsefulVolume = usefulVolume,
                 NominalVolume = leftBetweenNominal,
-                NeedCountForWork = (int)Math.Ceiling(needCount)//(int)(needCount % 1 > 0 ? Math.Round(needCount) + 1 : Math.Round(needCount))
+                NeedCountForWork = (int)Math.Ceiling(needCount)
             });
 
 

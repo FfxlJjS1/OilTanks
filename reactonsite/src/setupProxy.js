@@ -11,5 +11,4 @@ module.exports = function (app) {
     });
 
     app.use(appProxy);
-    app.listen(3000);
 };

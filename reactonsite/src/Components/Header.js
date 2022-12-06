@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom"
 import {Home} from "../Pages/Home"
 import {Tank} from "../Pages/Tank"
 import {About} from "../Pages/About"
+import {Park} from "../Pages/Park"
 
 export default class Header extends Component{
     render() {
@@ -28,6 +29,7 @@ export default class Header extends Component{
                                 <Nav.Link href="/"> Главное меню </Nav.Link>
                                 <Nav.Link href="/tank"> Резервуар </Nav.Link>
                                 <Nav.Link href="/about"> Онлайн калькулятор </Nav.Link>
+                                <Nav.Link href="/park"> Расчет по парку </Nav.Link>
                             </Nav>
                             <Form country-info-list="true">
                                 <FormControl
@@ -44,9 +46,10 @@ export default class Header extends Component{
                         <Route exact path="/" element={<Home />} />
                         <Route exact path="/tank" element={<Tank apiUrl="api/Tank" />} />
                         <Route exact path="/about" element={<About apiUrl="api/Calculator" />} />
+                        <Route exact path="/park" element={<Park apiUrl="api/Park" />} />
                     </Routes>
                 </Router>
             </>
-        )
+        );
     }
 }

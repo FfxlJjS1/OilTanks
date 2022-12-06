@@ -3,7 +3,7 @@ import { Button, Container, Form } from "react-bootstrap"
 import { Table } from "react-bootstrap"
 
 
-export class About extends Component {
+export class Park extends Component {
     constructor(props) {
         super(props);
 
@@ -123,7 +123,7 @@ export class About extends Component {
                     <Form.Group className="mb-3" controlId="formBasicEmail"
                         value={this.state.oilType}
                         onChange={e => this.setState({ oilType: e.target.value })}>
-                        <Form.Label>Тип резервуара</Form.Label>
+                        <Form.Label> Товарный парк </Form.Label>
                         <Form.Select disabled={this.state.oilTypes == null}>
                             {oilTypesSelect}
                         </Form.Select>
@@ -131,22 +131,10 @@ export class About extends Component {
                     <Form.Group className="mb-3" controlId="formBasicEmail"
                         value={this.state.oilType}
                         onChange={e => this.setState({ oilType: e.target.value })}>
-                        <Form.Label>Тип нефти</Form.Label>
+                        <Form.Label>Тип резервуара</Form.Label>
                         <Form.Select disabled={this.state.oilTypes == null}>
                             {oilTypesSelect}
                         </Form.Select>
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>Нефть</Form.Label>
-                        <Form.Control type="text" placeholder="обьём м³"
-                            value={this.state.oilValue}
-                            onChange={e => this.setState({ oilValue: e.target.value })} />
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>Вода</Form.Label>
-                        <Form.Control type="text" placeholder="обьём м³"
-                            value={this.state.waterValue}
-                            onChange={e => this.setState({ waterValue: e.target.value })} />
                     </Form.Group>
                     <Button variant="primary" type="button"
                         disabled={this.state.resultIsLoading || this.state.oilTypes == null}

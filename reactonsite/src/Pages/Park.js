@@ -10,42 +10,62 @@ export class Park extends Component {
         this.apiUrl = props.apiUrl;
 
         this.state = {
-            oilValue: 0, waterValue: 0, oilType: null,
+            commodityParkId: null, tankType: null,
             loadedResult: null, resultIsLoading: false,
-            oilTypes: null, loadingOilTypes: false
+            commodityParks: null, loadingCommodityParks: false,
+            tankTypes: null, loadingTankTypes: false
         };
     }
 
     componentDidMount() {
-        this.loadOilTypes();
+        this.loadCommodityPark();
+        this.loadTankTypes();
     }
 
-    async loadOilTypes() {
-        this.setState({ loadingOilTypes: true });
+    async loadCommodityPark() {
+        this.setState({ loadingCommodityParks: true });
 
-        const response = await fetch(this.apiUrl + "/OilTypes");
+        const response = await fetch(this.apiUrl + "/CommodityParks");
 
         if (response.ok) {
             const data = await response.json();
 
-            this.setState({ oilTypes: data, loadingOilTypes: false });
+            this.setState({ commodityParks: data, loadingCommodityParks: false });
 
-            if (this.state.oilTypes != null) {
-                this.state.oilType = this.state.oilTypes[0];
+            if (this.state.commodityParks != null) {
+                this.state.commodityParkId = this.state.commodityParks[0].tovpId;
             }
         }
         else {
-            this.setState({ oilTypes: null, loadingOilTypes: false });
+            this.setState({ commodityParks: null, loadingCommodityParks: false });
+        }
+    }
+
+    async loadTankTypes() {
+        this.setState({ loadingOilTypes: true });
+
+        const response = await fetch(this.apiUrl + "/TankTypes");
+
+        if (response.ok) {
+            const data = await response.json();
+
+            this.setState({ tankTypes: data, loadingTankTypes: false });
+
+            if (this.state.tankTypes != null) {
+                this.state.tankType = this.state.tankTypes[0];
+            }
+        }
+        else {
+            this.setState({ tankTypes: null, loadingTankTypes: false });
         }
     }
 
     async enterAndLoadServerCalculation() {
         this.setState({ resultIsLoading: true });
 
-        const response = await fetch(this.apiUrl + "?" +
-            "oilType=" + this.state.oilType + "&" +
-            "oilValue=" + this.state.oilValue + "&" +
-            "waterValue=" + this.state.waterValue);
+        const response = await fetch(this.apiUrl + "/CalculateByCommodityPark?" +
+            "commodityParkId=" + this.state.commodityParkId + "&" +
+            "tankType=" + this.state.tankType);
 
         if (response.ok) {
             const data = await response.json();
@@ -58,31 +78,18 @@ export class Park extends Component {
     }
 
     renderResultTable() {
-        const storageTanksDestinationArr = Object.keys(this.state.loadedResult);
-
-        const tdRows = (storageTanksDestinationArr, data) => {
+        const tdRows = (data) => {
             let content = [];
 
-            for (let key of storageTanksDestinationArr) {
-                let firstRow = true;
-                const currentTankData = data[key];
-                const rowsCount = currentTankData.length;
-
-                for (let rowIndex = 0; rowIndex < rowsCount; rowIndex++) {
-                    const currentRow = currentTankData[rowIndex];
-
-                    content.push(
-                        <tr>
-                            {firstRow ? <td rowSpan={rowsCount}>{key}</td> : null}
-                            <td>{currentRow.settlingTimeHour}</td>
-                            <td>{currentRow.requiredVolume}</td>
-                            <td>{currentRow.usefulVolume}</td>
-                            <td>{currentRow.nominalVolume}</td>
-                            <td>{currentRow.needCountForWork}</td>
-                        </tr>);
-
-                    firstRow = false;
-                }
+            for (let row of data) {
+                content.push(
+                    <tr>
+                        <td>{row.settlingTimeHour}</td>
+                        <td>{row.requiredVolume}</td>
+                        <td>{row.usefulVolume}</td>
+                        <td>{row.nominalVolume}</td>
+                        <td>{row.needCountForWork}</td>
+                    </tr>);
             }
 
             return content;
@@ -92,7 +99,6 @@ export class Park extends Component {
             <Table striped bordred hover>
                 <tbody>
                     <tr>
-                        <th>Назначение резервуара (отстойника)</th>
                         <th>Время отстоя, хранения, час</th>
                         <th>Требуемая  емкость РВС и отстойников, м3</th>
                         <th>Полезный объем (коэф.заполнения)</th>
@@ -101,18 +107,22 @@ export class Park extends Component {
                     </tr>
                 </tbody>
                 <tbody>
-                    {tdRows(storageTanksDestinationArr, this.state.loadedResult)}
+                    {tdRows(this.state.loadedResult)}
                 </tbody>
             </Table>
         );
     }
 
     render() {
+        let commodityParksSelect = !this.state.loadingCommodityParks && this.state.commodityParks != null
+            ? this.state.commodityParks.map(commodityPark =>
+                <option value={commodityPark.tovpId}>{commodityPark.name}</option>)
+            : null;
+        let tankTypesSelect = !this.state.loadingTankTypes && this.state.tankTypes != null
+            ? this.state.tankTypes.map(tankType => <option>{tankType}</option>)
+            : null;
         let resultTable = !this.state.resultIsLoading && this.state.loadedResult != null
             ? this.renderResultTable()
-            : null;
-        let oilTypesSelect = !this.state.loadingOilTypes && this.state.oilTypes != null
-            ? this.state.oilTypes.map(oilType => <option>{oilType}</option>)
             : null;
 
         const handleClick = () => this.enterAndLoadServerCalculation();
@@ -121,23 +131,23 @@ export class Park extends Component {
             <Container style={{ width: '500px' }}>
                 <Form>
                     <Form.Group className="mb-3" controlId="formBasicEmail"
-                        value={this.state.oilType}
-                        onChange={e => this.setState({ oilType: e.target.value })}>
+                        value={this.state.commodityParkId}
+                        onChange={e => this.setState({ commodityParkId: e.target.value })}>
                         <Form.Label> Товарный парк </Form.Label>
-                        <Form.Select disabled={this.state.oilTypes == null}>
-                            {oilTypesSelect}
+                        <Form.Select disabled={this.state.commodityParks == null}>
+                            {commodityParksSelect}
                         </Form.Select>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formBasicEmail"
-                        value={this.state.oilType}
-                        onChange={e => this.setState({ oilType: e.target.value })}>
+                        value={this.state.tankType}
+                        onChange={e => this.setState({ tankType: e.target.value })}>
                         <Form.Label>Тип резервуара</Form.Label>
-                        <Form.Select disabled={this.state.oilTypes == null}>
-                            {oilTypesSelect}
+                        <Form.Select disabled={this.state.tankTypes == null}>
+                            {tankTypesSelect}
                         </Form.Select>
                     </Form.Group>
                     <Button variant="primary" type="button"
-                        disabled={this.state.resultIsLoading || this.state.oilTypes == null}
+                        disabled={this.state.resultIsLoading || this.state.tankTypes == null}
                         onClick={!this.state.resultIsLoading ? handleClick : null}>
                         {!this.state.resultIsLoading ? "Подробнее" : "Загружается"}
                     </Button>

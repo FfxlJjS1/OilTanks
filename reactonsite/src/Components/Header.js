@@ -1,7 +1,8 @@
 import React, { Component } from "react"
 import { Navbar, Nav, FormControl, Container, Form, Button  } from 'react-bootstrap'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+
 import logo from './logo.png'
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom"
 
 import {Home} from "../Pages/Home"
 import {Tank} from "../Pages/Tank"
@@ -46,7 +47,7 @@ export default class Header extends Component{
                         <Route exact path="/" element={<Home />} />
                         <Route exact path="/tank" element={<Tank apiUrl="api/Tank" />} />
                         <Route exact path="/about" element={<About apiUrl="api/Calculator" />} />
-                        <Route exact path="/park" element={<Park apiUrl="api/Park" />} />
+                        <Route exact path="/park" element={<Park apiUrl="api/Calculator" />} />
                     </Routes>
                 </Router>
             </>

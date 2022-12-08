@@ -7,14 +7,14 @@ namespace BackendOfSite.Controllers
     [Route("api/[controller]")]
     public class TankController : Controller
     {
-        DbCisternContext db;
+        private readonly DbCisternContext db;
 
-        public TankController()
+        public TankController(DbCisternContext context)
         {
-            db = new DbCisternContext();
+            db = context;
         }
 
-        [HttpGet("")]
+        [HttpGet]
         public IActionResult GetTankNames()
         {
             return Ok(from cistern in db.Cisterns.ToList()
@@ -25,7 +25,7 @@ namespace BackendOfSite.Controllers
                       });
         }
 
-        [HttpGet("TankCharacters/{tankId:int}")]
+        [HttpGet("TankCharacters")]
         public IActionResult GetTankCharacters(int tankId)
         {
             var cistern = db.Cisterns.ToList().FirstOrDefault(cistern => cistern.CisternId == tankId);

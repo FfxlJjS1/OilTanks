@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace BackendOfSite.Controllers
 {
@@ -9,12 +10,13 @@ namespace BackendOfSite.Controllers
     [Route("api/[controller]")]
     public class CalculatorController : ControllerBase
     {
-        DbCisternContext db;
-        string[] oilTypes = { "Девонская", "Сернистая" };
+        private readonly DbCisternContext db;
+        readonly string[] tankTypes = { "Предв.сброс", "Буф.сырье", "Товар.", "Тех.сточ.воды", "Буф.сточ.воды" };
+        readonly string[] oilTypes = { "Девонская", "Сернистая" };
 
-        public CalculatorController()
+        public CalculatorController(DbCisternContext context)
         {
-            db = new DbCisternContext();
+            db = context;
         }
 
         public class LineStruct
@@ -26,27 +28,85 @@ namespace BackendOfSite.Controllers
             public int NeedCountForWork { get; set; }
         }
 
+        [HttpGet("CommodityParks")]
+        public IActionResult GetCommodityParks()
+        {
+            return Ok(db.Tovps.ToList().Select(row => new { row.TovpId, row.Name }));
+        }
+
+        [HttpGet("TankTypes")]
+        public IActionResult GetTankTypes()
+        {
+            return Ok(tankTypes);
+        }
+
         [HttpGet("OilTypes")]
         public IActionResult GetOilTypes()
         {
             return Ok(oilTypes);
         }
 
-        [HttpGet]
-        public IActionResult Calculate(string oilType, int oilValue, int waterValue)
+        [HttpGet("CalculateByCommodityPark")]
+        public IActionResult Calculate(int commodityParkId, string tankType)
         {
-            if (!oilTypes.Contains(oilType))
+            int tankTypeId = Array.IndexOf(tankTypes, tankType),
+                oilTypeId = 0;
+            decimal maxOil = -1, maxWater = -1;
+
+            maxOil = db.Debets.Include(p => p.Tovp).Where(p => p.TovpId == commodityParkId)
+                .GroupBy(x => new { x.Month, x.Year },
+                    (key, group) => new { key.Month, key.Year, Result = group.Sum(x => x.QnPred) })
+                .Max(x => x.Result) ?? -1;
+
+            maxWater = db.Debets.Include(p => p.Tovp).Where(p => p.TovpId == commodityParkId)
+                .GroupBy(x => new { x.Month, x.Year },
+                    (key, group) => new { key.Month, key.Year, Result = group.Sum(x => x.QwPred) })
+                .Max(x => x.Result) ?? -1;
+
+            if (maxOil != -1 && maxWater != -1)
+            {
+                return Ok(CalculateByNW(tankTypeId, oilTypeId, (int)maxOil, (int)maxWater));
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet("CalculateByValues")]
+        public IActionResult Calculate(string tankType, string oilType, int oilValue, int waterValue)
+        {
+            int tankTypeId = Array.IndexOf(tankTypes, tankType),
+                oilTypeId = Array.IndexOf(oilTypes, oilType);
+
+            if (tankTypeId == -1 || oilTypeId == -1)
             {
                 return NotFound();
             }
 
+            List<LineStruct> data;
+
+            if(tankTypeId <= 4)
+            {
+                data = CalculateByNW(tankTypeId, oilTypeId, oilValue, waterValue);
+            }
+            else // If it's not realized
+            {
+                return NotFound();
+            }
+
+            return Ok(data);
+        }
+
+        private List<LineStruct> CalculateByNW(int tankTypeId, int oilTypeId, int oilValue, int waterValue)
+        {
             int settlingTimeBeforeDropping = 0,
                 settlingTimeBufferMaretial = 0,
                 settlingTimeProduct = 0,
                 settlingTimeTechWasteWater = 0,
                 settlingTimeBufferWasteWater = 0;
 
-            if(oilType == oilTypes[0])
+            if (oilTypeId == 0)
             {
                 settlingTimeBeforeDropping = 4;
                 settlingTimeBufferMaretial = 56;
@@ -54,7 +114,7 @@ namespace BackendOfSite.Controllers
                 settlingTimeTechWasteWater = 8;
                 settlingTimeBufferWasteWater = 6;
             }
-            else if(oilType == oilTypes[1])
+            else if (oilTypeId == 1)
             {
                 settlingTimeBeforeDropping = 0;
                 settlingTimeBufferMaretial = 56;
@@ -63,54 +123,48 @@ namespace BackendOfSite.Controllers
                 settlingTimeBufferWasteWater = 6;
             }
 
-            Dictionary<string, List<LineStruct>> data = new Dictionary<string, List<LineStruct>>();
+            List<LineStruct> data = new List<LineStruct>();
 
-            int needVolumeM3 = 0, leftBetweenNominal = 0, rightBetweenNominal = 0;
-            float usefulVolume = 0f, needCount = 0f;
-
-            List<LineStruct> beforeDropList = new List<LineStruct>();
-
-            if (oilType == oilTypes[0])
+            if (tankTypeId == 0) // before drop
             {
-                needVolumeM3 = (oilValue + waterValue) / 24 * settlingTimeBeforeDropping;
-                rightBetweenNominal = db.Cisterns.ToList().First(cistern => cistern.NominalVolumeM3 > needVolumeM3).NominalVolumeM3;
-                leftBetweenNominal = db.Cisterns.ToList().Last(cistern => cistern.NominalVolumeM3 < needVolumeM3).NominalVolumeM3;
-                usefulVolume = 0.7f;
-                needCount = needVolumeM3 / (rightBetweenNominal * usefulVolume);
-
-                beforeDropList.Add(new LineStruct()
+                if (oilTypeId == 0)
                 {
-                    SettlingTimeHour = settlingTimeBeforeDropping,
-                    RequiredVolume = needVolumeM3,
-                    UsefulVolume = 0.7f,
-                    NominalVolume = rightBetweenNominal,
-                    NeedCountForWork = (int)Math.Ceiling(needCount)
-                });
-
-                needCount = needVolumeM3 / (leftBetweenNominal * usefulVolume);
-
-                beforeDropList.Add(new LineStruct()
-                {
-                    SettlingTimeHour = settlingTimeBeforeDropping,
-                    RequiredVolume = needVolumeM3,
-                    UsefulVolume = 0.7f,
-                    NominalVolume = leftBetweenNominal,
-                    NeedCountForWork = (int)Math.Ceiling(needCount)
-                });
+                    data = calculateTanksForParametrs(settlingTimeBeforeDropping, oilValue, waterValue, 0.7f);
+                }
+            }
+            else if (tankTypeId == 1) // buff materials
+            {
+                data = calculateTanksForParametrs(settlingTimeBufferMaretial, oilValue, waterValue, 0.85f);
+            }
+            else if (tankTypeId == 2) // Product
+            {
+                data = calculateTanksForParametrs(settlingTimeProduct, oilValue, waterValue, 0.9f);
+            }
+            else if (tankTypeId == 3) // Technical waste water
+            {
+                data = calculateTanksForParametrs(settlingTimeTechWasteWater, oilValue, waterValue, 0.9f);
+            }
+            else if (tankTypeId == 4) // Buffer waste water
+            {
+                data = calculateTanksForParametrs(settlingTimeBufferWasteWater, oilValue, waterValue, 0.8f);
             }
 
-            List<LineStruct> bufferMaterialList = new List<LineStruct>();
+            return data;
+        }
 
+        private List<LineStruct> calculateTanksForParametrs(int settlingTime, float oilValue, float waterValue, float usefulVolume)
+        {
+            List<LineStruct> result = new List<LineStruct>();
 
-            needVolumeM3 = oilValue / 24 * settlingTimeBufferMaretial;
-            rightBetweenNominal = db.Cisterns.ToList().First(cistern => cistern.NominalVolumeM3 > needVolumeM3).NominalVolumeM3;
-            leftBetweenNominal = db.Cisterns.ToList().Last(cistern => cistern.NominalVolumeM3 < needVolumeM3).NominalVolumeM3;
-            usefulVolume = 0.85f;
-            needCount = needVolumeM3 / (rightBetweenNominal * usefulVolume);
+            int needVolumeM3 = (int)Math.Ceiling((oilValue + waterValue) / 24 * settlingTime);
+            var rightBetweenNominal = db.Cisterns.ToList().First(cistern => cistern.NominalVolumeM3 > needVolumeM3).NominalVolumeM3;
+            var leftBetweenNominal = db.Cisterns.ToList().Last(cistern => cistern.NominalVolumeM3 < needVolumeM3).NominalVolumeM3;
+            usefulVolume = 0.7f;
+            var needCount = needVolumeM3 / (rightBetweenNominal * usefulVolume);
 
-            bufferMaterialList.Add(new LineStruct()
+            result.Add(new LineStruct()
             {
-                SettlingTimeHour = settlingTimeBufferMaretial,
+                SettlingTimeHour = settlingTime,
                 RequiredVolume = needVolumeM3,
                 UsefulVolume = usefulVolume,
                 NominalVolume = rightBetweenNominal,
@@ -119,107 +173,16 @@ namespace BackendOfSite.Controllers
 
             needCount = needVolumeM3 / (leftBetweenNominal * usefulVolume);
 
-            bufferMaterialList.Add(new LineStruct()
+            result.Add(new LineStruct()
             {
-                SettlingTimeHour = settlingTimeBufferMaretial,
+                SettlingTimeHour = settlingTime,
                 RequiredVolume = needVolumeM3,
                 UsefulVolume = usefulVolume,
                 NominalVolume = leftBetweenNominal,
                 NeedCountForWork = (int)Math.Ceiling(needCount)
             });
 
-            List<LineStruct> productList = new List<LineStruct>();
-
-            needVolumeM3 = oilValue / 24 * settlingTimeProduct;
-            rightBetweenNominal = db.Cisterns.ToList().First(cistern => cistern.NominalVolumeM3 > needVolumeM3).NominalVolumeM3;
-            leftBetweenNominal = db.Cisterns.ToList().Last(cistern => cistern.NominalVolumeM3 < needVolumeM3).NominalVolumeM3;
-            usefulVolume = 0.9f;
-            needCount = needVolumeM3 / (rightBetweenNominal * usefulVolume);
-
-            productList.Add(new LineStruct()
-            {
-                SettlingTimeHour = settlingTimeProduct,
-                RequiredVolume = needVolumeM3,
-                UsefulVolume = usefulVolume,
-                NominalVolume = rightBetweenNominal,
-                NeedCountForWork = (int)Math.Ceiling(needCount)
-            });
-
-            needCount = needVolumeM3 / (leftBetweenNominal * usefulVolume);
-
-            productList.Add(new LineStruct()
-            {
-                SettlingTimeHour = settlingTimeProduct,
-                RequiredVolume = needVolumeM3,
-                UsefulVolume = usefulVolume,
-                NominalVolume = leftBetweenNominal,
-                NeedCountForWork = (int)Math.Ceiling(needCount)
-            });
-
-            List<LineStruct> techWasteWaterList = new List<LineStruct>();
-
-            needVolumeM3 = waterValue / 24 * settlingTimeTechWasteWater;
-            rightBetweenNominal = db.Cisterns.ToList().First(cistern => cistern.NominalVolumeM3 > needVolumeM3).NominalVolumeM3;
-            leftBetweenNominal = db.Cisterns.ToList().Last(cistern => cistern.NominalVolumeM3 < needVolumeM3).NominalVolumeM3;
-            usefulVolume = 0.9f;
-            needCount = needVolumeM3 / (rightBetweenNominal * usefulVolume);
-
-            techWasteWaterList.Add(new LineStruct()
-            {
-                SettlingTimeHour = settlingTimeTechWasteWater,
-                RequiredVolume = needVolumeM3,
-                UsefulVolume = usefulVolume,
-                NominalVolume = rightBetweenNominal,
-                NeedCountForWork = (int)Math.Ceiling(needCount)
-            });
-
-            needCount = needVolumeM3 / (leftBetweenNominal * usefulVolume);
-
-            techWasteWaterList.Add(new LineStruct()
-            {
-                SettlingTimeHour = settlingTimeTechWasteWater,
-                RequiredVolume = needVolumeM3,
-                UsefulVolume = usefulVolume,
-                NominalVolume = leftBetweenNominal,
-                NeedCountForWork = (int)Math.Ceiling(needCount)
-            });
-
-            List<LineStruct> bufferWasteWaterList = new List<LineStruct>();
-
-            needVolumeM3 = waterValue / 24 * settlingTimeBufferWasteWater;
-            rightBetweenNominal = db.Cisterns.ToList().First(cistern => cistern.NominalVolumeM3 > needVolumeM3).NominalVolumeM3;
-            leftBetweenNominal = db.Cisterns.ToList().Last(cistern => cistern.NominalVolumeM3 < needVolumeM3).NominalVolumeM3;
-            usefulVolume = 0.8f;
-            needCount = needVolumeM3 / (rightBetweenNominal * usefulVolume);
-
-            bufferWasteWaterList.Add(new LineStruct()
-            {
-                SettlingTimeHour = settlingTimeBufferWasteWater,
-                RequiredVolume = needVolumeM3,
-                UsefulVolume = usefulVolume,
-                NominalVolume = rightBetweenNominal,
-                NeedCountForWork = (int)Math.Ceiling(needCount)
-            });
-
-            needCount = needVolumeM3 / (leftBetweenNominal * usefulVolume);
-
-            bufferWasteWaterList.Add(new LineStruct()
-            {
-                SettlingTimeHour = settlingTimeBufferWasteWater,
-                RequiredVolume = needVolumeM3,
-                UsefulVolume = usefulVolume,
-                NominalVolume = leftBetweenNominal,
-                NeedCountForWork = (int)Math.Ceiling(needCount)
-            });
-
-
-            data.Add("Предв.сброс", beforeDropList);
-            data.Add("Буф.сырье", bufferMaterialList);
-            data.Add("Товарн.", productList);
-            data.Add("Тех.сточ.воды", techWasteWaterList);
-            data.Add("Буф.сточ.воды", bufferWasteWaterList);
-
-            return Ok(data);
+            return result;
         }
     }
 }

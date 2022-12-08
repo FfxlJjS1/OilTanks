@@ -2,7 +2,6 @@ import React, { Component }  from "react"
 import { Button, Container, Form } from "react-bootstrap"
 import { Table } from "react-bootstrap"
 
-
 export class About extends Component {
     constructor(props) {
         super(props);
@@ -10,14 +9,35 @@ export class About extends Component {
         this.apiUrl = props.apiUrl;
 
         this.state = {
-            oilValue: 0, waterValue: 0, oilType: null,
-            loadedResult: null, resultIsLoading: false,
-            oilTypes: null, loadingOilTypes: false
+            tankType: null, oilType: null, oilValue: 0, waterValue: 0, 
+            tankTypes: null, loadingTankTypes: false,
+            oilTypes: null, loadingOilTypes: false,
+            loadedResult: null, resultIsLoading: false
         };
     }
 
     componentDidMount() {
+        this.loadTankTypes();
         this.loadOilTypes();
+    }
+
+    async loadTankTypes() {
+        this.setState({ loadingTankTypes: true });
+
+        const response = await fetch(this.apiUrl + "/TankTypes");
+
+        if (response.ok) {
+            const data = await response.json();
+
+            this.setState({ tankTypes: data, loadingTankTypes: false });
+
+            if (this.state.tankTypes != null) { // Problem with loading
+                this.state.tankType = this.state.tankTypes[0];
+            }
+        }
+        else {
+            this.setState({ tankTypes: null, loadingTankTypes: false });
+        }
     }
 
     async loadOilTypes() {
@@ -30,7 +50,7 @@ export class About extends Component {
 
             this.setState({ oilTypes: data, loadingOilTypes: false });
 
-            if (this.state.oilTypes != null) {
+            if (this.state.oilTypes != null) { // Problem with loading
                 this.state.oilType = this.state.oilTypes[0];
             }
         }
@@ -42,7 +62,8 @@ export class About extends Component {
     async enterAndLoadServerCalculation() {
         this.setState({ resultIsLoading: true });
 
-        const response = await fetch(this.apiUrl + "?" +
+        const response = await fetch(this.apiUrl + "/CalculateByValues?" +
+            "tankType=" + this.state.tankType + "&" +
             "oilType=" + this.state.oilType + "&" +
             "oilValue=" + this.state.oilValue + "&" +
             "waterValue=" + this.state.waterValue);
@@ -58,31 +79,18 @@ export class About extends Component {
     }
 
     renderResultTable() {
-        const storageTanksDestinationArr = Object.keys(this.state.loadedResult);
-
-        const tdRows = (storageTanksDestinationArr, data) => {
+        const tdRows = (data) => {
             let content = [];
 
-            for (let key of storageTanksDestinationArr) {
-                let firstRow = true;
-                const currentTankData = data[key];
-                const rowsCount = currentTankData.length;
-
-                for (let rowIndex = 0; rowIndex < rowsCount; rowIndex++) {
-                    const currentRow = currentTankData[rowIndex];
-
-                    content.push(
-                        <tr>
-                            {firstRow ? <td rowSpan={rowsCount}>{key}</td> : null}
-                            <td>{currentRow.settlingTimeHour}</td>
-                            <td>{currentRow.requiredVolume}</td>
-                            <td>{currentRow.usefulVolume}</td>
-                            <td>{currentRow.nominalVolume}</td>
-                            <td>{currentRow.needCountForWork}</td>
-                        </tr>);
-
-                    firstRow = false;
-                }
+            for (let row of data) {
+                content.push(
+                    <tr>
+                        <td>{row.settlingTimeHour}</td>
+                        <td>{row.requiredVolume}</td>
+                        <td>{row.usefulVolume}</td>
+                        <td>{row.nominalVolume}</td>
+                        <td>{row.needCountForWork}</td>
+                    </tr>);
             }
 
             return content;
@@ -92,7 +100,6 @@ export class About extends Component {
             <Table striped bordred hover>
                 <tbody>
                     <tr>
-                        <th>Назначение резервуара (отстойника)</th>
                         <th>Время отстоя, хранения, час</th>
                         <th>Требуемая  емкость РВС и отстойников, м3</th>
                         <th>Полезный объем (коэф.заполнения)</th>
@@ -101,18 +108,21 @@ export class About extends Component {
                     </tr>
                 </tbody>
                 <tbody>
-                    {tdRows(storageTanksDestinationArr, this.state.loadedResult)}
+                    {tdRows(this.state.loadedResult)}
                 </tbody>
             </Table>
         );
     }
 
     render() {
-        let resultTable = !this.state.resultIsLoading && this.state.loadedResult != null
-            ? this.renderResultTable()
+        let tankTypesSelect = !this.state.loadingTankTypes && this.state.tankTypes != null
+            ? this.state.tankTypes.map(tankType => <option>{tankType}</option>)
             : null;
         let oilTypesSelect = !this.state.loadingOilTypes && this.state.oilTypes != null
             ? this.state.oilTypes.map(oilType => <option>{oilType}</option>)
+            : null;
+        let resultTable = !this.state.resultIsLoading && this.state.loadedResult != null
+            ? this.renderResultTable()
             : null;
 
         const handleClick = () => this.enterAndLoadServerCalculation();
@@ -122,10 +132,10 @@ export class About extends Component {
                 <Form>
                     <Form.Group className="mb-3" controlId="formBasicEmail"
                         value={this.state.oilType}
-                        onChange={e => this.setState({ oilType: e.target.value })}>
+                        onChange={e => this.setState({ tankType: e.target.value })}>
                         <Form.Label>Тип резервуара</Form.Label>
-                        <Form.Select disabled={this.state.oilTypes == null}>
-                            {oilTypesSelect}
+                        <Form.Select disabled={this.state.tankTypes == null}>
+                            {tankTypesSelect}
                         </Form.Select>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formBasicEmail"
@@ -149,7 +159,8 @@ export class About extends Component {
                             onChange={e => this.setState({ waterValue: e.target.value })} />
                     </Form.Group>
                     <Button variant="primary" type="button"
-                        disabled={this.state.resultIsLoading || this.state.oilTypes == null}
+                        disabled={this.state.resultIsLoading ||
+                            this.state.oilTypes == null || this.state.tankType == null}
                         onClick={!this.state.resultIsLoading ? handleClick : null}>
                         {!this.state.resultIsLoading ? "Подробнее" : "Загружается"}
                     </Button>

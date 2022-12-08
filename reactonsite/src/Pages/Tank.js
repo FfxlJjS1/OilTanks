@@ -22,7 +22,10 @@ export class Tank extends Component {
             const data = await response.json();
 
             this.setState({ tanksName: data, tableNamesIsLoading: false });
-            this.loadTankCharacter(this.state.tanksName[0].id);
+
+            if (this.state.tanksName != null) {
+                this.loadTankCharacter(this.state.tanksName[0].id);
+            }
         }
         else {
             this.setState({ tanksName: null, tableNamesIsLoading: false });
@@ -33,7 +36,7 @@ export class Tank extends Component {
         this.setState({ tableCharactersIsLoading: true });
         this.setState({ selectedTankId: tankId });
 
-        const response = await fetch(this.apiUrl + "/TankCharacters/" + tankId);
+        const response = await fetch(this.apiUrl + "/TankCharacters?tankId=" + tankId);
 
         if (response.ok) {
             const data = await response.json();
@@ -66,7 +69,7 @@ export class Tank extends Component {
                     <tr>
                         <th>№</th>
                         <th>Номинальный объем, м³</th>
-                        <th>1{this.state.tankCharacters.nominalVolumeM3 }</th>
+                        <th>{this.state.tankCharacters.nominalVolumeM3 }</th>
                     </tr>
                 </tbody>
                 <tbody>
@@ -276,8 +279,8 @@ export class Tank extends Component {
                             this.state.tankCharacters.roofPlatformKg +
                             this.state.tankCharacters.hatchPipeKg +
                             this.state.tankCharacters.accessoriesKg +
-                            this.state.tankCharacters.carcassPackKg
-}</td>
+                            this.state.tankCharacters.carcassPackKg}
+                        </td>
                     </tr>
                 </tbody>
             </Table>

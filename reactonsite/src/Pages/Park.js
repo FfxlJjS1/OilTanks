@@ -149,7 +149,7 @@ export class Park extends Component {
                     <Button variant="primary" type="button"
                         disabled={this.state.resultIsLoading || this.state.tankTypes == null}
                         onClick={!this.state.resultIsLoading ? handleClick : null}>
-                        {!this.state.resultIsLoading ? "Подробнее" : "Загружается"}
+                        {!this.state.resultIsLoading ? "Вычислить" : "Загружается"}
                     </Button>
                 </Form>
 

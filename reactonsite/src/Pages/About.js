@@ -9,7 +9,7 @@ export class About extends Component {
         this.apiUrl = props.apiUrl;
 
         this.state = {
-            tankType: null, oilType: null, oilValue: 0, waterValue: 0, 
+            tankType: null, oilType: null, oilValue: 0, waterValue: 0,
             tankTypes: null, loadingTankTypes: false,
             oilTypes: null, loadingOilTypes: false,
             loadedResult: null, resultIsLoading: false
@@ -22,45 +22,43 @@ export class About extends Component {
     }
 
     async loadTankTypes() {
-        this.setState({ loadingTankTypes: true });
+        this.setState({ tankTypes: null, tankType: null, loadingTankTypes: true });
 
         const response = await fetch(this.apiUrl + "/TankTypes");
 
         if (response.ok) {
             const data = await response.json();
 
-            this.setState({ tankTypes: data, loadingTankTypes: false });
+            this.setState({ tankTypes: data });
 
             if (this.state.tankTypes != null) { // Problem with loading
                 this.state.tankType = this.state.tankTypes[0];
             }
         }
-        else {
-            this.setState({ tankTypes: null, loadingTankTypes: false });
-        }
+
+        this.setState({ loadingTankTypes: false });
     }
 
     async loadOilTypes() {
-        this.setState({ loadingOilTypes: true });
+        this.setState({ oilTypes: null, oilType: null, loadingOilTypes: true });
 
         const response = await fetch(this.apiUrl + "/OilTypes");
 
         if (response.ok) {
             const data = await response.json();
 
-            this.setState({ oilTypes: data, loadingOilTypes: false });
+            this.setState({ oilTypes: data });
 
             if (this.state.oilTypes != null) { // Problem with loading
                 this.state.oilType = this.state.oilTypes[0];
             }
         }
-        else {
-            this.setState({ oilTypes: null, loadingOilTypes: false });
-        }
+
+        this.setState({ loadingOilTypes: false });
     }
 
     async enterAndLoadServerCalculation() {
-        this.setState({ resultIsLoading: true });
+        this.setState({ loadedResult: null, resultIsLoading: true });
 
         const response = await fetch(this.apiUrl + "/CalculateByValues?" +
             "tankType=" + this.state.tankType + "&" +
@@ -71,11 +69,10 @@ export class About extends Component {
         if (response.ok) {
             const data = await response.json();
 
-            this.setState({ loadedResult: data, resultIsLoading: false });
+            this.setState({ loadedResult: data });
         }
-        else {
-            this.setState({ loadedResult: null, resultIsLoading: false });
-        }
+
+        this.setState({ resultIsLoading: false });
     }
 
     renderResultTable() {
@@ -162,7 +159,7 @@ export class About extends Component {
                         disabled={this.state.resultIsLoading ||
                             this.state.oilTypes == null || this.state.tankType == null}
                         onClick={!this.state.resultIsLoading ? handleClick : null}>
-                        {!this.state.resultIsLoading ? "Подробнее" : "Загружается"}
+                        {!this.state.resultIsLoading ? "Вычислить" : "Загружается"}
                     </Button>
                 </Form>
 

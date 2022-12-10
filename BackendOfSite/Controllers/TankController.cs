@@ -17,7 +17,7 @@ namespace BackendOfSite.Controllers
         [HttpGet]
         public IActionResult GetTankNames()
         {
-            return Ok(from cistern in db.Cisterns.ToList()
+            return Ok(from cistern in db.Cisterns
                       select new
                       {
                           Id = cistern.CisternId,
@@ -28,7 +28,7 @@ namespace BackendOfSite.Controllers
         [HttpGet("TankCharacters")]
         public IActionResult GetTankCharacters(int tankId)
         {
-            var cistern = db.Cisterns.ToList().FirstOrDefault(cistern => cistern.CisternId == tankId);
+            var cistern = db.Cisterns.FirstOrDefault(cistern => cistern.CisternId == tankId);
 
             if(cistern != null)
             {

@@ -31,7 +31,7 @@ namespace BackendOfSite.Controllers
         [HttpGet("CommodityParks")]
         public IActionResult GetCommodityParks()
         {
-            return Ok(db.Tovps.ToList().Select(row => new { row.TovpId, row.Name }));
+            return Ok(db.Tovps.Select(row => new { row.TovpId, row.Name }));
         }
 
         [HttpGet("TankTypes")]
@@ -100,87 +100,136 @@ namespace BackendOfSite.Controllers
 
         private List<LineStruct> CalculateByNW(int tankTypeId, int oilTypeId, int oilValue, int waterValue)
         {
-            int settlingTimeBeforeDropping = 0,
-                settlingTimeBufferMaretial = 0,
-                settlingTimeProduct = 0,
-                settlingTimeTechWasteWater = 0,
-                settlingTimeBufferWasteWater = 0;
-
-            if (oilTypeId == 0)
-            {
-                settlingTimeBeforeDropping = 4;
-                settlingTimeBufferMaretial = 56;
-                settlingTimeProduct = 72;
-                settlingTimeTechWasteWater = 8;
-                settlingTimeBufferWasteWater = 6;
-            }
-            else if (oilTypeId == 1)
-            {
-                settlingTimeBeforeDropping = 0;
-                settlingTimeBufferMaretial = 56;
-                settlingTimeProduct = 72;
-                settlingTimeTechWasteWater = 12;
-                settlingTimeBufferWasteWater = 6;
-            }
-
             List<LineStruct> data = new List<LineStruct>();
 
-            if (tankTypeId == 0) // before drop
+            int settlingTime = CalculateSettlingTime(tankTypeId, oilTypeId),
+                needVolumeM3 = CalculateNeedVolumeM3(tankTypeId, oilValue, waterValue, settlingTime);
+            float usefulVolume = CalculateUsefulVolume(tankTypeId);
+
+            if(tankTypeId != 0 || oilTypeId == 0)
             {
-                if (oilTypeId == 0)
-                {
-                    data = calculateTanksForParametrs(settlingTimeBeforeDropping, oilValue, waterValue, 0.7f);
-                }
-            }
-            else if (tankTypeId == 1) // buff materials
-            {
-                data = calculateTanksForParametrs(settlingTimeBufferMaretial, oilValue, waterValue, 0.85f);
-            }
-            else if (tankTypeId == 2) // Product
-            {
-                data = calculateTanksForParametrs(settlingTimeProduct, oilValue, waterValue, 0.9f);
-            }
-            else if (tankTypeId == 3) // Technical waste water
-            {
-                data = calculateTanksForParametrs(settlingTimeTechWasteWater, oilValue, waterValue, 0.9f);
-            }
-            else if (tankTypeId == 4) // Buffer waste water
-            {
-                data = calculateTanksForParametrs(settlingTimeBufferWasteWater, oilValue, waterValue, 0.8f);
+                data = CalculateTanksForParametrs(settlingTime, needVolumeM3, usefulVolume);
             }
 
             return data;
         }
 
-        private List<LineStruct> calculateTanksForParametrs(int settlingTime, float oilValue, float waterValue, float usefulVolume)
+        private int CalculateSettlingTime(int tankTypeId, int oilTypeId)
+        {
+            int settlingTime = 0;
+
+            if (tankTypeId == 0)
+            {
+                if (oilTypeId == 0)
+                {
+                    settlingTime = 4;
+                }
+            }
+            else if (tankTypeId == 1)
+            {
+                settlingTime = 56;
+            }
+            else if (tankTypeId == 2)
+            {
+                settlingTime = 72;
+            }
+            else if (tankTypeId == 3)
+            {
+                if (oilTypeId == 0)
+                {
+                    settlingTime = 8;
+                }
+                else if (oilTypeId == 1)
+                {
+                    settlingTime = 12;
+                }
+            }
+            else if (tankTypeId == 4)
+            {
+                settlingTime = 6;
+                settlingTime = 6;
+            }
+
+            return settlingTime;
+        }
+
+        private int CalculateNeedVolumeM3(int tankTypeId, float oilValue, float waterValue, int settlingTime)
+        {
+            int needVolume = 0;
+
+            switch(tankTypeId)
+            {
+                case 0:
+                    needVolume = (int)Math.Ceiling((oilValue + waterValue) / 24 * settlingTime);
+                    break;
+                case 1:
+                    needVolume = (int)Math.Ceiling((oilValue) / 24 * settlingTime);
+                    break;
+                case 2:
+                    needVolume = (int)Math.Ceiling((oilValue) / 24 * settlingTime);
+                    break;
+                case 3:
+                    needVolume = (int)Math.Ceiling((waterValue) / 24 * settlingTime);
+                    break;
+                case 4:
+                    needVolume = (int)Math.Ceiling((waterValue) / 24 * settlingTime);
+                    break;
+                default:
+                    needVolume = 0;
+                    break;
+            }
+
+            return needVolume;
+        }
+
+        private float CalculateUsefulVolume(int tankTypeId)
+        {
+            float usefulVolume = 0;
+
+            switch(tankTypeId)
+            {
+                case 0:
+                    usefulVolume = 0.7f;
+                    break;
+                case 1:
+                    usefulVolume = 0.85f;
+                    break;
+                case 2:
+                    usefulVolume = 0.9f;
+                    break;
+                case 3:
+                    usefulVolume = 0.9f;
+                    break;
+                case 4:
+                    usefulVolume = 0.8f;
+                    break;
+                default:
+                    usefulVolume = 0f;
+                    break;
+            }
+
+            return usefulVolume;
+        }
+
+        private List<LineStruct> CalculateTanksForParametrs(int settlingTime, int needVolumeM3, float usefulVolume)
         {
             List<LineStruct> result = new List<LineStruct>();
 
-            int needVolumeM3 = (int)Math.Ceiling((oilValue + waterValue) / 24 * settlingTime);
-            var rightBetweenNominal = db.Cisterns.ToList().First(cistern => cistern.NominalVolumeM3 > needVolumeM3).NominalVolumeM3;
-            var leftBetweenNominal = db.Cisterns.ToList().Last(cistern => cistern.NominalVolumeM3 < needVolumeM3).NominalVolumeM3;
-            usefulVolume = 0.7f;
-            var needCount = needVolumeM3 / (rightBetweenNominal * usefulVolume);
-
-            result.Add(new LineStruct()
+            var cisternVolumes = db.Cisterns.Select(cistern => cistern.NominalVolumeM3);
+            
+            foreach(var cisternVolume in cisternVolumes)
             {
-                SettlingTimeHour = settlingTime,
-                RequiredVolume = needVolumeM3,
-                UsefulVolume = usefulVolume,
-                NominalVolume = rightBetweenNominal,
-                NeedCountForWork = (int)Math.Ceiling(needCount)
-            });
+                int needCount = (int)Math.Ceiling(needVolumeM3 / (cisternVolume * usefulVolume));
 
-            needCount = needVolumeM3 / (leftBetweenNominal * usefulVolume);
-
-            result.Add(new LineStruct()
-            {
-                SettlingTimeHour = settlingTime,
-                RequiredVolume = needVolumeM3,
-                UsefulVolume = usefulVolume,
-                NominalVolume = leftBetweenNominal,
-                NeedCountForWork = (int)Math.Ceiling(needCount)
-            });
+                result.Add(new LineStruct()
+                {
+                    SettlingTimeHour = settlingTime,
+                    RequiredVolume = needVolumeM3,
+                    UsefulVolume = usefulVolume,
+                    NominalVolume = cisternVolume,
+                    NeedCountForWork = needCount
+                });
+            }
 
             return result;
         }

@@ -16,36 +16,35 @@ export class Tank extends Component {
     }
 
     async loadTanksList() {
+        this.setState({ tanksName: null, tableNamesIsLoading: true });
+
         const response = await fetch(this.apiUrl);
 
         if (response.ok) {
             const data = await response.json();
 
-            this.setState({ tanksName: data, tableNamesIsLoading: false });
+            this.setState({ tanksName: data });
 
             if (this.state.tanksName != null) {
                 this.loadTankCharacter(this.state.tanksName[0].id);
             }
         }
-        else {
-            this.setState({ tanksName: null, tableNamesIsLoading: false });
-        }
+
+        this.setState({ tableNamesIsLoading: false });
     }
 
     async loadTankCharacter(tankId) {
-        this.setState({ tableCharactersIsLoading: true });
-        this.setState({ selectedTankId: tankId });
+        this.setState({ selectedTankId: tankId, tankCharacters: null, tableCharactersIsLoading: true });
 
         const response = await fetch(this.apiUrl + "/TankCharacters?tankId=" + tankId);
 
         if (response.ok) {
             const data = await response.json();
 
-            this.setState({ tankCharacters: data, tableCharactersIsLoading: false });
+            this.setState({ tankCharacters: data });
         }
-        else {
-            this.setState({ tankCharacters: null, tableCharactersIsLoading: false });
-        }
+
+        this.setState({ tableCharactersIsLoading: false });
     }
 
     componentDidMount() {
@@ -69,21 +68,21 @@ export class Tank extends Component {
                     <tr>
                         <th>№</th>
                         <th>Номинальный объем, м³</th>
-                        <th>{this.state.tankCharacters.nominalVolumeM3 }</th>
+                        <th>{this.state.tankCharacters.nominalVolumeM3}</th>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>1</td>
                         <td className="left">Внутренний диаметр стенки, мм</td>
-                        <td>{this.state.tankCharacters.wallInnerDrMm }</td>
+                        <td>{this.state.tankCharacters.wallInnerDrMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>2</td>
                         <td className="left">Высота стенки, мм</td>
-                        <td>{this.state.tankCharacters.wallHeightMm }</td>
+                        <td>{this.state.tankCharacters.wallHeightMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
@@ -111,28 +110,28 @@ export class Tank extends Component {
                     <tr>
                         <td>5</td>
                         <td className="left">Количество поясов, шт</td>
-                        <td>{this.state.tankCharacters.wallBeltUnit }</td>
+                        <td>{this.state.tankCharacters.wallBeltUnit}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>6</td>
                         <td className="left">Припуск на коррозию, мм</td>
-                        <td>{this.state.tankCharacters.wallMarginRustMm }</td>
+                        <td>{this.state.tankCharacters.wallMarginRustMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>7</td>
                         <td className="left">Толщина верхнего пояса, мм</td>
-                        <td>{this.state.tankCharacters.wallUpperBeltMm }</td>
+                        <td>{this.state.tankCharacters.wallUpperBeltMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>8</td>
                         <td className="left">Толщина нижнего пояса, мм</td>
-                        <td>{this.state.tankCharacters.wallLowerBeltMm }</td>
+                        <td>{this.state.tankCharacters.wallLowerBeltMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
@@ -146,28 +145,28 @@ export class Tank extends Component {
                     <tr>
                         <td>9</td>
                         <td className="left">Количество окраек, шт</td>
-                        <td>{this.state.tankCharacters.bottomEdgeUnit }</td>
+                        <td>{this.state.tankCharacters.bottomEdgeUnit}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>10</td>
                         <td className="left">Припуск на коррозию, мм</td>
-                        <td>{this.state.tankCharacters.bottomMarginRustMm }</td>
+                        <td>{this.state.tankCharacters.bottomMarginRustMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>11</td>
                         <td className="left">Толщина центральной части, мм</td>
-                        <td>{this.state.tankCharacters.bottomCentreMm }</td>
+                        <td>{this.state.tankCharacters.bottomCentreMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>12</td>
                         <td className="left">Толщина окраек, мм</td>
-                        <td>{this.state.tankCharacters.bottomEdgeMm }</td>
+                        <td>{this.state.tankCharacters.bottomEdgeMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
@@ -181,28 +180,28 @@ export class Tank extends Component {
                     <tr>
                         <td>13</td>
                         <td className="left">Количество балок, шт.</td>
-                        <td>{this.state.tankCharacters.roofBeamUnit }</td>
+                        <td>{this.state.tankCharacters.roofBeamUnit}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>14</td>
                         <td className="left">Припуск на коррозию, мм</td>
-                        <td>{this.state.tankCharacters.RoofMarginRustMm }</td>
+                        <td>{this.state.tankCharacters.RoofMarginRustMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>15</td>
                         <td className="left">Несущий элемент</td>
-                        <td>{this.state.tankCharacters.roofBearingElement }</td>
+                        <td>{this.state.tankCharacters.roofBearingElement}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>16</td>
                         <td className="left">Толщина настила, мм</td>
-                        <td>{this.state.tankCharacters.roofFlooringMm }</td>
+                        <td>{this.state.tankCharacters.roofFlooringMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
@@ -216,56 +215,56 @@ export class Tank extends Component {
                     <tr>
                         <td>17</td>
                         <td className="left">Стенка</td>
-                        <td>{this.state.tankCharacters.wallWeightKg }</td>
+                        <td>{this.state.tankCharacters.wallWeightKg}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>18</td>
                         <td className="left">Днище</td>
-                        <td>{this.state.tankCharacters.bottomWeightKg }</td>
+                        <td>{this.state.tankCharacters.bottomWeightKg}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>19</td>
                         <td className="left">Крыша</td>
-                        <td>{this.state.tankCharacters.roofWeightKg }</td>
+                        <td>{this.state.tankCharacters.roofWeightKg}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>20</td>
                         <td className="left">Лестница</td>
-                        <td>{this.state.tankCharacters.ladderWeightKg }</td>
+                        <td>{this.state.tankCharacters.ladderWeightKg}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>21</td>
                         <td className="left">Площадки на крыше</td>
-                        <td>{this.state.tankCharacters.roofPlatformKg }</td>
+                        <td>{this.state.tankCharacters.roofPlatformKg}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>22</td>
                         <td className="left">Люки и патрубки</td>
-                        <td>{this.state.tankCharacters.hatchPipeKg }</td>
+                        <td>{this.state.tankCharacters.hatchPipeKg}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>23</td>
                         <td className="left">Комплектующие конструкции</td>
-                        <td>{this.state.tankCharacters.accessoriesKg }</td>
+                        <td>{this.state.tankCharacters.accessoriesKg}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>24</td>
                         <td className="left">Каркасы и упаковка</td>
-                        <td>{this.state.tankCharacters.carcassPackKg }</td>
+                        <td>{this.state.tankCharacters.carcassPackKg}</td>
                     </tr>
                 </tbody>
                 <tbody>

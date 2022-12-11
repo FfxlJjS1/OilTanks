@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace BackendOfSite.EFDbCistern;
 
-public partial class Debet
+public partial class FlowRate
 {
-    public int DebetId { get; set; }
+    public int FlowRateId { get; set; }
 
-    public int SkwId { get; set; }
+    public int WellId { get; set; }
 
     public int Month { get; set; }
 
@@ -19,9 +19,9 @@ public partial class Debet
 
     public decimal? QwPred { get; set; }
 
-    public int TovpId { get; set; }
+    public int ProductParkId { get; set; }
 
-    public virtual Skw Skw { get; set; } = null!;
+    public virtual ProductPark ProductPark { get; set; } = null!;
 
-    public virtual Tovp Tovp { get; set; } = null!;
+    public virtual Well Well { get; set; } = null!;
 }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace BackendOfSite.EFDbCistern;
 
 /// <summary>
-/// Таблица, которая связывает Таблицу Резервуар и Таблицу Оборудование
+/// Связывает таблицы Резервуар и Оборудование
 /// </summary>
 public partial class CisternEquipment
 {

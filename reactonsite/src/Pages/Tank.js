@@ -9,80 +9,80 @@ export class Tank extends Component {
         this.apiUrl = props.apiUrl;
 
         this.state = {
-            selectedeTankId: 1,
-            tanksName: null, tableNamesIsLoading: true,
-            tankCharacters: null, tableCharactersIsLoading: true
+            selectedeCisternId: 1,
+            cisternNames: null, tableNamesIsLoading: true,
+            cisternCharacters: null, tableCharactersIsLoading: true
         };
     }
 
-    async loadTanksList() {
-        this.setState({ tanksName: null, tableNamesIsLoading: true });
+    async loadCisternsList() {
+        this.setState({ cisternNames: null, tableNamesIsLoading: true });
 
         const response = await fetch(this.apiUrl);
 
         if (response.ok) {
             const data = await response.json();
 
-            this.setState({ tanksName: data });
+            this.setState({ cisternNames: data });
 
-            if (this.state.tanksName != null) {
-                this.loadTankCharacter(this.state.tanksName[0].id);
+            if (this.state.cisternNames != null) {
+                this.loadCisternCharacter(this.state.cisternNames[0].id);
             }
         }
 
         this.setState({ tableNamesIsLoading: false });
     }
 
-    async loadTankCharacter(tankId) {
-        this.setState({ selectedTankId: tankId, tankCharacters: null, tableCharactersIsLoading: true });
+    async loadCisternCharacter(cisternId) {
+        this.setState({ selectedCisternId: cisternId, cisternCharacters: null, tableCharactersIsLoading: true });
 
-        const response = await fetch(this.apiUrl + "/TankCharacters?tankId=" + tankId);
+        const response = await fetch(this.apiUrl + "/CisternCharacters?cisternId=" + cisternId);
 
         if (response.ok) {
             const data = await response.json();
 
-            this.setState({ tankCharacters: data });
+            this.setState({ cisternCharacters: data });
         }
 
         this.setState({ tableCharactersIsLoading: false });
     }
 
     componentDidMount() {
-        this.loadTanksList();
+        this.loadCisternsList();
     }
 
-    renderTanksNameList(tanksName) {
+    renderCisternNamesList(cisternNames) {
         return (
-            tanksName.map(tankName =>
+            cisternNames.map(cisternName =>
                 <Nav.Item>
-                    <Nav.Link eventKey={tankName.id}>{tankName.cisternName}</Nav.Link>
+                    <Nav.Link eventKey={cisternName.id}>{cisternName.cisternName}</Nav.Link>
                 </Nav.Item>
             )
         );
     }
 
-    renderTankCharactersTable() {
+    renderCisternCharactersTable() {
         return (
             <Table striped bordred hover>
                 <tbody>
                     <tr>
                         <th>№</th>
                         <th>Номинальный объем, м³</th>
-                        <th>{this.state.tankCharacters.nominalVolumeM3}</th>
+                        <th>{this.state.cisternCharacters.nominalVolumeM3}</th>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>1</td>
                         <td className="left">Внутренний диаметр стенки, мм</td>
-                        <td>{this.state.tankCharacters.wallInnerDrMm}</td>
+                        <td>{this.state.cisternCharacters.wallInnerDrMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>2</td>
                         <td className="left">Высота стенки, мм</td>
-                        <td>{this.state.tankCharacters.wallHeightMm}</td>
+                        <td>{this.state.cisternCharacters.wallHeightMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
@@ -110,28 +110,28 @@ export class Tank extends Component {
                     <tr>
                         <td>5</td>
                         <td className="left">Количество поясов, шт</td>
-                        <td>{this.state.tankCharacters.wallBeltUnit}</td>
+                        <td>{this.state.cisternCharacters.wallBeltUnit}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>6</td>
                         <td className="left">Припуск на коррозию, мм</td>
-                        <td>{this.state.tankCharacters.wallMarginRustMm}</td>
+                        <td>{this.state.cisternCharacters.wallMarginRustMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>7</td>
                         <td className="left">Толщина верхнего пояса, мм</td>
-                        <td>{this.state.tankCharacters.wallUpperBeltMm}</td>
+                        <td>{this.state.cisternCharacters.wallUpperBeltMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>8</td>
                         <td className="left">Толщина нижнего пояса, мм</td>
-                        <td>{this.state.tankCharacters.wallLowerBeltMm}</td>
+                        <td>{this.state.cisternCharacters.wallLowerBeltMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
@@ -145,28 +145,28 @@ export class Tank extends Component {
                     <tr>
                         <td>9</td>
                         <td className="left">Количество окраек, шт</td>
-                        <td>{this.state.tankCharacters.bottomEdgeUnit}</td>
+                        <td>{this.state.cisternCharacters.bottomEdgeUnit}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>10</td>
                         <td className="left">Припуск на коррозию, мм</td>
-                        <td>{this.state.tankCharacters.bottomMarginRustMm}</td>
+                        <td>{this.state.cisternCharacters.bottomMarginRustMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>11</td>
                         <td className="left">Толщина центральной части, мм</td>
-                        <td>{this.state.tankCharacters.bottomCentreMm}</td>
+                        <td>{this.state.cisternCharacters.bottomCentreMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>12</td>
                         <td className="left">Толщина окраек, мм</td>
-                        <td>{this.state.tankCharacters.bottomEdgeMm}</td>
+                        <td>{this.state.cisternCharacters.bottomEdgeMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
@@ -180,28 +180,28 @@ export class Tank extends Component {
                     <tr>
                         <td>13</td>
                         <td className="left">Количество балок, шт.</td>
-                        <td>{this.state.tankCharacters.roofBeamUnit}</td>
+                        <td>{this.state.cisternCharacters.roofBeamUnit}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>14</td>
                         <td className="left">Припуск на коррозию, мм</td>
-                        <td>{this.state.tankCharacters.RoofMarginRustMm}</td>
+                        <td>{this.state.cisternCharacters.RoofMarginRustMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>15</td>
                         <td className="left">Несущий элемент</td>
-                        <td>{this.state.tankCharacters.roofBearingElement}</td>
+                        <td>{this.state.cisternCharacters.roofBearingElement}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>16</td>
                         <td className="left">Толщина настила, мм</td>
-                        <td>{this.state.tankCharacters.roofFlooringMm}</td>
+                        <td>{this.state.cisternCharacters.roofFlooringMm}</td>
                     </tr>
                 </tbody>
                 <tbody>
@@ -215,70 +215,70 @@ export class Tank extends Component {
                     <tr>
                         <td>17</td>
                         <td className="left">Стенка</td>
-                        <td>{this.state.tankCharacters.wallWeightKg}</td>
+                        <td>{this.state.cisternCharacters.wallWeightKg}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>18</td>
                         <td className="left">Днище</td>
-                        <td>{this.state.tankCharacters.bottomWeightKg}</td>
+                        <td>{this.state.cisternCharacters.bottomWeightKg}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>19</td>
                         <td className="left">Крыша</td>
-                        <td>{this.state.tankCharacters.roofWeightKg}</td>
+                        <td>{this.state.cisternCharacters.roofWeightKg}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>20</td>
                         <td className="left">Лестница</td>
-                        <td>{this.state.tankCharacters.ladderWeightKg}</td>
+                        <td>{this.state.cisternCharacters.ladderWeightKg}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>21</td>
                         <td className="left">Площадки на крыше</td>
-                        <td>{this.state.tankCharacters.roofPlatformKg}</td>
+                        <td>{this.state.cisternCharacters.roofPlatformKg}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>22</td>
                         <td className="left">Люки и патрубки</td>
-                        <td>{this.state.tankCharacters.hatchPipeKg}</td>
+                        <td>{this.state.cisternCharacters.hatchPipeKg}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>23</td>
                         <td className="left">Комплектующие конструкции</td>
-                        <td>{this.state.tankCharacters.accessoriesKg}</td>
+                        <td>{this.state.cisternCharacters.accessoriesKg}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>24</td>
                         <td className="left">Каркасы и упаковка</td>
-                        <td>{this.state.tankCharacters.carcassPackKg}</td>
+                        <td>{this.state.cisternCharacters.carcassPackKg}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
                         <td>25</td>
                         <td className="left">Всего:</td>
-                        <td>{this.state.tankCharacters.wallWeightKg +
-                            this.state.tankCharacters.bottomWeightKg +
-                            this.state.tankCharacters.roofWeightKg +
-                            this.state.tankCharacters.ladderWeightKg +
-                            this.state.tankCharacters.roofPlatformKg +
-                            this.state.tankCharacters.hatchPipeKg +
-                            this.state.tankCharacters.accessoriesKg +
-                            this.state.tankCharacters.carcassPackKg}
+                        <td>{this.state.cisternCharacters.wallWeightKg +
+                            this.state.cisternCharacters.bottomWeightKg +
+                            this.state.cisternCharacters.roofWeightKg +
+                            this.state.cisternCharacters.ladderWeightKg +
+                            this.state.cisternCharacters.roofPlatformKg +
+                            this.state.cisternCharacters.hatchPipeKg +
+                            this.state.cisternCharacters.accessoriesKg +
+                            this.state.cisternCharacters.carcassPackKg}
                         </td>
                     </tr>
                 </tbody>
@@ -287,24 +287,24 @@ export class Tank extends Component {
     }
 
     render() {
-        let tanksNameList = this.state.tableNamesIsLoading
+        let cisternNamesList = this.state.tableNamesIsLoading
             ? <>Name of cisterns is loading...</>
-            : this.state.tanksName == null
+            : this.state.cisternNames == null
                 ? <>Loading of name of cisterns is failed</>
-                : this.renderTanksNameList(this.state.tanksName);
-        let tankCharacterTable = this.state.tableCharactersIsLoading
+                : this.renderCisternNamesList(this.state.cisternNames);
+        let cisternCharacterTable = this.state.tableCharactersIsLoading
             ? <>Table is loading...</>
-            : this.state.tankCharacters == null
+            : this.state.cisternCharacters == null
                 ? <>Loading of table failed</>
-                : this.renderTankCharactersTable();
+                : this.renderCisternCharactersTable();
 
         return (
             <Container>
                 <Tab.Container id="ledt--tabs-example" defaultActiveKey="1" >
                     <Row>
                         <Col sm={3}>
-                            <Nav onSelect={(tankId) => this.loadTankCharacter(tankId)} variant="pills" className="flex-column mt-2">
-                                {tanksNameList}
+                            <Nav onSelect={(cisternId) => this.loadCisternCharacter(cisternId)} variant="pills" className="flex-column mt-2">
+                                {cisternNamesList}
                             </Nav>
                         </Col>
                         <Col sm={9}>
@@ -364,7 +364,7 @@ export class Tank extends Component {
                                     <h4>Чертеж резервуара РВС-100</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-100 м³</h4>
-                                    {tankCharacterTable}
+                                    {cisternCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
@@ -408,7 +408,7 @@ export class Tank extends Component {
                                     <h4>Чертеж резервуара РВС-200</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-200 м³</h4>
-                                    {tankCharacterTable}
+                                    {cisternCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
@@ -426,7 +426,7 @@ export class Tank extends Component {
                                     <h4>Общий вид вертикального резервуара РВС-250</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики вертикальных резервуаров РВС-250</h4>
-                                    {tankCharacterTable}
+                                    {cisternCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
@@ -461,7 +461,7 @@ export class Tank extends Component {
                                     <h4>Чертеж резервуара РВС-300</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-300 м³</h4>
-                                    {tankCharacterTable}
+                                    {cisternCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
@@ -511,7 +511,7 @@ export class Tank extends Component {
                                     <h4>Чертеж резервуара РВС-400</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-400 м³</h4>
-                                    {tankCharacterTable}
+                                    {cisternCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
@@ -550,7 +550,7 @@ export class Tank extends Component {
                                     <h4>Чертеж резервуара РВС-500</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-500 м³</h4>
-                                    {tankCharacterTable}
+                                    {cisternCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
@@ -598,7 +598,7 @@ export class Tank extends Component {
                                     <h4>Чертеж резервуара РВС-700</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-700 м³</h4>
-                                    {tankCharacterTable}
+                                    {cisternCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
@@ -637,7 +637,7 @@ export class Tank extends Component {
                                     <h4>Чертеж резервуара РВС-1000</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-1000 м³</h4>
-                                    {tankCharacterTable}
+                                    {cisternCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
@@ -684,7 +684,7 @@ export class Tank extends Component {
                                     <h4>Чертеж резервуара РВС-2000</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-2000 м³</h4>
-                                    {tankCharacterTable}
+                                    {cisternCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
@@ -723,7 +723,7 @@ export class Tank extends Component {
                                     <h4>Чертеж резервуара РВС-3000</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-3000 м³</h4>
-                                    {tankCharacterTable}
+                                    {cisternCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
@@ -774,7 +774,7 @@ export class Tank extends Component {
                                     <h4>Чертеж резервуара РВС-5000</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-5000 м³</h4>
-                                    {tankCharacterTable}
+                                    {cisternCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
@@ -814,7 +814,7 @@ export class Tank extends Component {
                                     <h4>Чертеж резервуара РВС-10000</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-10000 м³</h4>
-                                    {tankCharacterTable}
+                                    {cisternCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
@@ -855,7 +855,7 @@ export class Tank extends Component {
                                     <h4>Чертеж резервуара РВС-20000</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-20000 м³</h4>
-                                    {tankCharacterTable}
+                                    {cisternCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
@@ -896,7 +896,7 @@ export class Tank extends Component {
                                     <h4>Чертеж резервуара РВС-30000</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-30000 м³</h4>
-                                    {tankCharacterTable}
+                                    {cisternCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
@@ -936,7 +936,7 @@ export class Tank extends Component {
                                     <h4>Чертеж резервуара РВС-50000</h4>
                                     <img src="https://glavrossnab.ru/upload/iblock/c9f/c9f40fb83a28f254e358b5bf3f29d4e4.jpg"></img>
                                     <h4>Технические характеристики резервуара РВС-50000 м³</h4>
-                                    {tankCharacterTable}
+                                    {cisternCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                             <Tab.Content>
@@ -995,7 +995,7 @@ export class Tank extends Component {
                                     <h4>Дополнительное оборудование РВС-100000 м³</h4>
                                     <p>Для безопасной эксплуатации резервуаров отдельно подбирается необходимое резервуарное оборудование: дыхательные клапаны, огнепреградители, пеногенераторы, сливо-наливная арматура, контрольно-измерительные приборы и др.</p>
                                     <h4>Технические характеристики резервуара РВС-100000 м³</h4>
-                                    {tankCharacterTable}
+                                    {cisternCharacterTable}
                                 </Tab.Pane>
                             </Tab.Content>
                         </Col>

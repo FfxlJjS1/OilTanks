@@ -10,71 +10,69 @@ export class Park extends Component {
         this.apiUrl = props.apiUrl;
 
         this.state = {
-            commodityParkId: null, tankType: null,
+            productParkId: null, purposeCisternId: null,
             loadedResult: null, resultIsLoading: false,
-            commodityParks: null, loadingCommodityParks: false,
-            tankTypes: null, loadingTankTypes: false
+            productParks: null, loadingProductParks: false,
+            purposeCisterns: null, loadingPurposeCisterns: false
         };
     }
 
     componentDidMount() {
-        this.loadCommodityPark();
-        this.loadTankTypes();
+        this.loadProductParks();
+        this.loadPurposeCisterns();
     }
 
-    async loadCommodityPark() {
-        this.setState({ loadingCommodityParks: true });
+    async loadProductParks() {
+        this.setState({ loadingProductParks: true });
 
-        const response = await fetch(this.apiUrl + "/CommodityParks");
+        const response = await fetch(this.apiUrl + "/ProductParks");
 
         if (response.ok) {
             const data = await response.json();
 
-            this.setState({ commodityParks: data, loadingCommodityParks: false });
+            this.setState({ productParks: data, loadingProductParks: false });
 
-            if (this.state.commodityParks != null) {
-                this.state.commodityParkId = this.state.commodityParks[0].tovpId;
+            if (this.state.productParks != null) {
+                this.state.productParkId = this.state.productParks[0].productParkId;
             }
         }
         else {
-            this.setState({ commodityParks: null, loadingCommodityParks: false });
+            this.setState({ productParks: null, loadingProductParks: false });
         }
     }
 
-    async loadTankTypes() {
-        this.setState({ loadingOilTypes: true });
+    async loadPurposeCisterns() {
+        this.setState({ purposeCisterns: null, purposeCisternId: null, loadingPurposeCisterns: true });
 
-        const response = await fetch(this.apiUrl + "/TankTypes");
+        const response = await fetch(this.apiUrl + "/PurposeCisterns");
 
         if (response.ok) {
             const data = await response.json();
 
-            this.setState({ tankTypes: data, loadingTankTypes: false });
+            this.setState({ purposeCisterns: data });
 
-            if (this.state.tankTypes != null) {
-                this.state.tankType = this.state.tankTypes[0];
+            if (this.state.purposeCisterns != null) { // Problem with loading
+                this.state.purposeCisternId = this.state.purposeCisterns[0].purposeCisternId;
             }
         }
-        else {
-            this.setState({ tankTypes: null, loadingTankTypes: false });
-        }
+
+        this.setState({ loadingPurposeCisterns: false });
     }
 
     async enterAndLoadServerCalculation() {
-        this.setState({ resultIsLoading: true });
+        this.setState({ loadedResult: null, resultIsLoading: true });
 
-        const response = await fetch(this.apiUrl + "/CalculateByCommodityPark?" +
-            "commodityParkId=" + this.state.commodityParkId + "&" +
-            "tankType=" + this.state.tankType);
+        const response = await fetch(this.apiUrl + "/CalculateByProductPark?" +
+            "productParkId=" + this.state.productParkId + "&" +
+            "purposeCisternId=" + this.state.purposeCisternId);
 
         if (response.ok) {
             const data = await response.json();
 
-            this.setState({ loadedResult: data, resultIsLoading: false });
+            this.setState({ loadedResult: data});
         }
-        else {
-            this.setState({ loadedResult: null, resultIsLoading: false });
-        }
+
+        this.setState({ resultIsLoading: false });
     }
 
     renderResultTable() {
@@ -89,6 +87,8 @@ export class Park extends Component {
                         <td>{row.usefulVolume}</td>
                         <td>{row.nominalVolume}</td>
                         <td>{row.needCountForWork}</td>
+                        <td>{row.cisternPrice}</td>
+                        <td>{row.cisternPrice * row.needCountForWork}</td>
                     </tr>);
             }
 
@@ -104,6 +104,8 @@ export class Park extends Component {
                         <th>Полезный объем (коэф.заполнения)</th>
                         <th>Номинальный объем РВС  (отстойников), м3</th>
                         <th>Необход. кол-во в работе, шт.</th>
+                        <th>Цена за штуку, руб.</th>
+                        <th>Общая цена, руб.</th>
                     </tr>
                 </tbody>
                 <tbody>
@@ -114,12 +116,12 @@ export class Park extends Component {
     }
 
     render() {
-        let commodityParksSelect = !this.state.loadingCommodityParks && this.state.commodityParks != null
-            ? this.state.commodityParks.map(commodityPark =>
-                <option value={commodityPark.tovpId}>{commodityPark.name}</option>)
+        let productParksSelect = !this.state.loadingProductParks && this.state.productParks != null
+            ? this.state.productParks.map(productPark =>
+                <option value={productPark.productParkId}>{productPark.name}</option>)
             : null;
-        let tankTypesSelect = !this.state.loadingTankTypes && this.state.tankTypes != null
-            ? this.state.tankTypes.map(tankType => <option>{tankType}</option>)
+        let purposeCisternsSelect = !this.state.loadingPurposeCisterns && this.state.purposeCisterns != null
+            ? this.state.purposeCisterns.map(purposeCistern => <option value={purposeCistern.purposeCisternId}>{purposeCistern.name}</option>)
             : null;
         let resultTable = !this.state.resultIsLoading && this.state.loadedResult != null
             ? this.renderResultTable()
@@ -131,23 +133,23 @@ export class Park extends Component {
             <Container style={{ width: '500px' }}>
                 <Form>
                     <Form.Group className="mb-3" controlId="formBasicEmail"
-                        value={this.state.commodityParkId}
-                        onChange={e => this.setState({ commodityParkId: e.target.value })}>
+                        value={this.state.productParkId}
+                        onChange={e => this.setState({ productParkId: e.target.value })}>
                         <Form.Label> Товарный парк </Form.Label>
-                        <Form.Select disabled={this.state.commodityParks == null}>
-                            {commodityParksSelect}
+                        <Form.Select disabled={this.state.productParks == null}>
+                            {productParksSelect}
                         </Form.Select>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formBasicEmail"
                         value={this.state.tankType}
-                        onChange={e => this.setState({ tankType: e.target.value })}>
+                        onChange={e => this.setState({ purposeCisternId: e.target.value })}>
                         <Form.Label>Тип резервуара</Form.Label>
-                        <Form.Select disabled={this.state.tankTypes == null}>
-                            {tankTypesSelect}
+                        <Form.Select disabled={this.state.purposeCisterns == null}>
+                            {purposeCisternsSelect}
                         </Form.Select>
                     </Form.Group>
                     <Button variant="primary" type="button"
-                        disabled={this.state.resultIsLoading || this.state.tankTypes == null}
+                        disabled={this.state.resultIsLoading || this.state.purposeCisterns == null}
                         onClick={!this.state.resultIsLoading ? handleClick : null}>
                         {!this.state.resultIsLoading ? "Вычислить" : "Загружается"}
                     </Button>

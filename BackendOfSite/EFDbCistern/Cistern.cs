@@ -143,44 +143,46 @@ public partial class Cistern
     /// <summary>
     /// Стенка Метод изготовления 
     /// </summary>
-    public int? WallProductionGId { get; set; }
+    public int? WallMethodMadeId { get; set; }
 
     /// <summary>
     /// Днище Метод изготовления
     /// </summary>
-    public int? BottomProductionGId { get; set; }
+    public int? BottomMethodMadeId { get; set; }
 
     /// <summary>
     /// Днище Тип уклона
     /// </summary>
-    public int? BottomSlopeGId { get; set; }
+    public int? BottomTypeSlopeId { get; set; }
 
     /// <summary>
     /// Стационарная крыша Вид формы
     /// </summary>
-    public int? RoofStFormGId { get; set; }
+    public int? RoofTypeFormId { get; set; }
 
     /// <summary>
     /// Стационарная крыша Тип конструкции
     /// </summary>
-    public int? RoofStConstructionGId { get; set; }
+    public int? RoofTypeConstructionId { get; set; }
 
     /// <summary>
     /// Лестница Тип конструкции
     /// </summary>
-    public int? LadderConstructionGId { get; set; }
+    public int? LadderTypeConstructionId { get; set; }
 
-    public virtual Guide? BottomProductionG { get; set; }
+    public virtual MethodMade? BottomMethodMade { get; set; }
 
-    public virtual Guide? BottomSlopeG { get; set; }
+    public virtual TypeSlope? BottomTypeSlope { get; set; }
 
     public virtual ICollection<CisternEquipment> CisternEquipments { get; } = new List<CisternEquipment>();
 
-    public virtual Guide? LadderConstructionG { get; set; }
+    public virtual LadderTypeConstruction? LadderTypeConstruction { get; set; }
 
-    public virtual Guide? RoofStConstructionG { get; set; }
+    public virtual ICollection<PriceCistern> PriceCisterns { get; } = new List<PriceCistern>();
 
-    public virtual Guide? RoofStFormG { get; set; }
+    public virtual RoofTypeConstruction? RoofTypeConstruction { get; set; }
 
-    public virtual Guide? WallProductionG { get; set; }
+    public virtual RoofTypeForm? RoofTypeForm { get; set; }
+
+    public virtual MethodMade? WallMethodMade { get; set; }
 }

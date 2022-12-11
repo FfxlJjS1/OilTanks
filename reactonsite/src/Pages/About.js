@@ -9,34 +9,34 @@ export class About extends Component {
         this.apiUrl = props.apiUrl;
 
         this.state = {
-            tankType: null, oilType: null, oilValue: 0, waterValue: 0,
-            tankTypes: null, loadingTankTypes: false,
+            purposeCisternId: null, oilType: null, oilValue: 0, waterValue: 0,
+            purposeCisterns: null, loadingPurposeCisterns: false,
             oilTypes: null, loadingOilTypes: false,
             loadedResult: null, resultIsLoading: false
         };
     }
 
     componentDidMount() {
-        this.loadTankTypes();
+        this.loadPurposeCisterns();
         this.loadOilTypes();
     }
 
-    async loadTankTypes() {
-        this.setState({ tankTypes: null, tankType: null, loadingTankTypes: true });
+    async loadPurposeCisterns() {
+        this.setState({ purposeCisterns: null, purposeCisternId: null, loadingPurposeCisterns: true });
 
-        const response = await fetch(this.apiUrl + "/TankTypes");
+        const response = await fetch(this.apiUrl + "/PurposeCisterns");
 
         if (response.ok) {
             const data = await response.json();
 
-            this.setState({ tankTypes: data });
+            this.setState({ purposeCisterns: data });
 
-            if (this.state.tankTypes != null) { // Problem with loading
-                this.state.tankType = this.state.tankTypes[0];
+            if (this.state.purposeCisterns != null) { // Problem with loading
+                this.state.purposeCisternId = this.state.purposeCisterns[0].purposeCisternId;
             }
         }
 
-        this.setState({ loadingTankTypes: false });
+        this.setState({ loadingPurposeCisterns: false });
     }
 
     async loadOilTypes() {
@@ -61,7 +61,7 @@ export class About extends Component {
         this.setState({ loadedResult: null, resultIsLoading: true });
 
         const response = await fetch(this.apiUrl + "/CalculateByValues?" +
-            "tankType=" + this.state.tankType + "&" +
+            "purposeCisternId=" + this.state.purposeCisternId + "&" +
             "oilType=" + this.state.oilType + "&" +
             "oilValue=" + this.state.oilValue + "&" +
             "waterValue=" + this.state.waterValue);
@@ -87,6 +87,8 @@ export class About extends Component {
                         <td>{row.usefulVolume}</td>
                         <td>{row.nominalVolume}</td>
                         <td>{row.needCountForWork}</td>
+                        <td>{row.cisternPrice}</td>
+                        <td>{row.cisternPrice * row.needCountForWork}</td>
                     </tr>);
             }
 
@@ -102,6 +104,8 @@ export class About extends Component {
                         <th>Полезный объем (коэф.заполнения)</th>
                         <th>Номинальный объем РВС  (отстойников), м3</th>
                         <th>Необход. кол-во в работе, шт.</th>
+                        <th>Цена за штуку, руб.</th>
+                        <th>Общая цена, руб.</th>
                     </tr>
                 </tbody>
                 <tbody>
@@ -112,8 +116,8 @@ export class About extends Component {
     }
 
     render() {
-        let tankTypesSelect = !this.state.loadingTankTypes && this.state.tankTypes != null
-            ? this.state.tankTypes.map(tankType => <option>{tankType}</option>)
+        let purposeCisternsSelect = !this.state.loadingPurposeCisterns && this.state.purposeCisterns != null
+            ? this.state.purposeCisterns.map(purposeCistern => <option value={purposeCistern.purposeCisternId }>{purposeCistern.name}</option>)
             : null;
         let oilTypesSelect = !this.state.loadingOilTypes && this.state.oilTypes != null
             ? this.state.oilTypes.map(oilType => <option>{oilType}</option>)
@@ -128,11 +132,11 @@ export class About extends Component {
             <Container style={{ width: '500px' }}>
                 <Form>
                     <Form.Group className="mb-3" controlId="formBasicEmail"
-                        value={this.state.oilType}
-                        onChange={e => this.setState({ tankType: e.target.value })}>
+                        value={this.state.purposeCisternId}
+                        onChange={e => this.setState({ purposeCisternId: e.target.value })}>
                         <Form.Label>Тип резервуара</Form.Label>
-                        <Form.Select disabled={this.state.tankTypes == null}>
-                            {tankTypesSelect}
+                        <Form.Select disabled={this.state.purposeCisterns == null}>
+                            {purposeCisternsSelect}
                         </Form.Select>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formBasicEmail"
@@ -157,7 +161,7 @@ export class About extends Component {
                     </Form.Group>
                     <Button variant="primary" type="button"
                         disabled={this.state.resultIsLoading ||
-                            this.state.oilTypes == null || this.state.tankType == null}
+                            this.state.oilTypes == null || this.state.purposeCisternId == null}
                         onClick={!this.state.resultIsLoading ? handleClick : null}>
                         {!this.state.resultIsLoading ? "Вычислить" : "Загружается"}
                     </Button>

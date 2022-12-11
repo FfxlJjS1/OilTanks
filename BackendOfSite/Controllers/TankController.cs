@@ -1,34 +1,34 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BackendOfSite.EFDbCistern;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BackendOfSite.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class TankController : Controller
+    public class CisternController : Controller
     {
         private readonly DbCisternContext db;
 
-        public TankController(DbCisternContext context)
+        public CisternController(DbCisternContext context)
         {
             db = context;
         }
 
         [HttpGet]
-        public IActionResult GetTankNames()
+        public IActionResult GetCisternNames()
         {
-            return Ok(from cistern in db.Cisterns
-                      select new
-                      {
-                          Id = cistern.CisternId,
-                          CisternName = "РВС-" + cistern.NominalVolumeM3.ToString() + " м^3"
-                      });
+            return Ok(db.Cisterns.Select(row => new
+            {
+                Id = row.CisternId,
+                CisternName = "РВС-" + row.NominalVolumeM3.ToString() + " м^3"
+            }));
         }
 
-        [HttpGet("TankCharacters")]
-        public IActionResult GetTankCharacters(int tankId)
+        [HttpGet("CisternCharacters")]
+        public IActionResult GetCisternCharacters(int cisternId)
         {
-            var cistern = db.Cisterns.FirstOrDefault(cistern => cistern.CisternId == tankId);
+            var cistern = db.Cisterns.FirstOrDefault(cistern => cistern.CisternId == cisternId);
 
             if(cistern != null)
             {

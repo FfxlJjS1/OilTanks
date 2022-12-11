@@ -9,7 +9,6 @@ public partial class DbCisternContext : DbContext
 {
     public DbCisternContext()
     {
-        // Database.EnsureCreated();
     }
 
     public DbCisternContext(DbContextOptions<DbCisternContext> options)
@@ -21,19 +20,29 @@ public partial class DbCisternContext : DbContext
 
     public virtual DbSet<CisternEquipment> CisternEquipments { get; set; }
 
-    public virtual DbSet<Debet> Debets { get; set; }
-
     public virtual DbSet<Equipment> Equipment { get; set; }
 
-    public virtual DbSet<Guide> Guides { get; set; }
+    public virtual DbSet<FlowRate> FlowRates { get; set; }
 
-    public virtual DbSet<OilProduct> OilProducts { get; set; }
+    public virtual DbSet<LadderTypeConstruction> LadderTypeConstructions { get; set; }
 
-    public virtual DbSet<Skw> Skws { get; set; }
+    public virtual DbSet<MethodMade> MethodMades { get; set; }
+
+    public virtual DbSet<PriceCistern> PriceCisterns { get; set; }
+
+    public virtual DbSet<ProductPark> ProductParks { get; set; }
+
+    public virtual DbSet<PurposeCistern> PurposeCisterns { get; set; }
+
+    public virtual DbSet<RoofTypeConstruction> RoofTypeConstructions { get; set; }
+
+    public virtual DbSet<RoofTypeForm> RoofTypeForms { get; set; }
 
     public virtual DbSet<StandartSludge> StandartSludges { get; set; }
 
-    public virtual DbSet<Tovp> Tovps { get; set; }
+    public virtual DbSet<TypeSlope> TypeSlopes { get; set; }
+
+    public virtual DbSet<Well> Wells { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
@@ -65,12 +74,12 @@ public partial class DbCisternContext : DbContext
             entity.Property(e => e.BottomMarginRustMm)
                 .HasComment("Днище Припуск на коррозию, мм")
                 .HasColumnName("bottom_margin_rust_mm");
-            entity.Property(e => e.BottomProductionGId)
+            entity.Property(e => e.BottomMethodMadeId)
                 .HasComment("Днище Метод изготовления")
-                .HasColumnName("bottom_production_g_id");
-            entity.Property(e => e.BottomSlopeGId)
+                .HasColumnName("bottom_method_made_id");
+            entity.Property(e => e.BottomTypeSlopeId)
                 .HasComment("Днище Тип уклона")
-                .HasColumnName("bottom_slope_g_id");
+                .HasColumnName("bottom_type_slope_id");
             entity.Property(e => e.BottomWeightKg)
                 .HasComment("Днище масса, кг")
                 .HasColumnName("bottom_weight_kg");
@@ -87,9 +96,9 @@ public partial class DbCisternContext : DbContext
                 .HasComment("Высота налива, мм")
                 .HasColumnType("character varying")
                 .HasColumnName("height_filling_mm");
-            entity.Property(e => e.LadderConstructionGId)
+            entity.Property(e => e.LadderTypeConstructionId)
                 .HasComment("Лестница Тип конструкции")
-                .HasColumnName("ladder_construction_g_id");
+                .HasColumnName("ladder_type_construction_id");
             entity.Property(e => e.LadderWeightKg)
                 .HasComment("Лестница масса, кг")
                 .HasColumnName("ladder_weight_kg");
@@ -112,12 +121,12 @@ public partial class DbCisternContext : DbContext
             entity.Property(e => e.RoofPlatformKg)
                 .HasComment("Площадки на крыше масса, кг")
                 .HasColumnName("roof_platform_kg");
-            entity.Property(e => e.RoofStConstructionGId)
+            entity.Property(e => e.RoofTypeConstructionId)
                 .HasComment("Стационарная крыша Тип конструкции")
-                .HasColumnName("roof_st_construction_g_id");
-            entity.Property(e => e.RoofStFormGId)
+                .HasColumnName("roof_type_construction_id");
+            entity.Property(e => e.RoofTypeFormId)
                 .HasComment("Стационарная крыша Вид формы")
-                .HasColumnName("roof_st_form_g_id");
+                .HasColumnName("roof_type_form_id");
             entity.Property(e => e.RoofWeightKg)
                 .HasComment("Крыша масса, кг")
                 .HasColumnName("roof_weight_kg");
@@ -136,9 +145,9 @@ public partial class DbCisternContext : DbContext
             entity.Property(e => e.WallMarginRustMm)
                 .HasComment("Стенка припуск коррозия, мм")
                 .HasColumnName("wall_margin_rust_mm");
-            entity.Property(e => e.WallProductionGId)
+            entity.Property(e => e.WallMethodMadeId)
                 .HasComment("Стенка Метод изготовления ")
-                .HasColumnName("wall_production_g_id");
+                .HasColumnName("wall_method_made_id");
             entity.Property(e => e.WallUpperBeltMm)
                 .HasComment("Стенка толщина верхнего пояса, мм")
                 .HasColumnName("wall_upper_belt_mm");
@@ -149,28 +158,28 @@ public partial class DbCisternContext : DbContext
                 .HasComment("Срок службы, лет")
                 .HasColumnName("working_life_year");
 
-            entity.HasOne(d => d.BottomProductionG).WithMany(p => p.CisternBottomProductionGs)
-                .HasForeignKey(d => d.BottomProductionGId)
+            entity.HasOne(d => d.BottomMethodMade).WithMany(p => p.CisternBottomMethodMades)
+                .HasForeignKey(d => d.BottomMethodMadeId)
                 .HasConstraintName("cistern_fk_1");
 
-            entity.HasOne(d => d.BottomSlopeG).WithMany(p => p.CisternBottomSlopeGs)
-                .HasForeignKey(d => d.BottomSlopeGId)
+            entity.HasOne(d => d.BottomTypeSlope).WithMany(p => p.Cisterns)
+                .HasForeignKey(d => d.BottomTypeSlopeId)
                 .HasConstraintName("cistern_fk_2");
 
-            entity.HasOne(d => d.LadderConstructionG).WithMany(p => p.CisternLadderConstructionGs)
-                .HasForeignKey(d => d.LadderConstructionGId)
+            entity.HasOne(d => d.LadderTypeConstruction).WithMany(p => p.Cisterns)
+                .HasForeignKey(d => d.LadderTypeConstructionId)
                 .HasConstraintName("cistern_fk_5");
 
-            entity.HasOne(d => d.RoofStConstructionG).WithMany(p => p.CisternRoofStConstructionGs)
-                .HasForeignKey(d => d.RoofStConstructionGId)
+            entity.HasOne(d => d.RoofTypeConstruction).WithMany(p => p.Cisterns)
+                .HasForeignKey(d => d.RoofTypeConstructionId)
                 .HasConstraintName("cistern_fk_4");
 
-            entity.HasOne(d => d.RoofStFormG).WithMany(p => p.CisternRoofStFormGs)
-                .HasForeignKey(d => d.RoofStFormGId)
+            entity.HasOne(d => d.RoofTypeForm).WithMany(p => p.Cisterns)
+                .HasForeignKey(d => d.RoofTypeFormId)
                 .HasConstraintName("cistern_fk_3");
 
-            entity.HasOne(d => d.WallProductionG).WithMany(p => p.CisternWallProductionGs)
-                .HasForeignKey(d => d.WallProductionGId)
+            entity.HasOne(d => d.WallMethodMade).WithMany(p => p.CisternWallMethodMades)
+                .HasForeignKey(d => d.WallMethodMadeId)
                 .HasConstraintName("cistern_fk");
         });
 
@@ -178,7 +187,7 @@ public partial class DbCisternContext : DbContext
         {
             entity.HasKey(e => e.CisternEquipmentId).HasName("cistern_equipment_pk");
 
-            entity.ToTable("cistern_equipment", tb => tb.HasComment("Таблица, которая связывает Таблицу Резервуар и Таблицу Оборудование"));
+            entity.ToTable("cistern_equipment", tb => tb.HasComment("Связывает таблицы Резервуар и Оборудование"));
 
             entity.Property(e => e.CisternEquipmentId)
                 .UseIdentityAlwaysColumn()
@@ -199,32 +208,6 @@ public partial class DbCisternContext : DbContext
                 .HasConstraintName("cistern_equipment_fk_1");
         });
 
-        modelBuilder.Entity<Debet>(entity =>
-        {
-            entity.HasKey(e => e.DebetId).HasName("debet_pk");
-
-            entity.ToTable("debet");
-
-            entity.Property(e => e.DebetId).HasColumnName("debet_id");
-            entity.Property(e => e.Month).HasColumnName("month");
-            entity.Property(e => e.QgPred).HasColumnName("qg_pred");
-            entity.Property(e => e.QnPred).HasColumnName("qn_pred");
-            entity.Property(e => e.QwPred).HasColumnName("qw_pred");
-            entity.Property(e => e.SkwId).HasColumnName("skw_id");
-            entity.Property(e => e.TovpId).HasColumnName("tovp_id");
-            entity.Property(e => e.Year).HasColumnName("year");
-
-            entity.HasOne(d => d.Skw).WithMany(p => p.Debets)
-                .HasForeignKey(d => d.SkwId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("debet_fk");
-
-            entity.HasOne(d => d.Tovp).WithMany(p => p.Debets)
-                .HasForeignKey(d => d.TovpId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("debet_fk_1");
-        });
-
         modelBuilder.Entity<Equipment>(entity =>
         {
             entity.HasKey(e => e.EquipmentId).HasName("equipment_pk");
@@ -243,82 +226,177 @@ public partial class DbCisternContext : DbContext
                 .HasColumnName("weight_kg");
         });
 
-        modelBuilder.Entity<Guide>(entity =>
+        modelBuilder.Entity<FlowRate>(entity =>
         {
-            entity.HasKey(e => e.GuideId).HasName("guide_id_pk");
+            entity.HasKey(e => e.FlowRateId).HasName("flow_rate_pk");
 
-            entity.ToTable("guide", tb => tb.HasComment("Таблица Справочник"));
+            entity.ToTable("flow_rate");
 
-            entity.Property(e => e.GuideId)
+            entity.Property(e => e.FlowRateId).HasColumnName("flow_rate_id");
+            entity.Property(e => e.Month).HasColumnName("month");
+            entity.Property(e => e.ProductParkId).HasColumnName("product_park_id");
+            entity.Property(e => e.QgPred).HasColumnName("qg_pred");
+            entity.Property(e => e.QnPred).HasColumnName("qn_pred");
+            entity.Property(e => e.QwPred).HasColumnName("qw_pred");
+            entity.Property(e => e.WellId).HasColumnName("well_id");
+            entity.Property(e => e.Year).HasColumnName("year");
+
+            entity.HasOne(d => d.ProductPark).WithMany(p => p.FlowRates)
+                .HasForeignKey(d => d.ProductParkId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("flow_rate_fk_1");
+
+            entity.HasOne(d => d.Well).WithMany(p => p.FlowRates)
+                .HasForeignKey(d => d.WellId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("flow_rate_fk");
+        });
+
+        modelBuilder.Entity<LadderTypeConstruction>(entity =>
+        {
+            entity.HasKey(e => e.LadderTypeConstructionId).HasName("ladder_type_construction_pk");
+
+            entity.ToTable("ladder_type_construction");
+
+            entity.Property(e => e.LadderTypeConstructionId)
                 .UseIdentityAlwaysColumn()
-                .HasColumnName("guide_id");
+                .HasColumnName("ladder_type_construction_id");
             entity.Property(e => e.Name)
                 .HasMaxLength(255)
                 .HasColumnName("name");
-            entity.Property(e => e.Tip).HasColumnName("tip");
         });
 
-        modelBuilder.Entity<OilProduct>(entity =>
+        modelBuilder.Entity<MethodMade>(entity =>
         {
-            entity.HasKey(e => e.OilProductId).HasName("oil_product_pk");
+            entity.HasKey(e => e.MethodMadeId).HasName("method_made_pk");
 
-            entity.ToTable("oil_product", tb => tb.HasComment("Таблица Нефтепродукт"));
+            entity.ToTable("method_made", tb => tb.HasComment("Таблица Метод изготовления"));
 
-            entity.Property(e => e.OilProductId)
+            entity.Property(e => e.MethodMadeId)
                 .UseIdentityAlwaysColumn()
-                .HasColumnName("oil_product_id");
-            entity.Property(e => e.DensityGCm3)
-                .HasComment("Плотность, г/cм3")
-                .HasColumnName("density_g_cm3");
+                .HasColumnName("method_made_id");
             entity.Property(e => e.Name)
                 .HasMaxLength(255)
-                .HasComment("Название нефтепродукта")
                 .HasColumnName("name");
-            entity.Property(e => e.SpeedSettlingSec)
-                .HasComment("Скорость отстоя, секунды")
-                .HasColumnName("speed_settling_sec");
         });
 
-        modelBuilder.Entity<Skw>(entity =>
+        modelBuilder.Entity<PriceCistern>(entity =>
         {
-            entity.HasKey(e => e.SkwId).HasName("skw_pk");
+            entity.HasKey(e => e.PriceCisternId).HasName("price_cistern_pk");
 
-            entity.ToTable("skw");
+            entity.ToTable("price_cistern", tb => tb.HasComment("Таблица Стоимость резервуара"));
 
-            entity.Property(e => e.SkwId).HasColumnName("skw_id");
+            entity.Property(e => e.PriceCisternId)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("price_cistern_id");
+            entity.Property(e => e.CisternId).HasColumnName("cistern_id");
+            entity.Property(e => e.PriceRub)
+                .HasComment("Цена, руб")
+                .HasColumnType("money")
+                .HasColumnName("price_rub");
+
+            entity.HasOne(d => d.Cistern).WithMany(p => p.PriceCisterns)
+                .HasForeignKey(d => d.CisternId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("price_cistern_fk");
+        });
+
+        modelBuilder.Entity<ProductPark>(entity =>
+        {
+            entity.HasKey(e => e.ProductParkId).HasName("product_park_pk");
+
+            entity.ToTable("product_park");
+
+            entity.Property(e => e.ProductParkId).HasColumnName("product_park_id");
             entity.Property(e => e.Name)
                 .HasColumnType("character varying")
                 .HasColumnName("name");
         });
 
+        modelBuilder.Entity<PurposeCistern>(entity =>
+        {
+            entity.HasKey(e => e.PurposeCisternId).HasName("purpose_cistern_pk");
+
+            entity.ToTable("purpose_cistern");
+
+            entity.Property(e => e.PurposeCisternId)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("purpose_cistern_id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(255)
+                .HasColumnName("name");
+        });
+
+        modelBuilder.Entity<RoofTypeConstruction>(entity =>
+        {
+            entity.HasKey(e => e.RoofTypeConstructionId).HasName("roof_type_construction_pk");
+
+            entity.ToTable("roof_type_construction", tb => tb.HasComment("Таблица Типы конструкций лестницы"));
+
+            entity.Property(e => e.RoofTypeConstructionId)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("roof_type_construction_id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(255)
+                .HasColumnName("name");
+        });
+
+        modelBuilder.Entity<RoofTypeForm>(entity =>
+        {
+            entity.HasKey(e => e.RoofTypeFormId).HasName("roof_type_form_pk");
+
+            entity.ToTable("roof_type_form");
+
+            entity.Property(e => e.RoofTypeFormId)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("roof_type_form_id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(255)
+                .HasColumnName("name");
+        });
+
         modelBuilder.Entity<StandartSludge>(entity =>
         {
-            entity.HasKey(e => e.DebetId).HasName("standart_sludge_pk");
+            entity.HasKey(e => e.StandartSludgeId).HasName("standart_sludge_pk");
 
             entity.ToTable("standart_sludge");
 
-            entity.Property(e => e.DebetId).HasColumnName("debet_id");
+            entity.Property(e => e.StandartSludgeId).HasColumnName("standart_sludge_id");
             entity.Property(e => e.DevonHour)
                 .HasDefaultValueSql("0")
                 .HasColumnName("devon_hour");
-            entity.Property(e => e.GuideId).HasColumnName("guide_id");
+            entity.Property(e => e.PurposeCisternId).HasColumnName("purpose_cistern_id");
             entity.Property(e => e.SulfuricHour)
                 .HasDefaultValueSql("0")
                 .HasColumnName("sulfuric_hour");
 
-            entity.HasOne(d => d.Guide).WithMany(p => p.StandartSludges)
-                .HasForeignKey(d => d.GuideId)
+            entity.HasOne(d => d.PurposeCistern).WithMany(p => p.StandartSludges)
+                .HasForeignKey(d => d.PurposeCisternId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("standart_sludge_fk");
         });
 
-        modelBuilder.Entity<Tovp>(entity =>
+        modelBuilder.Entity<TypeSlope>(entity =>
         {
-            entity.HasKey(e => e.TovpId).HasName("tovp_pk");
+            entity.HasKey(e => e.TypeSlopeId).HasName("type_slope_pk");
 
-            entity.ToTable("tovp");
+            entity.ToTable("type_slope", tb => tb.HasComment("Таблица Виды форм стационарной крыши"));
 
-            entity.Property(e => e.TovpId).HasColumnName("tovp_id");
+            entity.Property(e => e.TypeSlopeId)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("type_slope_id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(255)
+                .HasColumnName("name");
+        });
+
+        modelBuilder.Entity<Well>(entity =>
+        {
+            entity.HasKey(e => e.WellId).HasName("well_pk");
+
+            entity.ToTable("well");
+
+            entity.Property(e => e.WellId).HasColumnName("well_id");
             entity.Property(e => e.Name)
                 .HasColumnType("character varying")
                 .HasColumnName("name");

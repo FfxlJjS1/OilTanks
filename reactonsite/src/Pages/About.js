@@ -1,56 +1,51 @@
-import React, { Component }  from "react"
+import React, { Component, useState }  from "react"
 import { Button, Container, Form } from "react-bootstrap"
 import { Table } from "react-bootstrap"
+import { CommunicationWithServer } from "../FunctionalClasses/CommunicationWithServer";
 
 export class About extends Component {
     constructor(props) {
         super(props);
-
-        this.apiUrl = props.apiUrl;
-
+        
         this.state = {
-            purposeCisternId: null, oilType: null, oilValue: 0, waterValue: 0,
-            purposeCisterns: null, loadingPurposeCisterns: false,
+            cisternPurposeId: null, oilType: null, oilValue: null, waterValue: null,
+            cisternPurposes: null, loadingCisternPurposes: false,
             oilTypes: null, loadingOilTypes: false,
             loadedResult: null, resultIsLoading: false
         };
     }
 
     componentDidMount() {
-        this.loadPurposeCisterns();
         this.loadOilTypes();
     }
 
-    async loadPurposeCisterns() {
-        this.setState({ purposeCisterns: null, purposeCisternId: null, loadingPurposeCisterns: true });
+    async loadCisternPurposesByOilType(oilType) {
+        this.setState({ CisternPurposes: null, cisternPurposeId: null, loadingCisternPurposes: true });
 
-        const response = await fetch(this.apiUrl + "/PurposeCisterns");
+        const data = await CommunicationWithServer.GetCisternPurposesByOilType(oilType);
+        
+        if (data != null) {
+            this.state.cisternPurposes = data;
 
-        if (response.ok) {
-            const data = await response.json();
-
-            this.setState({ purposeCisterns: data });
-
-            if (this.state.purposeCisterns != null) { // Problem with loading
-                this.state.purposeCisternId = this.state.purposeCisterns[0].purposeCisternId;
+            if (this.state.cisternPurposes != null) {
+                this.state.cisternPurposeId = this.state.cisternPurposes[0].purposeCisternId;
             }
         }
 
-        this.setState({ loadingPurposeCisterns: false });
+        this.setState({ loadingCisternPurposes: false });
     }
 
     async loadOilTypes() {
         this.setState({ oilTypes: null, oilType: null, loadingOilTypes: true });
 
-        const response = await fetch(this.apiUrl + "/OilTypes");
+        const data = await CommunicationWithServer.GetOilTypes();
 
-        if (response.ok) {
-            const data = await response.json();
+        if (data != null) {
+            this.state.oilTypes = data;
 
-            this.setState({ oilTypes: data });
-
-            if (this.state.oilTypes != null) { // Problem with loading
+            if (this.state.oilTypes != null) {
                 this.state.oilType = this.state.oilTypes[0];
+                this.loadCisternPurposesByOilType(this.state.oilType);
             }
         }
 
@@ -60,15 +55,14 @@ export class About extends Component {
     async enterAndLoadServerCalculation() {
         this.setState({ loadedResult: null, resultIsLoading: true });
 
-        const response = await fetch(this.apiUrl + "/CalculateByValues?" +
-            "purposeCisternId=" + this.state.purposeCisternId + "&" +
-            "oilType=" + this.state.oilType + "&" +
-            "oilValue=" + this.state.oilValue + "&" +
-            "waterValue=" + this.state.waterValue);
+        const data = await CommunicationWithServer.GetCalculationResultByArguments(
+            this.state.cisternPurposeId,
+            this.state.oilType,
+            this.state.oilValue,
+            this.state.waterValue
+        );
 
-        if (response.ok) {
-            const data = await response.json();
-
+        if (data != null) {
             this.setState({ loadedResult: data });
         }
 
@@ -78,18 +72,22 @@ export class About extends Component {
     renderResultTable() {
         const tdRows = (data) => {
             let content = [];
+            const rowsCount = data.length;
+            let firstRow = true;
 
             for (let row of data) {
                 content.push(
                     <tr>
-                        <td>{row.settlingTimeHour}</td>
-                        <td>{row.requiredVolume}</td>
-                        <td>{row.usefulVolume}</td>
+                        {firstRow ? < td rowSpan={rowsCount}>{row.settlingTimeHour}</td> : null}
+                        {firstRow ? <td rowSpan={rowsCount}>{row.requiredVolume}</td> : null}
+                        {firstRow ? <td rowSpan={rowsCount}>{row.usefulVolume}</td> : null}
                         <td>{row.nominalVolume}</td>
                         <td>{row.needCountForWork}</td>
                         <td>{row.cisternPrice}</td>
                         <td>{row.cisternPrice * row.needCountForWork}</td>
                     </tr>);
+
+                firstRow = false;
             }
 
             return content;
@@ -116,8 +114,8 @@ export class About extends Component {
     }
 
     render() {
-        let purposeCisternsSelect = !this.state.loadingPurposeCisterns && this.state.purposeCisterns != null
-            ? this.state.purposeCisterns.map(purposeCistern => <option value={purposeCistern.purposeCisternId }>{purposeCistern.name}</option>)
+        let cisternPurposesSelect = !this.state.loadingCisternPurposes && this.state.cisternPurposes != null && this.state.oilType != null
+            ? this.state.cisternPurposes.map(cisternPurpose => <option value={cisternPurpose.purposeCisternId }>{cisternPurpose.name}</option>)
             : null;
         let oilTypesSelect = !this.state.loadingOilTypes && this.state.oilTypes != null
             ? this.state.oilTypes.map(oilType => <option>{oilType}</option>)
@@ -126,42 +124,59 @@ export class About extends Component {
             ? this.renderResultTable()
             : null;
 
+        const handleInputOilValue = (event) => {
+            const value = (event.target.validity.valid) ? event.target.value : this.state.oilValue;
+            console.log(value);
+            this.setState({ oilValue: value });
+        };
+        const handleInputWaterValue = (event) => {
+            const value = (event.target.validity.valid) ? event.target.value : this.state.waterValue;
+            console.log(value);
+            this.setState({ waterValue: value });
+        };
         const handleClick = () => this.enterAndLoadServerCalculation();
-
+        
         return (
             <Container style={{ width: '500px' }}>
                 <Form>
                     <Form.Group className="mb-3" controlId="formBasicEmail"
-                        value={this.state.purposeCisternId}
-                        onChange={e => this.setState({ purposeCisternId: e.target.value })}>
-                        <Form.Label>Тип резервуара</Form.Label>
-                        <Form.Select disabled={this.state.purposeCisterns == null}>
-                            {purposeCisternsSelect}
-                        </Form.Select>
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="formBasicEmail"
                         value={this.state.oilType}
-                        onChange={e => this.setState({ oilType: e.target.value })}>
+                        onChange={e => {
+                            this.setState({ oilType: e.target.value });
+                            this.loadCisternPurposesByOilType(e.target.value)
+                        }}>
                         <Form.Label>Тип нефти</Form.Label>
                         <Form.Select disabled={this.state.oilTypes == null}>
                             {oilTypesSelect}
+                        </Form.Select>
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="formBasicEmail"
+                        value={this.state.cisternPurposeId}
+                        onChange={e => this.setState({ cisternPurposeId: e.target.value })}>
+                        <Form.Label>Назначение резервуара</Form.Label>
+                        <Form.Select disabled={this.state.cisternPurposes == null}>
+                            {cisternPurposesSelect}
                         </Form.Select>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formBasicEmail">
                         <Form.Label>Нефть</Form.Label>
                         <Form.Control type="text" placeholder="обьём м³"
                             value={this.state.oilValue}
-                            onChange={e => this.setState({ oilValue: e.target.value })} />
+                            onInput={e => handleInputOilValue(e)}
+                            pattern="[0-9]*" />
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formBasicEmail">
                         <Form.Label>Вода</Form.Label>
                         <Form.Control type="text" placeholder="обьём м³"
                             value={this.state.waterValue}
-                            onChange={e => this.setState({ waterValue: e.target.value })} />
+                            onInput={e => handleInputWaterValue(e) }
+                            pattern="[0-9]*"
+                        />
                     </Form.Group>
                     <Button variant="primary" type="button"
                         disabled={this.state.resultIsLoading ||
-                            this.state.oilTypes == null || this.state.purposeCisternId == null}
+                            this.state.oilTypes == null || this.state.cisternPurposeId == null
+                            || this.state.oilValue <= 0 || this.state.waterValue <= 0}
                         onClick={!this.state.resultIsLoading ? handleClick : null}>
                         {!this.state.resultIsLoading ? "Вычислить" : "Загружается"}
                     </Button>

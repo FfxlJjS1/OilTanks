@@ -29,17 +29,35 @@ namespace BackendOfSite.Controllers
         }
 
         [HttpGet("ProductParks")]
-        public IActionResult GetCommodityParks()
+        public IActionResult GetProductParks()
         {
             return Ok(db.ProductParks);
         }
 
-        private PurposeCistern[] GetPurposeCisternsFromDB() => db.PurposeCisterns.ToArray();
+        private PurposeCistern[] GetCisternPurposesFromDB() => db.PurposeCisterns.ToArray();
 
-        [HttpGet("PurposeCisterns")]
-        public IActionResult GetPurposeCisterns()
+        [HttpGet("CisternPurposes")]
+        public IActionResult GetCisternPurposes()
         {
-            return Ok(GetPurposeCisternsFromDB());
+            return Ok(GetCisternPurposesFromDB());
+        }
+
+        [HttpGet("CisternPurposesByOilType")]
+        public IActionResult GetCisternPurposes(string oilType)
+        {
+            int oilTypeId = Array.IndexOf(oilTypes, oilType);
+            List<PurposeCistern> resultCisternPurposes = new List<PurposeCistern>();
+
+            if(oilTypeId == 0)
+            {
+                resultCisternPurposes = db.StandartSludges.Where(x => x.DevonHour > 0).Select(x => x.PurposeCistern).ToList();
+            }
+            else if(oilTypeId == 1)
+            {
+                resultCisternPurposes = db.StandartSludges.Where(x => x.SulfuricHour > 0).Select(x => x.PurposeCistern).ToList();
+            }
+
+            return Ok(resultCisternPurposes);
         }
 
         [HttpGet("OilTypes")]
@@ -49,7 +67,7 @@ namespace BackendOfSite.Controllers
         }
 
         [HttpGet("CalculateByProductPark")]
-        public IActionResult Calculate(int productParkId, int purposeCisternId)
+        public IActionResult Calculate(int productParkId, int cisternPurposeId)
         {
             int oilTypeId = 0;
             decimal maxOil = -1, maxWater = -1;
@@ -66,7 +84,7 @@ namespace BackendOfSite.Controllers
 
             if (maxOil != -1 && maxWater != -1)
             {
-                return Ok(CalculateByNW(purposeCisternId, oilTypeId, (int)maxOil, (int)maxWater));
+                return Ok(CalculateByNW(cisternPurposeId, oilTypeId, (int)maxOil, (int)maxWater));
             }
             else
             {
@@ -75,38 +93,31 @@ namespace BackendOfSite.Controllers
         }
 
         [HttpGet("CalculateByValues")]
-        public IActionResult Calculate(int purposeCisternId, string oilType, int oilValue, int waterValue)
+        public IActionResult Calculate(int cisternPurposeId, string oilType, int oilValue, int waterValue)
         {
             int oilTypeId = Array.IndexOf(oilTypes, oilType);
 
-            if (purposeCisternId == -1 || oilTypeId == -1)
+            if (cisternPurposeId == -1 || oilTypeId == -1)
             {
                 return NotFound();
             }
 
             List<LineStruct> data;
 
-            if(purposeCisternId <= 4)
-            {
-                data = CalculateByNW(purposeCisternId, oilTypeId, oilValue, waterValue);
-            }
-            else // If it's not realized
-            {
-                return NotFound();
-            }
+            data = CalculateByNW(cisternPurposeId, oilTypeId, oilValue, waterValue);
 
             return Ok(data);
         }
 
-        private List<LineStruct> CalculateByNW(int purposeCisternId, int oilTypeId, int oilValue, int waterValue)
+        private List<LineStruct> CalculateByNW(int cisternPurposeId, int oilTypeId, int oilValue, int waterValue)
         {
             List<LineStruct> data = new List<LineStruct>();
 
-            int settlingTime = CalculateSettlingTime(purposeCisternId, oilTypeId),
-                needVolumeM3 = CalculateNeedVolumeM3(purposeCisternId, oilValue, waterValue, settlingTime);
-            float usefulVolume = CalculateUsefulVolume(purposeCisternId);
+            int settlingTime = CalculateSettlingTime(cisternPurposeId, oilTypeId),
+                needVolumeM3 = CalculateNeedVolumeM3(cisternPurposeId, oilValue, waterValue, settlingTime);
+            float usefulVolume = CalculateUsefulVolume(cisternPurposeId);
 
-            if(purposeCisternId != 0 || oilTypeId == 0)
+            if(oilValue > 0 && waterValue > 0 && (cisternPurposeId != 0 || oilTypeId == 0))
             {
                 data = CalculateTanksForParametrs(settlingTime, needVolumeM3, usefulVolume);
             }
@@ -114,11 +125,11 @@ namespace BackendOfSite.Controllers
             return data;
         }
 
-        private int CalculateSettlingTime(int purposeCisternId, int oilTypeId)
+        private int CalculateSettlingTime(int cisternPurposeId, int oilTypeId)
         {
             int settlingTime = 0;
 
-            var standartSludgeRow = db.StandartSludges.Where(row => row.PurposeCisternId == purposeCisternId).First();
+            var standartSludgeRow = db.StandartSludges.Where(row => row.PurposeCisternId == cisternPurposeId).First();
             
             if(oilTypeId == 0)
             {
@@ -132,11 +143,11 @@ namespace BackendOfSite.Controllers
             return settlingTime;
         }
 
-        private int CalculateNeedVolumeM3(int purposeCisternId, float oilValue, float waterValue, int settlingTime)
+        private int CalculateNeedVolumeM3(int cisternPurposeId, float oilValue, float waterValue, int settlingTime)
         {
-            int needVolume;
+            int needVolume = 0;
 
-            switch(purposeCisternId)
+            switch(cisternPurposeId)
             {
                 case 1:
                     needVolume = (int)Math.Ceiling((oilValue + waterValue) / 24 * settlingTime);
@@ -144,28 +155,25 @@ namespace BackendOfSite.Controllers
                 case 2:
                     needVolume = (int)Math.Ceiling((oilValue) / 24 * settlingTime);
                     break;
-                case 4:
+                case 3:
                     needVolume = (int)Math.Ceiling((oilValue) / 24 * settlingTime);
+                    break;
+                case 4:
+                    needVolume = (int)Math.Ceiling((waterValue) / 24 * settlingTime);
                     break;
                 case 5:
                     needVolume = (int)Math.Ceiling((waterValue) / 24 * settlingTime);
-                    break;
-                case 6:
-                    needVolume = (int)Math.Ceiling((waterValue) / 24 * settlingTime);
-                    break;
-                default:
-                    needVolume = 0;
                     break;
             }
 
             return needVolume;
         }
 
-        private float CalculateUsefulVolume(int purposeCisternId)
+        private float CalculateUsefulVolume(int cisternPurposeId)
         {
-            float usefulVolume;
+            float usefulVolume = 0f;
 
-            switch(purposeCisternId)
+            switch (cisternPurposeId)
             {
                 case 1:
                     usefulVolume = 0.7f;
@@ -173,17 +181,14 @@ namespace BackendOfSite.Controllers
                 case 2:
                     usefulVolume = 0.85f;
                     break;
+                case 3:
+                    usefulVolume = 0.9f;
+                    break;
                 case 4:
                     usefulVolume = 0.9f;
                     break;
                 case 5:
-                    usefulVolume = 0.9f;
-                    break;
-                case 6:
                     usefulVolume = 0.8f;
-                    break;
-                default:
-                    usefulVolume = 0f;
                     break;
             }
 
@@ -211,7 +216,7 @@ namespace BackendOfSite.Controllers
                 });
             }
 
-            result = result.OrderBy(row => row.CisternPrice * row.NeedCountForWork).ToList();
+            result = result.OrderBy(row => row.CisternPrice * row.NeedCountForWork).Take(5).ToList();
 
             return result;
         }

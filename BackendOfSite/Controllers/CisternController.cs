@@ -1,6 +1,7 @@
 ﻿using BackendOfSite.EFDbCistern;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BackendOfSite.Controllers
 {
@@ -28,7 +29,8 @@ namespace BackendOfSite.Controllers
         [HttpGet("CisternCharacters")]
         public IActionResult GetCisternCharacters(int cisternId)
         {
-            var cistern = db.Cisterns.FirstOrDefault(cistern => cistern.CisternId == cisternId);
+            var cistern = db.Cisterns
+                .FirstOrDefault(cistern => cistern.CisternId == cisternId);
 
             if(cistern != null)
             {

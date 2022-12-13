@@ -1,15 +1,14 @@
 import React, { Component }  from "react"
 import { Col, Container, Nav, Row, Tab } from "react-bootstrap"
 import { Table } from "react-bootstrap"
+import { CommunicationWithServer } from "../FunctionalClasses/CommunicationWithServer";
 
 export class Tank extends Component {
     constructor(props) {
         super(props);
 
-        this.apiUrl = props.apiUrl;
-
         this.state = {
-            selectedeCisternId: 1,
+            selectedCisternId: null,
             cisternNames: null, tableNamesIsLoading: true,
             cisternCharacters: null, tableCharactersIsLoading: true
         };
@@ -18,15 +17,14 @@ export class Tank extends Component {
     async loadCisternsList() {
         this.setState({ cisternNames: null, tableNamesIsLoading: true });
 
-        const response = await fetch(this.apiUrl);
+        const data = await CommunicationWithServer.GetCinsternList();
 
-        if (response.ok) {
-            const data = await response.json();
-
-            this.setState({ cisternNames: data });
+        if (data != null) {
+            this.state.cisternNames = data;
 
             if (this.state.cisternNames != null) {
-                this.loadCisternCharacter(this.state.cisternNames[0].id);
+                this.state.selectedCisternId = this.state.cisternNames[0].id
+                this.loadCisternCharacter(this.state.selectedCisternId);
             }
         }
 
@@ -34,14 +32,12 @@ export class Tank extends Component {
     }
 
     async loadCisternCharacter(cisternId) {
-        this.setState({ selectedCisternId: cisternId, cisternCharacters: null, tableCharactersIsLoading: true });
+        await this.setState({ selectedCisternId: cisternId, cisternCharacters: null, tableCharactersIsLoading: true });
 
-        const response = await fetch(this.apiUrl + "/CisternCharacters?cisternId=" + cisternId);
+        const data = await CommunicationWithServer.GetCisternCharacters(cisternId);
 
-        if (response.ok) {
-            const data = await response.json();
-
-            this.setState({ cisternCharacters: data });
+        if (data != null) {
+            this.state.cisternCharacters = data;
         }
 
         this.setState({ tableCharactersIsLoading: false });

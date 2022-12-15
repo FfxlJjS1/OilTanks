@@ -32,13 +32,6 @@ export default class Header extends Component{
                                 <Nav.Link href="/about"> Онлайн калькулятор </Nav.Link>
                                 <Nav.Link href="/park"> Расчет по парку </Nav.Link>
                             </Nav>
-                            <Form country-info-list="true">
-                                <FormControl
-                                    type="text"
-                                    placeholder="Search"
-                                    className="me-sm-3" />
-                            </Form>
-                            <Button variant="outline-info"> Search </Button>
                         </Navbar.Collapse>
                     </Container>
                 </Navbar>

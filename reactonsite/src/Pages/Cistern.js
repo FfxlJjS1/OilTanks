@@ -69,15 +69,8 @@ export class Cistern extends Component {
                 </tbody>
                 <tbody>
                     <tr>
-                        <td>1</td>
-                        <td className="left">Класс опасности</td>
-                        <td>{this.state.cisternCharacters.classDanger}</td>
-                    </tr>
-                </tbody>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td className="left">Время работоспособности, год</td>
+                        <td></td>
+                        <td className="left">Срок службы, лет</td>
                         <td>{this.state.cisternCharacters.workingLifeYear}</td>
                     </tr>
                 </tbody>
@@ -302,49 +295,49 @@ export class Cistern extends Component {
                 <tbody>
                     <tr>
                         <th></th>
-                        <th>Неотсортировано:</th>
+                        <th>Конструкция:</th>
                         <th></th>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
-                        <td>24</td>
-                        <td className="left">Метод создания стены</td>
+                        <td>1</td>
+                        <td className="left">Метод изготовления стенки</td>
                         <td>{this.state.cisternCharacters.wallMethodMade.name}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
-                        <td>24</td>
-                        <td className="left">Метод создания дна?</td>
+                        <td>2</td>
+                        <td className="left">Метод изготовления днища</td>
                         <td>{this.state.cisternCharacters.bottomMethodMade.name}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
-                        <td>24</td>
-                        <td className="left">Bottom type slope?</td>
+                        <td>3</td>
+                        <td className="left">Тип уклона днища</td>
                         <td>{this.state.cisternCharacters.bottomTypeSlope.name}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
-                        <td>24</td>
-                        <td className="left">Тип формы крыши?</td>
+                        <td>4</td>
+                        <td className="left">Вид формы стационарной крыши</td>
                         <td>{this.state.cisternCharacters.roofTypeForm.name}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
-                        <td>24</td>
-                        <td className="left">Тип конструкции крыши?</td>
+                        <td>5</td>
+                        <td className="left">Тип конструкции стационарной крыши</td>
                         <td>{this.state.cisternCharacters.roofTypeConstruction.name}</td>
                     </tr>
                 </tbody>
                 <tbody>
                     <tr>
-                        <td>24</td>
-                        <td className="left">Ladder type construction</td>
+                        <td>6</td>
+                        <td className="left">Тип конструкции лестницы</td>
                         <td>{this.state.cisternCharacters.ladderTypeConstruction.name}</td>
                     </tr>
                 </tbody>

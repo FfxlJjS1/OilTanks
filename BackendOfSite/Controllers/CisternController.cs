@@ -22,14 +22,20 @@ namespace BackendOfSite.Controllers
             return Ok(db.Cisterns.Select(row => new
             {
                 Id = row.CisternId,
-                CisternName = "РВС-" + row.NominalVolumeM3.ToString() + " м^3"
+                CisternNominal = row.NominalVolumeM3.ToString()
             }));
         }
 
         [HttpGet("CisternCharacters")]
         public IActionResult GetCisternCharacters(int cisternId)
         {
-            var cistern = db.Cisterns
+            var cistern = db.Cisterns.IgnoreAutoIncludes()
+                .Include(x => x.WallMethodMade)
+                .Include(x => x.LadderTypeConstruction)
+                .Include(x => x.RoofTypeConstruction)
+                .Include(x => x.RoofTypeForm)
+                .Include(x => x.BottomTypeSlope)
+                .Include(x => x.PriceCisterns)
                 .FirstOrDefault(cistern => cistern.CisternId == cisternId);
 
             if(cistern != null)

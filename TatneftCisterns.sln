@@ -5,7 +5,7 @@ VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackendOfSite", "BackendOfSite\BackendOfSite.csproj", "{0A1F0666-42E5-4220-B05B-7AB4A509E5E0}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "reactonsite", "reactonsite\reactonsite.esproj", "{7F65325B-F6A5-49E2-A493-C091AB418925}"
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "siteonreact", "reactonsite\siteonreact.esproj", "{7F65325B-F6A5-49E2-A493-C091AB418925}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0A1F0666-42E5-4220-B05B-7AB4A509E5E0} = {0A1F0666-42E5-4220-B05B-7AB4A509E5E0}
 	EndProjectSection

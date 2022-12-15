@@ -3,7 +3,7 @@ import { Col, Container, Nav, Row, Tab } from "react-bootstrap"
 import { Table } from "react-bootstrap"
 import { CommunicationWithServer } from "../FunctionalClasses/CommunicationWithServer";
 
-export class Tank extends Component {
+export class Cistern extends Component {
     constructor(props) {
         super(props);
 
@@ -51,7 +51,7 @@ export class Tank extends Component {
         return (
             cisternNames.map(cisternName =>
                 <Nav.Item>
-                    <Nav.Link eventKey={cisternName.id}>{cisternName.cisternName}</Nav.Link>
+                    <Nav.Link eventKey={cisternName.id}>РВС-{cisternName.cisternNominal} м<sup>3</sup></Nav.Link>
                 </Nav.Item>
             )
         );
@@ -60,6 +60,27 @@ export class Tank extends Component {
     renderCisternCharactersTable() {
         return (
             <Table striped bordred hover>
+                <tbody>
+                    <tr>
+                        <th>№</th>
+                        <th>Цена, руб.</th>
+                        <th>{this.state.cisternCharacters.priceCisterns[0].priceRub}</th>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td className="left">Класс опасности</td>
+                        <td>{this.state.cisternCharacters.classDanger}</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td className="left">Время работоспособности, год</td>
+                        <td>{this.state.cisternCharacters.workingLifeYear}</td>
+                    </tr>
+                </tbody>
                 <tbody>
                     <tr>
                         <th>№</th>
@@ -276,6 +297,55 @@ export class Tank extends Component {
                             this.state.cisternCharacters.accessoriesKg +
                             this.state.cisternCharacters.carcassPackKg}
                         </td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <th></th>
+                        <th>Неотсортировано:</th>
+                        <th></th>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>24</td>
+                        <td className="left">Метод создания стены</td>
+                        <td>{this.state.cisternCharacters.wallMethodMade.name}</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>24</td>
+                        <td className="left">Метод создания дна?</td>
+                        <td>{this.state.cisternCharacters.bottomMethodMade.name}</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>24</td>
+                        <td className="left">Bottom type slope?</td>
+                        <td>{this.state.cisternCharacters.bottomTypeSlope.name}</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>24</td>
+                        <td className="left">Тип формы крыши?</td>
+                        <td>{this.state.cisternCharacters.roofTypeForm.name}</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>24</td>
+                        <td className="left">Тип конструкции крыши?</td>
+                        <td>{this.state.cisternCharacters.roofTypeConstruction.name}</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>24</td>
+                        <td className="left">Ladder type construction</td>
+                        <td>{this.state.cisternCharacters.ladderTypeConstruction.name}</td>
                     </tr>
                 </tbody>
             </Table>

@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import logo from './logo.png'
 
 import {Home} from "../Pages/Home"
-import {Tank} from "../Pages/Tank"
+import {Cistern} from "../Pages/Cistern"
 import {About} from "../Pages/About"
 import {Park} from "../Pages/Park"
 
@@ -28,7 +28,7 @@ export default class Header extends Component{
                         <Navbar.Collapse id="responsive-navbar-nav" >
                             <Nav className="me-auto">
                                 <Nav.Link href="/"> Главное меню </Nav.Link>
-                                <Nav.Link href="/tank"> Резервуар </Nav.Link>
+                                <Nav.Link href="/cistern"> Резервуар </Nav.Link>
                                 <Nav.Link href="/about"> Онлайн калькулятор </Nav.Link>
                                 <Nav.Link href="/park"> Расчет по парку </Nav.Link>
                             </Nav>
@@ -45,7 +45,7 @@ export default class Header extends Component{
                 <Router>
                     <Routes>
                         <Route exact path="/" element={<Home />} />
-                        <Route exact path="/tank" element={<Tank/>} />
+                        <Route exact path="/cistern" element={<Cistern/>} />
                         <Route exact path="/about" element={<About/>} />
                         <Route exact path="/park" element={<Park/>} />
                     </Routes>

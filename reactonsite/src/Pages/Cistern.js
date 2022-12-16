@@ -64,7 +64,7 @@ export class Cistern extends Component {
                     <tr>
                         <th>№</th>
                         <th>Цена, руб.</th>
-                        <th>{this.state.cisternCharacters.priceCisterns[0].priceRub}</th>
+                        <th>{this.state.cisternCharacters.cisternPrice.priceRub}</th>
                     </tr>
                 </tbody>
                 <tbody>

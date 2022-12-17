@@ -94,7 +94,7 @@ export class About extends Component {
         }
 
         return (
-            <Table striped bordred hover>
+            <Table striped bordred hover >
                 <tbody>
                     <tr>
                         <th>Время отстоя, хранения, час</th>
@@ -137,7 +137,7 @@ export class About extends Component {
         const handleClick = () => this.enterAndLoadServerCalculation();
         
         return (
-            <Container style={{ width: '500px' }}>
+            <Container style={{ width: '1000px' }}>
                 <Form>
                     <Form.Group className="mb-3" controlId="formBasicEmail"
                         value={this.state.oilType}
@@ -173,7 +173,7 @@ export class About extends Component {
                             pattern="[0-9]*"
                         />
                     </Form.Group>
-                    <Button variant="primary" type="button"
+                    <Button className="mb-3" variant="primary" type="button"
                         disabled={this.state.resultIsLoading ||
                             this.state.oilTypes == null || this.state.cisternPurposeId == null
                             || this.state.oilValue <= 0 || this.state.waterValue <= 0}

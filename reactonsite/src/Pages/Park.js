@@ -127,7 +127,7 @@ export class Park extends Component {
         const handleClick = () => this.enterAndLoadServerCalculation();
 
         return (
-            <Container style={{ width: '500px' }}>
+            <Container style={{ width: '1000px' }}>
                 <Form>
                     <Form.Group className="mb-3" controlId="formBasicEmail"
                         value={this.state.productParkId}

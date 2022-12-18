@@ -20,11 +20,11 @@ export class Cistern extends Component {
         const data = await CommunicationWithServer.GetCinsternList();
 
         if (data != null) {
-            this.state.cisternNames = data;
+            this.setState({ cisternNames: data });
 
-            if (this.state.cisternNames != null) {
-                this.state.selectedCisternId = this.state.cisternNames[0].id
-                this.loadCisternCharacter(this.state.selectedCisternId);
+            if (data != null) {
+                this.setState({ selectedCisternId: data[0].id });
+                this.loadCisternCharacter(data[0].id);
             }
         }
 
@@ -37,7 +37,7 @@ export class Cistern extends Component {
         const data = await CommunicationWithServer.GetCisternCharacters(cisternId);
 
         if (data != null) {
-            this.state.cisternCharacters = data;
+            this.setState({ cisternCharacters: data });
         }
 
         this.setState({ tableCharactersIsLoading: false });

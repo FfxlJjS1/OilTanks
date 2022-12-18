@@ -1,16 +1,16 @@
-import React, { Component } from "react";
+import React from "react";
 import "./App.css";
-import {Button} from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Header from "./Components/Header";
 import Fotter from "./Components/Fotter";
 
-function App(){
+function App() {
     return (
         <>
-            <Header />
-            <Fotter />
+            <Header className="content-container"/>
+            <Fotter className="footer"/>
         </>
     );
 }
+
 export default App;

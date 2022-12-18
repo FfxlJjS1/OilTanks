@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-import { Navbar, Nav, FormControl, Container, Form, Button  } from 'react-bootstrap'
+import { Navbar, Nav, Container } from 'react-bootstrap'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 
 import logo from './logo.png'
@@ -10,9 +10,13 @@ import {About} from "../Pages/About"
 import {Park} from "../Pages/Park"
 
 export default class Header extends Component{
+    constructor(props) {
+        super(props);
+    }
+
     render() {
         return (
-            <>
+            <div className={this.props.className}>
                 <Navbar collapseOnSelect expand="md" bg="dark" variant="dark" >
                     <Container>
                         <Navbar.Brand hrefs="/">
@@ -38,12 +42,12 @@ export default class Header extends Component{
                 <Router>
                     <Routes>
                         <Route exact path="/" element={<Home />} />
-                        <Route exact path="/cistern" element={<Cistern/>} />
-                        <Route exact path="/about" element={<About/>} />
-                        <Route exact path="/park" element={<Park/>} />
+                        <Route exact path="/cistern" element={<Cistern />} />
+                        <Route exact path="/about" element={<About />} />
+                        <Route exact path="/park" element={<Park />} />
                     </Routes>
                 </Router>
-            </>
+            </div>
         );
     }
 }

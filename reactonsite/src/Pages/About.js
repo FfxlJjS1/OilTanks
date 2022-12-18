@@ -1,4 +1,4 @@
-import React, { Component, useState }  from "react"
+import React, { Component }  from "react"
 import { Button, Container, Form } from "react-bootstrap"
 import { Table } from "react-bootstrap"
 import { CommunicationWithServer } from "../FunctionalClasses/CommunicationWithServer";
@@ -25,10 +25,10 @@ export class About extends Component {
         const data = await CommunicationWithServer.GetCisternPurposesByOilType(oilType);
         
         if (data != null) {
-            this.state.cisternPurposes = data;
+            this.setState({ cisternPurposes: data });
 
-            if (this.state.cisternPurposes != null) {
-                this.state.cisternPurposeId = this.state.cisternPurposes[0].purposeCisternId;
+            if (data != null) {
+                this.setState({ cisternPurposeId: data[0].purposeCisternId });
             }
         }
 
@@ -41,11 +41,11 @@ export class About extends Component {
         const data = await CommunicationWithServer.GetOilTypes();
 
         if (data != null) {
-            this.state.oilTypes = data;
+            this.setState({ oilTypes: data });
 
-            if (this.state.oilTypes != null) {
-                this.state.oilType = this.state.oilTypes[0];
-                this.loadCisternPurposesByOilType(this.state.oilType);
+            if (data != null) {
+                this.setState({ oilType: data[0] });
+                this.loadCisternPurposesByOilType(data[0]);
             }
         }
 

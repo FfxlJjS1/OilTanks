@@ -28,8 +28,8 @@ export class Park extends Component {
         if (data != null) {
             this.setState({ productParks: data, loadingProductParks: false });
 
-            if (this.state.productParks != null) {
-                this.state.productParkId = this.state.productParks[0].productParkId;
+            if (data != null) {
+                this.setState({ productParkId: data[0].productParkId });
             }
         }
         else {
@@ -45,8 +45,8 @@ export class Park extends Component {
         if (data != null) {
             this.setState({ CisternPurposes: data });
 
-            if (this.state.CisternPurposes != null) { // Problem with loading
-                this.state.cisternPurposeId = this.state.CisternPurposes[0].purposeCisternId;
+            if (data != null) {
+                this.setState({ cisternPurposeId: data[0].purposeCisternId });
             }
         }
 

@@ -126,13 +126,24 @@ export class About extends Component {
 
         const handleInputOilValue = (event) => {
             const value = (event.target.validity.valid) ? event.target.value : this.state.oilValue;
-            console.log(value);
-            this.setState({ oilValue: value });
+
+            if (value) {
+                this.setState({ oilValue: parseInt(value) });
+            }
+            else {
+                this.setState({ oilValue: event.target.value != "" ? 0 : null });
+            }
         };
         const handleInputWaterValue = (event) => {
             const value = (event.target.validity.valid) ? event.target.value : this.state.waterValue;
+
             console.log(value);
-            this.setState({ waterValue: value });
+            if (value) {
+                this.setState({ waterValue: parseInt(value) });
+            }
+            else {
+                this.setState({ waterValue: event.target.value != "" ? 0 : null });
+            }
         };
         const handleClick = () => this.enterAndLoadServerCalculation();
         

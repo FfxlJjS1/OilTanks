@@ -94,7 +94,7 @@ export class About extends Component {
         const handleClick = () => this.enterAndLoadServerCalculation();
         
         return (
-            <Container style={{ width: '1000px' }}>
+            <Container className="mt-2" style={{ width: '1200px' }}>
                 <Form>
                     <Form.Group className="mb-3" controlId="formBasicEmail"
                         value={this.state.oilType}

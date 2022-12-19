@@ -1,7 +1,9 @@
 import React, { Component }  from "react"
 import { Col, Container, Nav, Row, Tab } from "react-bootstrap"
 import { Table } from "react-bootstrap"
+
 import { CommunicationWithServer } from "../FunctionalClasses/CommunicationWithServer";
+import {NumToFormatStr} from "../FunctionalClasses/GeneralFunctions";
 
 export class Cistern extends Component {
     constructor(props) {
@@ -64,7 +66,7 @@ export class Cistern extends Component {
                     <tr>
                         <th>№</th>
                         <th>Цена, руб.</th>
-                        <th>{this.state.cisternCharacters.cisternPrice.priceRub}</th>
+                        <th>{NumToFormatStr(this.state.cisternCharacters.cisternPrice.priceRub)}</th>
                     </tr>
                 </tbody>
                 <tbody>
@@ -358,7 +360,7 @@ export class Cistern extends Component {
                 : this.renderCisternCharactersTable();
 
         return (
-            <Container>
+            <Container className="mt-2">
                 <Tab.Container id="ledt--tabs-example" defaultActiveKey="1" >
                     <Row>
                         <Col sm={3}>

@@ -12,8 +12,7 @@ export default class CarouselBox extends Component{
             <Carousel>
                 <Carousel.Item>
                     <img
-                    width={900}
-                    height={900}
+                    srcSet={`${slaider1img} 320w, ${slaider1img} 680w, ${slaider1img}   960w, ${slaider1img} 1980w`}
                     className="d-block w-100"
                     src={ slaider1img }
                     alt="slaider1"
@@ -25,8 +24,7 @@ export default class CarouselBox extends Component{
                 </Carousel.Item>
                 <Carousel.Item>
                     <img
-                    width={900}
-                    height={900}
+                    srcSet={`${slaider2img} 320w, ${slaider2img} 680w, ${slaider2img}   960w, ${slaider2img} 1980w`}
                     className="d-block w-100"
                     src={ slaider2img }
                     alt="slaider2"
@@ -41,17 +39,13 @@ export default class CarouselBox extends Component{
                 </Carousel.Item>
                 <Carousel.Item>
                     <img
-                    width={900}
-                    height={900}
+                    srcSet={`${slaider3img} 320w, ${slaider3img} 680w, ${slaider3img}   960w, ${slaider3img} 1980w`}
                     className="d-block w-100"
                     src={ slaider3img }
                     alt="slaider4"
                     />
                     <Carousel.Caption>
-                        <h1> Конструктивные особенности </h1>
-                        <h2> Как правило, основные составные части резервуарного оборудования следующие: основание, корпус, лестницы, люки, перекрытия, защитные ограды, дыхательная аппаратура, система вентиляции, противопожарные механизмы, устройства для удаления осадка, поступления и выдачи нефтепродуктов. </h2>
-                        <h2> Если объем резервуаров небольшой, то трудностей при их изготовлении на заводах не возникает. Габаритные агрегаты производятся отдельными сегментами, затем сборка выполняется на территории установки. </h2>
-                        <h2> По форме промышленные емкости бывают: </h2>
+                        <h1> По форме промышленные емкости бывают: </h1>
                         <h2> - цилиндрические; </h2>
                         <h2> - шаровые; </h2>
                         <h2> - прямо- и многоугольные; </h2>
@@ -61,8 +55,7 @@ export default class CarouselBox extends Component{
                 </Carousel.Item>
                 <Carousel.Item>
                     <img
-                    width={900}
-                    height={900}
+                    srcSet={`${slaider4img} 320w, ${slaider4img} 680w, ${slaider4img}   960w, ${slaider4img} 1980w`}
                     className="d-block w-100"
                     src={ slaider4img }
                     alt="slaider4"

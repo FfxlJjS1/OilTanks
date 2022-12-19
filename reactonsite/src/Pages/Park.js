@@ -1,7 +1,8 @@
 import React, { Component }  from "react"
 import { Button, Container, Form } from "react-bootstrap"
-import { Table } from "react-bootstrap"
+
 import { CommunicationWithServer } from "../FunctionalClasses/CommunicationWithServer";
+import ResultTableMixin from "../Mixins/ResultTableMixin";
 
 export class Park extends Component {
     constructor(props) {
@@ -68,50 +69,6 @@ export class Park extends Component {
         this.setState({ resultIsLoading: false });
     }
 
-    renderResultTable() {
-        const tdRows = (data) => {
-            let content = [];
-            const rowsCount = data.length;
-            let firstRow = true;
-
-            for (let row of data) {
-                content.push(
-                    <tr>
-                        {firstRow ? < td rowSpan={rowsCount}>{row.settlingTimeHour}</td> : null}
-                        {firstRow ? <td  rowSpan={rowsCount}>{row.requiredVolume}</td> : null}
-                        {firstRow ? <td rowSpan={rowsCount}>{row.usefulVolume}</td> : null}
-                        <td>{row.nominalVolume}</td>
-                        <td>{row.needCountForWork}</td>
-                        <td>{row.cisternPrice}</td>
-                        <td>{row.cisternPrice * row.needCountForWork}</td>
-                    </tr>);
-
-                firstRow = false;
-            }
-
-            return content;
-        }
-
-        return (
-            <Table striped bordred hover>
-                <tbody>
-                    <tr>
-                        <th>Время отстоя, хранения, час</th>
-                        <th>Требуемая  емкость РВС и отстойников, м3</th>
-                        <th>Полезный объем (коэф.заполнения)</th>
-                        <th>Номинальный объем РВС  (отстойников), м3</th>
-                        <th>Необход. кол-во в работе, шт.</th>
-                        <th>Цена за штуку, руб.</th>
-                        <th>Общая цена, руб.</th>
-                    </tr>
-                </tbody>
-                <tbody>
-                    {tdRows(this.state.loadedResult)}
-                </tbody>
-            </Table>
-        );
-    }
-
     render() {
         let productParksSelect = !this.state.loadingProductParks && this.state.productParks != null
             ? this.state.productParks.map(productPark =>
@@ -157,3 +114,5 @@ export class Park extends Component {
         )
     }
 }
+
+Object.assign(Park.prototype, ResultTableMixin);

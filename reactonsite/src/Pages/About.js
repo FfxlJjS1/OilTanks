@@ -94,7 +94,8 @@ export class About extends Component {
         const handleClick = () => this.enterAndLoadServerCalculation();
         
         return (
-            <Container className="mt-2" style={{ width: '1200px' }}>
+            <Container className="mt-2" style={{ width: '1000px'}}>
+                <Container style={{ width: '600px'}}> 
                 <Form>
                     <Form.Group className="mb-3" controlId="formBasicEmail"
                         value={this.state.oilType}
@@ -138,6 +139,7 @@ export class About extends Component {
                         {!this.state.resultIsLoading ? "Вычислить" : "Загружается"}
                     </Button>
                 </Form>
+                </Container>
 
                 {resultTable}
             </Container>

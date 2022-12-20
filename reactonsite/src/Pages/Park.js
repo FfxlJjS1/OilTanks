@@ -84,7 +84,8 @@ export class Park extends Component {
         const handleClick = () => this.enterAndLoadServerCalculation();
 
         return (
-            <Container className="mt-2" style={{ width: '1200px' }}>
+            <Container className="mt-2" style={{ width: '1000px'}}>
+                <Container style={{ width: '600px'}}> 
                 <Form>
                     <Form.Group className="mb-3" controlId="formBasicEmail"
                         value={this.state.productParkId}
@@ -102,12 +103,13 @@ export class Park extends Component {
                             {CisternPurposesSelect}
                         </Form.Select>
                     </Form.Group>
-                    <Button variant="primary" type="button"
+                    <Button className="mb-3" variant="primary" type="button"
                         disabled={this.state.resultIsLoading || this.state.CisternPurposes == null}
                         onClick={!this.state.resultIsLoading ? handleClick : null}>
                         {!this.state.resultIsLoading ? "Вычислить" : "Загружается"}
                     </Button>
                 </Form>
+                </Container>
 
                 {resultTable}
             </Container>

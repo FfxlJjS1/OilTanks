@@ -7,13 +7,16 @@ import slaider4img from '../assets/slaider4.jpg';
 
 
 export default class CarouselBox extends Component{
+
     render(){
+        const imgsClassName = "d-block w-100 image-setting-home";
+
         return (
             <Carousel>
                 <Carousel.Item>
                     <img
                     srcSet={`${slaider1img} 320w, ${slaider1img} 680w, ${slaider1img}   960w, ${slaider1img} 1980w`}
-                    className="d-block w-100"
+                    className={imgsClassName}
                     src={ slaider1img }
                     alt="slaider1"
                     />
@@ -25,7 +28,7 @@ export default class CarouselBox extends Component{
                 <Carousel.Item>
                     <img
                     srcSet={`${slaider2img} 320w, ${slaider2img} 680w, ${slaider2img}   960w, ${slaider2img} 1980w`}
-                    className="d-block w-100"
+                    className={imgsClassName}
                     src={ slaider2img }
                     alt="slaider2"
                     />
@@ -40,7 +43,7 @@ export default class CarouselBox extends Component{
                 <Carousel.Item>
                     <img
                     srcSet={`${slaider3img} 320w, ${slaider3img} 680w, ${slaider3img}   960w, ${slaider3img} 1980w`}
-                    className="d-block w-100"
+                    className={imgsClassName}
                     src={ slaider3img }
                     alt="slaider4"
                     />
@@ -56,7 +59,7 @@ export default class CarouselBox extends Component{
                 <Carousel.Item>
                     <img
                     srcSet={`${slaider4img} 320w, ${slaider4img} 680w, ${slaider4img}   960w, ${slaider4img} 1980w`}
-                    className="d-block w-100"
+                    className={imgsClassName}
                     src={ slaider4img }
                     alt="slaider4"
                     />

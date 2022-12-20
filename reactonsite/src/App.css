@@ -45,6 +45,9 @@
     min-height: calc(100vh - 60px);
 }
 
+.image-setting-home {
+    height: calc(100vh - 126px);
+}
 
 .footer {
     position: relative;

@@ -199,7 +199,7 @@ export class Cistern extends Component {
                     <tr>
                         <td>14</td>
                         <td className="left">Припуск на коррозию, мм</td>
-                        <td>{this.state.cisternCharacters.RoofMarginRustMm}</td>
+                        <td>{this.state.cisternCharacters.roofMarginRustMm}</td>
                     </tr>
                 </tbody>
                 <tbody>

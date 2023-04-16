@@ -8,6 +8,9 @@ import {Home} from "../Pages/Home"
 import {Cistern} from "../Pages/Cistern"
 import {About} from "../Pages/About"
 import {Park} from "../Pages/Park"
+import {AboutV2} from "../Pages/AboutV2"
+import {ParkV2} from "../Pages/ParkV2"
+import {AboutV3} from "../Pages/AboutV3"
 
 export default class Header extends Component{
     constructor(props) {
@@ -35,6 +38,10 @@ export default class Header extends Component{
                                 <Nav.Link href="/cistern"> Резервуар </Nav.Link>
                                 <Nav.Link href="/about"> Онлайн калькулятор </Nav.Link>
                                 <Nav.Link href="/park"> Расчет по парку </Nav.Link>
+                                <Nav.Link href="/aboutv2"> Онлайн калькулятор В2 </Nav.Link>
+                                <Nav.Link href="/parkv2"> Расчет по парку В2 </Nav.Link>
+                                <Nav.Link href="/aboutv3"> Расчет конструкции </Nav.Link>
+
                             </Nav>
                         </Navbar.Collapse>
                     </Container>
@@ -45,6 +52,9 @@ export default class Header extends Component{
                         <Route exact path="/cistern" element={<Cistern />} />
                         <Route exact path="/about" element={<About />} />
                         <Route exact path="/park" element={<Park />} />
+                        <Route exact path="/aboutv2" element={<AboutV2 />} />
+                        <Route exact path="/parkv2" element={<ParkV2 />} />
+                        <Route exact path="/aboutv3" element={<AboutV3 />} />
                     </Routes>
                 </Router>
             </div>

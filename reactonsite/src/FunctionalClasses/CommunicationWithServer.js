@@ -28,43 +28,45 @@ export class CommunicationWithServer {
 
 
     static async GetProductParks() {
-        const data = this.GetRequest(this.calculatorApi + "/ProductParks");
+        const data = this.GetRequest(this.calculatorApi + "/GetProductParks");
 
         return data;
     }
 
     static async GetCisternPurposeList() {
-        const data = this.GetRequest(this.calculatorApi + "/CisternPurposes");
+        const data = this.GetRequest(this.calculatorApi + "/GetCisternPurposes");
 
         return data;
     }
 
     static async GetCisternPurposesByOilType(oilType) {
-        const data = this.GetRequest(this.calculatorApi + "/CisternPurposesByOilType?oilType=" + oilType);
+        const data = this.GetRequest(this.calculatorApi + "/GetCisternPurposesForOilType?oilType=" + oilType);
 
         return data;
     }
 
     static async GetOilTypes() {
-        const data = this.GetRequest(this.calculatorApi + "/OilTypes");
+        const data = this.GetRequest(this.calculatorApi + "/GetOilTypes");
 
         return data;
     }
 
-    static async GetCalculationResultByArguments(cisternPurposeId, oilType, oilValue, waterValue) {
+    static async GetCalculationResultByArguments(cisternPurposeId, oilType, oilValue, waterValue, groupSelect = false) {
         const data = this.GetRequest(this.calculatorApi + "/CalculateByValues?" +
             "CisternPurposeId=" + cisternPurposeId + "&" +
             "oilType=" + oilType + "&" +
             "oilValue=" + oilValue + "&" +
-            "waterValue=" + waterValue);
+            "waterValue=" + waterValue + "&" +
+            "groupSelect=" + groupSelect);
 
         return data;
     }
 
-    static async GetCalculationResultByProductPark(productParkId, cisternPurposeId) {
+    static async GetCalculationResultByProductPark(productParkId, cisternPurposeId, groupSelect = false) {
         const data = this.GetRequest(this.calculatorApi + "/CalculateByProductPark?" +
             "productParkId=" + productParkId + "&" +
-            "CisternPurposeId=" + cisternPurposeId);
+            "CisternPurposeId=" + cisternPurposeId + "&" +
+            "groupSelect=" + groupSelect);
 
         return data;
     }

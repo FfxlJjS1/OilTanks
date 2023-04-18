@@ -2,9 +2,9 @@ import React, { Component }  from "react"
 import { Button, Container, Form } from "react-bootstrap"
 
 import { CommunicationWithServer } from "../FunctionalClasses/CommunicationWithServer";
-import ResultTableMixin from "../Mixins/ResultTableMixin";
+import ResultAreaMixinByGroup from "../Mixins/ResultAreaMixinByGroup";
 
-export class About extends Component {
+export class CalculatorV2 extends Component {
     constructor(props) {
         super(props);
         
@@ -60,7 +60,8 @@ export class About extends Component {
             this.state.cisternPurposeId,
             this.state.oilType,
             this.state.oilValue,
-            this.state.waterValue
+            this.state.waterValue,
+            true
         );
 
         if (data != null) {
@@ -77,8 +78,8 @@ export class About extends Component {
         let oilTypesSelect = !this.state.loadingOilTypes && this.state.oilTypes != null
             ? this.state.oilTypes.map(oilType => <option>{oilType}</option>)
             : null;
-        let resultTable = !this.state.resultIsLoading && this.state.loadedResult != null
-            ? this.renderResultTable()
+        let resultArea = !this.state.resultIsLoading && this.state.loadedResult != null
+            ? this.renderResultArea()
             : null;
 
         const handleInputOilValue = (event) => {
@@ -141,10 +142,10 @@ export class About extends Component {
                 </Form>
                 </Container>
 
-                {resultTable}
+                {resultArea}
             </Container>
         )
     }
 }
 
-Object.assign(About.prototype, ResultTableMixin);
+Object.assign(CalculatorV2.prototype, ResultAreaMixinByGroup);

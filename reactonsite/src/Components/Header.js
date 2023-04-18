@@ -6,11 +6,11 @@ import logo from './logo.png'
 
 import {Home} from "../Pages/Home"
 import {Cistern} from "../Pages/Cistern"
-import {About} from "../Pages/About"
+import {Calculator} from "../Pages/Calculator"
 import {Park} from "../Pages/Park"
-import {AboutV2} from "../Pages/AboutV2"
+import {CalculatorV2} from "../Pages/CalculatorV2"
 import {ParkV2} from "../Pages/ParkV2"
-import {AboutV3} from "../Pages/AboutV3"
+import { StructuralAnalysis } from "../Pages/StructuralAnalysis"
 
 export default class Header extends Component{
     constructor(props) {
@@ -36,11 +36,11 @@ export default class Header extends Component{
                             <Nav className="me-auto">
                                 <Nav.Link href="/"> Главное меню </Nav.Link>
                                 <Nav.Link href="/cistern"> Резервуар </Nav.Link>
-                                <Nav.Link href="/about"> Онлайн калькулятор </Nav.Link>
+                                <Nav.Link href="/calculator"> Онлайн калькулятор </Nav.Link>
                                 <Nav.Link href="/park"> Расчет по парку </Nav.Link>
-                                <Nav.Link href="/aboutv2"> Онлайн калькулятор В2 </Nav.Link>
+                                <Nav.Link href="/calculator_v2"> Онлайн калькулятор В2 </Nav.Link>
                                 <Nav.Link href="/parkv2"> Расчет по парку В2 </Nav.Link>
-                                <Nav.Link href="/aboutv3"> Расчет конструкции </Nav.Link>
+                                <Nav.Link href="/structural_analysis"> Расчет конструкции </Nav.Link>
 
                             </Nav>
                         </Navbar.Collapse>
@@ -50,11 +50,11 @@ export default class Header extends Component{
                     <Routes>
                         <Route exact path="/" element={<Home />} />
                         <Route exact path="/cistern" element={<Cistern />} />
-                        <Route exact path="/about" element={<About />} />
+                        <Route exact path="/calculator" element={<Calculator />} />
                         <Route exact path="/park" element={<Park />} />
-                        <Route exact path="/aboutv2" element={<AboutV2 />} />
+                        <Route exact path="/calculator_v2" element={<CalculatorV2 />} />
                         <Route exact path="/parkv2" element={<ParkV2 />} />
-                        <Route exact path="/aboutv3" element={<AboutV3 />} />
+                        <Route exact path="/structural_analysis" element={<StructuralAnalysis />} />
                     </Routes>
                 </Router>
             </div>

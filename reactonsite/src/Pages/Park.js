@@ -2,7 +2,7 @@ import React, { Component }  from "react"
 import { Button, Container, Form } from "react-bootstrap"
 
 import { CommunicationWithServer } from "../FunctionalClasses/CommunicationWithServer";
-import ResultTableMixin from "../Mixins/ResultTableMixin";
+import ResultTableMixinEntity from "../Mixins/ResultTableMixinEntity";
 
 export class Park extends Component {
     constructor(props) {
@@ -117,4 +117,4 @@ export class Park extends Component {
     }
 }
 
-Object.assign(Park.prototype, ResultTableMixin);
+Object.assign(Park.prototype, ResultTableMixinEntity);

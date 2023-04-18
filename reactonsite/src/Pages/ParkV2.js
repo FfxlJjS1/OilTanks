@@ -2,7 +2,7 @@ import React, { Component }  from "react"
 import { Button, Container, Form } from "react-bootstrap"
 
 import { CommunicationWithServer } from "../FunctionalClasses/CommunicationWithServer";
-import ResultTableMixin from "../Mixins/ResultTableMixin";
+import ResultAreaMixinByGroup from "../Mixins/ResultAreaMixinByGroup";
 
 export class ParkV2 extends Component {
     constructor(props) {
@@ -59,7 +59,8 @@ export class ParkV2 extends Component {
 
         const data = await CommunicationWithServer.GetCalculationResultByProductPark(
             this.state.productParkId,
-            this.state.cisternPurposeId
+            this.state.cisternPurposeId,
+            true
         );
 
         if (data != null) {
@@ -77,8 +78,8 @@ export class ParkV2 extends Component {
         let CisternPurposesSelect = !this.state.loadingCisternPurposes && this.state.CisternPurposes != null
             ? this.state.CisternPurposes.map(CisternPurpose => <option value={CisternPurpose.purposeCisternId}>{CisternPurpose.name}</option>)
             : null;
-        let resultTable = !this.state.resultIsLoading && this.state.loadedResult != null
-            ? this.renderResultTable()
+        let resultArea = !this.state.resultIsLoading && this.state.loadedResult != null
+            ? this.renderResultArea()
             : null;
 
         const handleClick = () => this.enterAndLoadServerCalculation();
@@ -111,10 +112,10 @@ export class ParkV2 extends Component {
                 </Form>
                 </Container>
 
-                {resultTable}
+                {resultArea}
             </Container>
         )
     }
 }
 
-Object.assign(ParkV2.prototype, ResultTableMixin);
+Object.assign(ParkV2.prototype, ResultAreaMixinByGroup);

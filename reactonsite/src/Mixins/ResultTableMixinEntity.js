@@ -3,26 +3,32 @@ import { Table } from "react-bootstrap"
 
 import { NumToFormatStr } from "../FunctionalClasses/GeneralFunctions";
 
-export const ResultTableMixin = {
+export const ResultTableMixinEntity = {
     renderResultTable() {
         const tdRows = (data) => {
             let content = [];
-            const rowsCount = data.length;
+            const rowsCount = data.tanksRecordGroups.length;
             let firstRow = true;
 
-            for (let row of data) {
-                content.push(
-                    <tr>
-                        {firstRow ? < td rowSpan={rowsCount}>{NumToFormatStr(row.settlingTimeHour)}</td> : null}
-                        {firstRow ? <td rowSpan={rowsCount}>{NumToFormatStr(row.requiredVolume)}</td> : null}
-                        {firstRow ? <td rowSpan={rowsCount}>{NumToFormatStr(row.usefulVolume)}</td> : null}
-                        <td>{NumToFormatStr(row.nominalVolume)}</td>
-                        <td>{NumToFormatStr(row.needCountForWork)}</td>
-                        <td>{NumToFormatStr(row.cisternPrice)}</td>
-                        <td>{NumToFormatStr(row.cisternPrice * row.needCountForWork)}</td>
-                    </tr>);
+            let tanksRecordGroups = data.tanksRecordGroups;
 
-                firstRow = false;
+            for (let group of tanksRecordGroups) {
+                let tanksGroup = group.requiredTanksGroup;
+
+                for (let record of tanksGroup) {
+                    content.push(
+                        <tr>
+                            {firstRow ? < td rowSpan={rowsCount}>{NumToFormatStr(data.settlingTimeHour)}</td> : null}
+                            {firstRow ? <td rowSpan={rowsCount}>{NumToFormatStr(data.requiredVolume)}</td> : null}
+                            {firstRow ? <td rowSpan={rowsCount}>{NumToFormatStr(data.usefulVolume)}</td> : null}
+                            <td>{NumToFormatStr(record.nominalVolume)}</td>
+                            <td>{NumToFormatStr(record.needCountForWork)}</td>
+                            <td>{NumToFormatStr(record.cisternPrice)}</td>
+                            <td>{NumToFormatStr(record.cisternPrice * record.needCountForWork)}</td>
+                        </tr>);
+
+                    firstRow = false;
+                }
             }
 
             return content;
@@ -49,4 +55,4 @@ export const ResultTableMixin = {
     }
 }
 
-export default ResultTableMixin;
+export default ResultTableMixinEntity;

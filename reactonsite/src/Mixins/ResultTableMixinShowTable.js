@@ -1,7 +1,5 @@
 import React from "react"
-import { Table } from "react-bootstrap"
-
-import { NumToFormatStr } from "../FunctionalClasses/GeneralFunctions";
+import { Table, Form } from "react-bootstrap"
 
 export const ResultTableMixinShowTable = {
     renderResultTable() {
@@ -49,14 +47,25 @@ export const ResultTableMixinShowTable = {
         }
 
         return (
-            <Table striped bordred hover>
-                <tbody>
-                    {tdColumns(this.state.loadedResult)}
-                </tbody>
-                <tbody>
-                    {tdRows(this.state.loadedResult)}
-                </tbody>
-            </Table>
+            <>
+                <Form>
+                    <Form.Group className="mb-3" controlId="formBasicEmail">
+                        <Form.Label>Минимальная площадь, м:{this.state.minimalSquire}</Form.Label>
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="formBasicEmail">
+                        <Form.Label>Высота, м: {this.state.height}</Form.Label>
+                    </Form.Group>
+                </Form>
+
+                <Table striped bordred hover>
+                    <tbody>
+                        {tdColumns(this.state.loadedResult)}
+                    </tbody>
+                    <tbody>
+                        {tdRows(this.state.loadedResult)}
+                    </tbody>
+                </Table>
+            </>
         );
     }
 }

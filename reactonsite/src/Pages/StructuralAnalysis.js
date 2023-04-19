@@ -84,12 +84,6 @@ export class StructuralAnalysis extends Component {
                             onInput={e => handleInputVolumeValue(e)}
                             pattern="[0-9]*" />
                     </Form.Group>
-                    <Form.Group className="mb-3" controlId="formBasicEmail">
-                            <Form.Label>Минимальная площадь, м:{this.state.minimalSquire}</Form.Label>
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="formBasicEmail">
-                            <Form.Label>Высота, м: {this.state.height}</Form.Label>
-                    </Form.Group>
                     <Button className="mb-3" variant="primary" type="button"
                         disabled={this.state.resultIsLoading ||
                             this.state.formTypes == null || this.state.volumeValue <= 0}

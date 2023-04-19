@@ -50,7 +50,7 @@ namespace BackendOfSite.Controllers
 
             if (formTypeIndex == 0)
             {
-                const int maxRadius = 120;
+                const int maxRadius = 30;
                 List<string>[] rows = new List<string>[maxRadius];
 
                 entityTable.Columns = new List<Column>()

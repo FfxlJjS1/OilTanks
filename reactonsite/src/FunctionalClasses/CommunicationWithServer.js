@@ -1,6 +1,7 @@
 export class CommunicationWithServer {
     static tankApi = "api/Cistern";
     static calculatorApi = "api/Calculator";
+    static structuralAnalysisApi = "api/StructuralAnalysis"
 
     static async GetRequest(request) {
         const response = await fetch(request);
@@ -67,6 +68,20 @@ export class CommunicationWithServer {
             "productParkId=" + productParkId + "&" +
             "CisternPurposeId=" + cisternPurposeId + "&" +
             "groupSelect=" + groupSelect);
+
+        return data;
+    }
+
+    static async GetFormTypes() {
+        const data = this.GetRequest(this.structuralAnalysisApi + "/GetFormTypes");
+
+        return data;
+    }
+
+    static async GetStructuralAnalysisResultByForm(formType, volumeValue) {
+        const data = this.GetRequest(this.structuralAnalysisApi + "/AnalyseByFormVolume?" +
+            "formType=" + formType + "&" +
+            "volumeValue=" + volumeValue);
 
         return data;
     }

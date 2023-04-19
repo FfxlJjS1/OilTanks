@@ -13,7 +13,6 @@ export const ResultAreaMixinByGroup = {
 
             for (let group of tanksRecordGroups) {
                 let tanksGroup = group.requiredTanksGroup;
-                const currentNum = num;
                 const recordsCount = tanksGroup.length;
                 let generalPrice = 0;
                 let firstRecord = true;
@@ -25,7 +24,7 @@ export const ResultAreaMixinByGroup = {
                 for (let record of tanksGroup) {
                     content.push(
                         <tr>
-                            {firstRecord ? <td rowSpan={recordsCount}>{currentNum}</td> : null}
+                            {firstRecord ? <td rowSpan={recordsCount}>{num}</td> : null}
                             <td>{NumToFormatStr(record.nominalVolume)}</td>
                             <td>{NumToFormatStr(record.needCountForWork)}</td>
                             <td>{NumToFormatStr(record.cisternPrice)}</td>
@@ -47,7 +46,7 @@ export const ResultAreaMixinByGroup = {
                 <Form>
                     <Form.Group>
                         <Form.Label>Время отстоя, хранения, час: {this.state.loadedResult.settlingTimeHour }</Form.Label>
-                        <Form.Label>Требуемая емкость РВС и отстойников, м³: {this.state.loadedResult.requiredVolume }</Form.Label>
+                        <Form.Label>Требуемая емкость РВС и отстойников, м³: {this.state.loadedResult.requiredVolume} ({Math.ceil(this.state.loadedResult.requiredVolume / this.state.loadedResult.usefulVolume )})</Form.Label>
                         <Form.Label>Полезный объем (коэф. заполнения): {this.state.loadedResult.usefulVolume }</Form.Label>
                     </Form.Group>
                 </Form>

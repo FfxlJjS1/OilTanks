@@ -2,94 +2,67 @@ import React, { Component }  from "react"
 import { Button, Container, Form } from "react-bootstrap"
 
 import { CommunicationWithServer } from "../FunctionalClasses/CommunicationWithServer";
-import ResultTableMixinEntity from "../Mixins/ResultTableMixinEntity";
+import ResultTableMixinShowTable from "../Mixins/ResultTableMixinShowTable";
 
 export class StructuralAnalysis extends Component {
     constructor(props) {
         super(props);
         
         this.state = {
-            cisternPurposeId: null, oilType: null, oilValue: null, waterValue: null,
-            cisternPurposes: null, loadingCisternPurposes: false,
-            oilTypes: null, loadingOilTypes: false,
+            volumeValue: null, formType: null,
+            minimalSquire: null, height: 0,
+            formTypes: null, loadingFormTypes: false,
             loadedResult: null, resultIsLoading: false
         };
     }
 
     componentDidMount() {
-        this.loadOilTypes();
+        this.loadFormTypes();
     }
 
-    async loadCisternPurposesByOilType(oilType) {
-        this.setState({ CisternPurposes: null, cisternPurposeId: null, loadingCisternPurposes: true });
+    async loadFormTypes() {
+        this.setState({ formTypes: null, formType: null, loadingFromTypes: true });
 
-        const data = await CommunicationWithServer.GetCisternPurposesByOilType(oilType);
-        
+        const data = await CommunicationWithServer.GetFormTypes();
+
         if (data != null) {
-            this.setState({ cisternPurposes: data });
+            this.setState({ formTypes: data });
 
             if (data != null) {
-                this.setState({ cisternPurposeId: data[0].purposeCisternId });
+                this.setState({ formType: data[0] });
             }
         }
 
-        this.setState({ loadingCisternPurposes: false });
-    }
-
-    async loadOilTypes() {
-        this.setState({ oilTypes: null, oilType: null, loadingOilTypes: true });
-
-        const data = await CommunicationWithServer.GetOilTypes();
-
-        if (data != null) {
-            this.setState({ oilTypes: data });
-
-            if (data != null) {
-                this.setState({ oilType: data[0] });
-                this.loadCisternPurposesByOilType(data[0]);
-            }
-        }
-
-        this.setState({ loadingOilTypes: false });
+        this.setState({ loadingFormTypes: false });
     }
 
     async enterAndLoadServerCalculation() {
         this.setState({ loadedResult: null, resultIsLoading: true });
 
-        const data = await CommunicationWithServer.GetCalculationResultByArguments(
-            this.state.cisternPurposeId,
-            this.state.oilType,
-            this.state.oilValue,
-            this.state.waterValue
+        const data = await CommunicationWithServer.GetStructuralAnalysisResultByForm(
+            this.state.formType,
+            this.state.volumeValue,
         );
 
         if (data != null) {
-            this.setState({ loadedResult: data });
+            this.setState({ loadedResult: data.entityTable, minimalSquire: data.minimalSquire, height: data.height});
         }
 
         this.setState({ resultIsLoading: false });
     }
 
     render() {
-        let cisternPurposesSelect = !this.state.loadingCisternPurposes && this.state.cisternPurposes != null && this.state.oilType != null
-            ? this.state.cisternPurposes.map(cisternPurpose => <option value={cisternPurpose.purposeCisternId }>{cisternPurpose.name}</option>)
-            : null;
-        let oilTypesSelect = !this.state.loadingOilTypes && this.state.oilTypes != null
-            ? this.state.oilTypes.map(oilType => <option>{oilType}</option>)
+        let formTypesSelect = !this.state.loadingFormTypes && this.state.formTypes != null
+            ? this.state.formTypes.map(formType => <option>{formType}</option>)
             : null;
         let resultTable = !this.state.resultIsLoading && this.state.loadedResult != null
             ? this.renderResultTable()
             : null;
 
-        const handleInputOilValue = (event) => {
-            const value = (event.target.validity.valid) ? event.target.value : this.state.oilValue;
+        const handleInputVolumeValue = (event) => {
+            const value = (event.target.validity.valid) ? event.target.value : this.state.volumeValue;
 
-            this.setState({ oilValue: value && value > 0 ? parseInt(value) : "" });
-        };
-        const handleInputWaterValue = (event) => {
-            const value = (event.target.validity.valid) ? event.target.value : this.state.waterValue;
-
-            this.setState({ waterValue: value && value > 0 ? parseInt(value) : "" });
+            this.setState({ volumeValue: value && value > 0 ? parseInt(value) : "" });
         };
         const handleClick = () => this.enterAndLoadServerCalculation();
         
@@ -98,33 +71,28 @@ export class StructuralAnalysis extends Component {
                 <Container style={{ width: '600px'}}> 
                 <Form>
                     <Form.Group className="mb-3" controlId="formBasicEmail"
-                        value={this.state.oilType}
-                        onChange={e => {
-                            this.setState({ oilType: e.target.value });
-                            this.loadCisternPurposesByOilType(e.target.value)
-                        }}>
+                        value={this.state.formType}>
                         <Form.Label>Выберите форму</Form.Label>
-                        <Form.Select disabled={this.state.oilTypes == null}>
-                            {oilTypesSelect}
+                        <Form.Select disabled={this.state.formTypes == null}>
+                            {formTypesSelect}
                         </Form.Select>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formBasicEmail">
                         <Form.Label>Введите объем, м3</Form.Label>
                         <Form.Control type="text" placeholder="обьём м³"
-                            value={this.state.oilValue}
-                            onInput={e => handleInputOilValue(e)}
+                            value={this.state.volumeValue}
+                            onInput={e => handleInputVolumeValue(e)}
                             pattern="[0-9]*" />
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>Минимальная площадь, м:</Form.Label>
+                            <Form.Label>Минимальная площадь, м:{this.state.minimalSquire}</Form.Label>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>Высота, м:</Form.Label>
+                            <Form.Label>Высота, м: {this.state.height}</Form.Label>
                     </Form.Group>
                     <Button className="mb-3" variant="primary" type="button"
                         disabled={this.state.resultIsLoading ||
-                            this.state.oilTypes == null || this.state.cisternPurposeId == null
-                            || this.state.oilValue <= 0 || this.state.waterValue <= 0}
+                            this.state.formTypes == null || this.state.volumeValue <= 0}
                         onClick={!this.state.resultIsLoading ? handleClick : null}>
                         {!this.state.resultIsLoading ? "Вычислить" : "Загружается"}
                     </Button>
@@ -137,4 +105,4 @@ export class StructuralAnalysis extends Component {
     }
 }
 
-Object.assign(StructuralAnalysis.prototype, ResultTableMixinEntity);
+Object.assign(StructuralAnalysis.prototype, ResultTableMixinShowTable);

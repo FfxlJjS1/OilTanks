@@ -35,6 +35,7 @@ export const ResultTableMixinEntity = {
         }
 
         return (
+            
             <Table striped bordred hover>
                 <tbody>
                     <tr>

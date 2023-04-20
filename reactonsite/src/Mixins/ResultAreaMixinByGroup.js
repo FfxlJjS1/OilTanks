@@ -46,7 +46,11 @@ export const ResultAreaMixinByGroup = {
                 <Form>
                     <Form.Group>
                         <Form.Label>Время отстоя, хранения, час: {this.state.loadedResult.settlingTimeHour }</Form.Label>
+                    </Form.Group>
+                    <Form.Group>
                         <Form.Label>Требуемая емкость РВС и отстойников, м³: {this.state.loadedResult.requiredVolume} ({Math.ceil(this.state.loadedResult.requiredVolume / this.state.loadedResult.usefulVolume )})</Form.Label>
+                    </Form.Group>
+                    <Form.Group>
                         <Form.Label>Полезный объем (коэф. заполнения): {this.state.loadedResult.usefulVolume }</Form.Label>
                     </Form.Group>
                 </Form>
@@ -55,7 +59,7 @@ export const ResultAreaMixinByGroup = {
                     <tbody>
                         <tr>
                             <th style={{ width: '50px' }}>№ выборки</th>
-                            <th style={{ width: '50px' }}>Номинальный объем РВС  (отстойников), м3</th>
+                            <th style={{ width: '50px' }}>Номинальный объем РВС  (отстойников), м³</th>
                             <th style={{ width: '50px' }}>Необход. кол-во в работе, шт.</th>
                             <th style={{ width: '100px' }}>Цена за штуку, руб.</th>
                             <th style={{ width: '100px' }}>Общая цена, руб.</th>

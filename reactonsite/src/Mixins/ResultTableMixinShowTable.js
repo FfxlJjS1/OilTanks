@@ -50,7 +50,7 @@ export const ResultTableMixinShowTable = {
             <>
                 <Form>
                     <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>Минимальная площадь, м:{this.state.minimalSquire}</Form.Label>
+                        <Form.Label>Минимальная площадь, м: {this.state.minimalSquire}</Form.Label>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formBasicEmail">
                         <Form.Label>Высота, м: {this.state.height}</Form.Label>

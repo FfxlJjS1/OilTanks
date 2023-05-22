@@ -52,21 +52,23 @@ export class CommunicationWithServer {
         return data;
     }
 
-    static async GetCalculationResultByArguments(cisternPurposeId, oilType, oilValue, waterValue, groupSelect = false) {
+    static async GetCalculationResultByArguments(cisternPurposeId, oilType, oilValue, waterValue, groupSelect = false, needCount = 20) {
         const data = this.GetRequest(this.calculatorApi + "/CalculateByValues?" +
             "CisternPurposeId=" + cisternPurposeId + "&" +
             "oilType=" + oilType + "&" +
             "oilValue=" + oilValue + "&" +
             "waterValue=" + waterValue + "&" +
+            "needCount=" + needCount + "&" +
             "groupSelect=" + groupSelect);
 
         return data;
     }
 
-    static async GetCalculationResultByProductPark(productParkId, cisternPurposeId, groupSelect = false) {
+    static async GetCalculationResultByProductPark(productParkId, cisternPurposeId, groupSelect = false, needCount = 20) {
         const data = this.GetRequest(this.calculatorApi + "/CalculateByProductPark?" +
             "productParkId=" + productParkId + "&" +
             "CisternPurposeId=" + cisternPurposeId + "&" +
+            "needCount=" + needCount + "&" +
             "groupSelect=" + groupSelect);
 
         return data;

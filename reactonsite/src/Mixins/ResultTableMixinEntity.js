@@ -7,24 +7,26 @@ export const ResultTableMixinEntity = {
     renderResultTable() {
         const tdRows = (data) => {
             let content = [];
-            const rowsCount = data.tanksRecordGroups.length;
+            const rowsCount = data.samples.length;
             let firstRow = true;
 
-            let tanksRecordGroups = data.tanksRecordGroups;
+            let tanksRecordGroups = data.samples;
 
             for (let group of tanksRecordGroups) {
-                let tanksGroup = group.requiredTanksGroup;
+                let cisternRecords = group.selectCisternRecords;
+                
 
-                for (let record of tanksGroup) {
+                for (let record of cisternRecords) {
                     content.push(
                         <tr>
                             {firstRow ? < td rowSpan={rowsCount}>{NumToFormatStr(data.settlingTimeHour)}</td> : null}
                             {firstRow ? <td rowSpan={rowsCount}>{NumToFormatStr(data.requiredVolume)}</td> : null}
                             {firstRow ? <td rowSpan={rowsCount}>{NumToFormatStr(data.usefulVolume)}</td> : null}
-                            <td>{NumToFormatStr(record.nominalVolume)}</td>
-                            <td>{NumToFormatStr(record.needCountForWork)}</td>
-                            <td>{NumToFormatStr(record.cisternPrice)}</td>
-                            <td>{NumToFormatStr(record.cisternPrice * record.needCountForWork)}</td>
+                            <td>{NumToFormatStr(record.cistern.nominalVolume)}</td>
+                            <td>{NumToFormatStr(record.cisternsNumber)}</td>
+                            <td>{NumToFormatStr(record.cistern.cisternPrice)}</td>
+                            <td>{NumToFormatStr(record.cistern.cisternPrice * record.cisternsNumber)}</td>
+                            <td>{NumToFormatStr(record.cistern.nominalVolume * record.cisternsNumber)}</td>
                         </tr>);
 
                     firstRow = false;
@@ -46,6 +48,7 @@ export const ResultTableMixinEntity = {
                         <th style={{width: '50px'}}>Необход. кол-во в работе, шт.</th>
                         <th style={{width: '100px'}}>Цена за штуку, руб.</th>
                         <th style={{width: '100px'}}>Общая цена, руб.</th>
+                        <th style={{ width: '100px' }}>Итого объема, м³</th>
                     </tr>
                 </tbody>
                 <tbody>

@@ -1,6 +1,8 @@
 import React from "react"
 import { Table, Form } from "react-bootstrap"
 
+import { NumToFormatStr } from "../FunctionalClasses/GeneralFunctions";
+
 export const ResultTableMixinShowTable = {
     renderResultTable() {
         const tdColumns = (data) => {
@@ -50,10 +52,10 @@ export const ResultTableMixinShowTable = {
             <>
                 <Form>
                     <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>Минимальная площадь, м: {this.state.minimalSquire}</Form.Label>
+                        <Form.Label>Минимальная площадь, м: {NumToFormatStr(this.state.minimalSquire)}</Form.Label>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>Высота, м: {this.state.height}</Form.Label>
+                        <Form.Label>Высота, м: {NumToFormatStr(this.state.height)}</Form.Label>
                     </Form.Group>
                 </Form>
 

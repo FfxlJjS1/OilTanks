@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using static BackendOfSite.Controllers.CalculatorController;
+using Microsoft.AspNetCore.Identity;
+using System.Xml.Schema;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
 
 namespace BackendOfSite.Controllers
 {
@@ -12,30 +16,46 @@ namespace BackendOfSite.Controllers
     {
         private readonly DbCisternContext db;
         readonly string[] oilTypes = { "Девонская", "Сернистая" };
+        private List<SelectCister> selectCisterns = new List<SelectCister>();
 
         public CalculatorController(DbCisternContext context)
         {
             db = context;
         }
 
-        public class GroupedRecordsOrder
+        public class CalculatedOrder
         {
             public int SettlingTimeHour { get; set; }
-            public int RequiredVolume { get; set; }
+            public float RequiredVolume { get; set; }
             public float UsefulVolume { get; set; }
-            public List<RecordsGroup> tanksRecordGroups { get; set; } = new List<RecordsGroup>();
+            public List<Sample> Samples { get; set; } = new List<Sample>();
         }
 
-        public class RecordsGroup
+        public class Sample
         {
-            public List<RequiredTanksRecord> requiredTanksGroup { get; set; } = new List<RequiredTanksRecord>();
+            public List<SelectCisternRecord> selectCisternRecords { get; set; } = new List<SelectCisternRecord>();
+
+            public decimal TotalPrice => selectCisternRecords.Sum(x => x.TotalPrice);
+
+            public float TotalVolume => selectCisternRecords.Sum(x => x.TotalVolume);
         }
 
-        public class RequiredTanksRecord
+        public class SelectCisternRecord
         {
-            public int NominalVolume { get; set; }
-            public int NeedCountForWork { get; set; }
+            public SelectCister cistern { get; set; } = new SelectCister();
+            public int CisternsNumber { get; set; }
+
+            public decimal TotalPrice => cistern.CisternPrice * CisternsNumber;
+
+            public float TotalVolume => cistern.NominalVolume * CisternsNumber;
+        }
+
+        public class SelectCister
+        {
+            public float NominalVolume { get; set; }
             public decimal CisternPrice { get; set; }
+
+            public decimal PriceForVolume => ((decimal)NominalVolume) / CisternPrice;
         }
 
         [HttpGet("GetProductParks")]
@@ -75,7 +95,7 @@ namespace BackendOfSite.Controllers
         }
 
         [HttpGet("CalculateByProductPark")]
-        public IActionResult Calculate(int productParkId, int cisternPurposeId, bool groupSelect)
+        public IActionResult Calculate(int productParkId, int cisternPurposeId, int needCount, bool groupSelect)
         {
             int oilTypeId = 0;
             decimal maxOil = -1, maxWater = -1;
@@ -92,7 +112,7 @@ namespace BackendOfSite.Controllers
 
             if (maxOil != -1 && maxWater != -1)
             {
-                return Ok(CalculateByNW(cisternPurposeId, oilTypeId, (int)maxOil, (int)maxWater, groupSelect));
+                return Ok(CalculateByNW(cisternPurposeId, oilTypeId, (int)maxOil, (int)maxWater, needCount, groupSelect));
             }
             else
             {
@@ -101,7 +121,7 @@ namespace BackendOfSite.Controllers
         }
 
         [HttpGet("CalculateByValues")]
-        public IActionResult Calculate(int cisternPurposeId, string oilType, int oilValue, int waterValue, bool groupSelect)
+        public IActionResult Calculate(int cisternPurposeId, string oilType, float oilValue, float waterValue, int needCount, bool groupSelect)
         {
             int oilTypeId = Array.IndexOf(oilTypes, oilType);
 
@@ -110,30 +130,42 @@ namespace BackendOfSite.Controllers
                 return NotFound();
             }
 
-            GroupedRecordsOrder data;
+            CalculatedOrder data;
 
-            data = CalculateByNW(cisternPurposeId, oilTypeId, oilValue, waterValue, groupSelect);
+            data = CalculateByNW(cisternPurposeId, oilTypeId, oilValue, waterValue, needCount, groupSelect);
 
             return Ok(data);
         }
 
-        private GroupedRecordsOrder CalculateByNW(int cisternPurposeId, int oilTypeId, int oilValue, int waterValue, bool groupSelect)
+        private CalculatedOrder CalculateByNW(int cisternPurposeId, int oilTypeId, float oilValue, float waterValue, int needCount, bool groupSelect)
         {
-            GroupedRecordsOrder data = new GroupedRecordsOrder();
+            CalculatedOrder data = new CalculatedOrder();
 
-            int settlingTime = CalculateSettlingTime(cisternPurposeId, oilTypeId),
-                needVolumeM3 = CalculateNeedVolumeM3(cisternPurposeId, oilValue, waterValue, settlingTime);
-            float usefulVolume = CalculateUsefulVolume(cisternPurposeId);
+            selectCisterns = (from cistern in db.Cisterns
+                                join cisternPrice in db.PriceCisterns on cistern.CisternId equals cisternPrice.CisternId
+                                select new SelectCister
+                                {
+                                     NominalVolume = cistern.NominalVolumeM3,
+                                     CisternPrice = cisternPrice.PriceRub ?? 0
+                                }).ToList().Where(x => x.CisternPrice > 0).OrderBy(x => x.PriceForVolume).ToList();
+
+            int settlingTime = CalculateSettlingTime(cisternPurposeId, oilTypeId);
+            float needVolumeM3 = CalculateNeedVolumeM3(cisternPurposeId, oilValue, waterValue, settlingTime),
+                usefulVolume = CalculateUsefulVolume(cisternPurposeId);
+
+            data.SettlingTimeHour = settlingTime;
+            data.RequiredVolume = needVolumeM3;
+            data.UsefulVolume = usefulVolume;
 
             if (oilValue > 0 && waterValue > 0 && (cisternPurposeId != 0 || oilTypeId == 0))
             {
                 if (groupSelect)
                 {
-                    data = CalculateTanksForParametrsGroupSelect(settlingTime, needVolumeM3, usefulVolume);
+                    data.Samples = CalculateTanksForParametrsGroupSelect(needVolumeM3, usefulVolume, needCount);
                 }
                 else
                 {
-                    data = CalculateTanksForParametrs(settlingTime, needVolumeM3, usefulVolume);
+                    data.Samples = CalculateTanksForParametrs(needVolumeM3, usefulVolume, needCount);
                 }
             }
 
@@ -158,26 +190,26 @@ namespace BackendOfSite.Controllers
             return settlingTime;
         }
 
-        private int CalculateNeedVolumeM3(int cisternPurposeId, float oilValue, float waterValue, int settlingTime)
+        private float CalculateNeedVolumeM3(int cisternPurposeId, float oilValue, float waterValue, int settlingTime)
         {
-            int needVolume = 0;
+            float needVolume = 0;
 
             switch(cisternPurposeId)
             {
                 case 1:
-                    needVolume = (int)Math.Ceiling((oilValue + waterValue) / 24 * settlingTime);
+                    needVolume = (oilValue + waterValue) / 24 * settlingTime;
                     break;
                 case 2:
-                    needVolume = (int)Math.Ceiling((oilValue) / 24 * settlingTime);
+                    needVolume = (oilValue) / 24 * settlingTime;
                     break;
                 case 3:
-                    needVolume = (int)Math.Ceiling((oilValue) / 24 * settlingTime);
+                    needVolume = (oilValue) / 24 * settlingTime;
                     break;
                 case 4:
-                    needVolume = (int)Math.Ceiling((waterValue) / 24 * settlingTime);
+                    needVolume = (waterValue) / 24 * settlingTime;
                     break;
                 case 5:
-                    needVolume = (int)Math.Ceiling((waterValue) / 24 * settlingTime);
+                    needVolume = (waterValue) / 24 * settlingTime;
                     break;
             }
 
@@ -210,115 +242,145 @@ namespace BackendOfSite.Controllers
             return usefulVolume;
         }
 
-        private GroupedRecordsOrder CalculateTanksForParametrs(int settlingTime, int needVolumeM3, float usefulVolume)
+        private List<Sample> CalculateTanksForParametrs(float needVolumeM3, float usefulVolume, int needCount)
         {
-            GroupedRecordsOrder result = new GroupedRecordsOrder();
+            List<Sample> samples = new List<Sample>();
 
-            result.SettlingTimeHour = settlingTime;
-            result.RequiredVolume = needVolumeM3;
-            result.UsefulVolume = usefulVolume;
+            List<Sample> tankRecords = new List<Sample>();
 
-            var cisternVolumePrices = db.Cisterns.Select(cistern => new { cistern.NominalVolumeM3, Price = cistern.PriceCisterns.First().PriceRub ?? 0 }) ;
-
-            List<RecordsGroup> tankRecords = new List<RecordsGroup>();
-
-            foreach (var cisternVolumePrice in cisternVolumePrices)
+            foreach (var cisternVolumePrice in selectCisterns)
             {
-                int needCount = (int)Math.Ceiling(needVolumeM3 / (cisternVolumePrice.NominalVolumeM3 * usefulVolume));
-
-                tankRecords.Add(new RecordsGroup()
+                tankRecords.Add(new Sample()
                 {
-                    requiredTanksGroup = new List<RequiredTanksRecord>() {
-                    new RequiredTanksRecord() {
-                    NominalVolume = cisternVolumePrice.NominalVolumeM3,
-                    NeedCountForWork = needCount,
-                    CisternPrice = cisternVolumePrice.Price
-                }}
+                    selectCisternRecords = new List<SelectCisternRecord>()
+                    {
+                        new SelectCisternRecord() {
+                         cistern = cisternVolumePrice,
+                        CisternsNumber = (int)Math.Ceiling(needVolumeM3 / (cisternVolumePrice.NominalVolume * usefulVolume))
+                        }
+                    }
                 });
             }
 
-            result.tanksRecordGroups = tankRecords.OrderBy(group => group.requiredTanksGroup.Sum(x => x.CisternPrice * x.NeedCountForWork)).Take(5).ToList();
+            samples = tankRecords.OrderBy(group => group.TotalPrice).ToList();
 
-            return result;
+            if(needCount > 0)
+            {
+                samples = samples.Take(needCount).ToList();
+            }
+
+            return samples;
         }
 
-        private GroupedRecordsOrder CalculateTanksForParametrsGroupSelect(int settlingTime, int needVolumeM3, float usefulVolume)
+        private List<Sample> CalculateTanksForParametrsGroupSelect(float needVolumeM3, float usefulVolume, int needCount)
         {
-            GroupedRecordsOrder result = new GroupedRecordsOrder();
+            List<Sample> result = CalculateTanksForParametrs(needVolumeM3,usefulVolume,0);
+            decimal priceUpperBound = result.Min(x => x.TotalPrice);
 
-            result.SettlingTimeHour = settlingTime;
-            result.RequiredVolume = needVolumeM3;
-            result.UsefulVolume = usefulVolume;
+            List<Sample> tempResult = result.Skip(1).ToList();
 
-            CisternNominalCountPrice[] cisternVolumePrices = db.Cisterns.Select(cistern => new CisternNominalCountPrice { NominalVolumeM3 = cistern.NominalVolumeM3, CountForFull = 0, Price = cistern.PriceCisterns.First().PriceRub ?? 0 })
-                .OrderBy(x => x.NominalVolumeM3).ToArray();
+            result = result.Take(1).ToList();
 
-            List<RecordsGroup> tankRecords = new List<RecordsGroup>();
+            List<Sample> unfinishedSamples = CalculateTanksForParametrs(needVolumeM3, usefulVolume, 0).ToList();
+            
+            unfinishedSamples = unfinishedSamples.Where(x => x.selectCisternRecords.Sum(x => x.CisternsNumber) > 1).ToList();
+            unfinishedSamples.ForEach(x => x.selectCisternRecords.First().CisternsNumber -= 1);
 
-            cisternVolumePrices[0].CountForFull = (int)Math.Ceiling(needVolumeM3 / (cisternVolumePrices[0].NominalVolumeM3 * usefulVolume));
+            List<Sample> forCheckingSamples = unfinishedSamples.Where(x => x.TotalPrice <= priceUpperBound).ToList();
 
-            while (true)
+            unfinishedSamples = unfinishedSamples.Where(x => x.TotalPrice > priceUpperBound).ToList();
+
+
+            needVolumeM3 /= usefulVolume;
+
+            
+            while(result.Count < needCount || forCheckingSamples.Count > 0)
             {
-                if(tankRecords.Count() > 100)
+                // If checking samples is empty
+                if (forCheckingSamples.Count == 0)
                 {
-                    tankRecords = tankRecords.OrderBy(group => group.requiredTanksGroup.Sum(x => x.CisternPrice * x.NeedCountForWork))
-                .Take(30).ToList();
-                }
-
-                // Add to tank records
-                RecordsGroup recordsGroup = new RecordsGroup();
-
-                foreach (var cisternVolumePrice in cisternVolumePrices)
-                {
-                    if (cisternVolumePrice.CountForFull > 0)
+                    // If infinished samples for moving to checking samples is empty, exit from while and send result
+                    if(unfinishedSamples.Count == 0)
                     {
-                        recordsGroup.requiredTanksGroup.Add(new RequiredTanksRecord()
-                        {
-                            NominalVolume = cisternVolumePrice.NominalVolumeM3,
-                            NeedCountForWork = cisternVolumePrice.CountForFull,
-                            CisternPrice = cisternVolumePrice.Price
-                        });
+                        break;
+                    }
+                    // If unfinished samples isn't empty, change price upper bound and move unfinished samples with less total price than price upper bount to checking samples
+                    else
+                    {
+                        priceUpperBound = tempResult.First(x => x.TotalPrice > priceUpperBound).TotalPrice;
+
+                        forCheckingSamples = unfinishedSamples.Where(x => x.TotalPrice <= priceUpperBound).ToList();
+                        unfinishedSamples = unfinishedSamples.Where(x => x.TotalPrice > priceUpperBound).ToList();
+
+                        // Move samples with less total price than price upper bound from temp results list to result list
+                        result.AddRange(tempResult.Where(x => x.TotalPrice <= priceUpperBound).ToList());
+                        tempResult = tempResult.Where(x => x.TotalPrice > priceUpperBound).OrderBy(x => x.TotalPrice).Take(needCount).ToList();
+
+                        result.OrderBy(x => x.TotalPrice).ToList();
+
+                        continue;
                     }
                 }
 
-                tankRecords.Add(recordsGroup);
 
-                if (cisternVolumePrices.Count(x => x.CountForFull > 0) == 1
-                    && (cisternVolumePrices.First(x => x.CountForFull > 0).CountForFull == 1
-                        || cisternVolumePrices.Last(x => x.CountForFull > 0).NominalVolumeM3 == cisternVolumePrices.Last().NominalVolumeM3))
-                {
-                    break;
+                // Check all tree of one of the samples for cheking
+                List<Sample> forCheckingSamplesBranch = new List<Sample>() { forCheckingSamples.First() };
+                forCheckingSamples = forCheckingSamples.Skip(1).ToList();
+                
+                while(forCheckingSamplesBranch.Count > 0)
+                { 
+                    Sample sample = forCheckingSamplesBranch.First();
+                    forCheckingSamplesBranch = forCheckingSamplesBranch.Skip(1).ToList();
+
+                    foreach(var selectCistern in selectCisterns)
+                    {
+                        Sample newSample = new Sample();
+
+                        newSample.selectCisternRecords.AddRange(sample.selectCisternRecords);
+
+                        var findRecord = newSample.selectCisternRecords.FirstOrDefault(x => x.cistern == selectCistern);
+
+                        if(findRecord == null)
+                        {
+                            newSample.selectCisternRecords.Add(new SelectCisternRecord() { cistern = selectCistern, CisternsNumber = 1 });
+                        }
+                        else
+                        {
+                            findRecord.CisternsNumber += 1;
+                        }
+
+                        if(newSample.TotalVolume > needVolumeM3)
+                        {
+                            tempResult.Add(newSample);
+                        }
+                        else
+                        {
+                            if(newSample.TotalPrice <= priceUpperBound)
+                            {
+                                forCheckingSamplesBranch.Add(newSample);
+                            }
+                            else
+                            {
+                                unfinishedSamples.Add(newSample);
+                            }
+                        }
+                    }
+
+                    forCheckingSamplesBranch = forCheckingSamplesBranch.OrderBy(x => x.TotalPrice).ToList();
                 }
 
-                // Next in combination
-                int firstNumCisternIndex = Array.IndexOf(cisternVolumePrices, cisternVolumePrices.First(x => x.CountForFull > 0));
 
-                cisternVolumePrices[firstNumCisternIndex + 1].CountForFull += 1;
+                // Move samples with less total price than price upper bound from temp results list to result list
+                result.AddRange(tempResult.Where(x => x.TotalPrice <= priceUpperBound).ToList());
+                tempResult = tempResult.Where(x => x.TotalPrice > priceUpperBound).OrderBy(x => x.TotalPrice).Take(needCount).ToList();
 
-                for (int index = 0; index <= firstNumCisternIndex; index++)
-                {
-                    cisternVolumePrices[index].CountForFull = 0;
-                }
-
-                int currentNominalVolume = cisternVolumePrices.Sum(x => x.CountForFull * x.NominalVolumeM3);
-
-                if (needVolumeM3 / usefulVolume > currentNominalVolume)
-                {
-                    cisternVolumePrices[0].CountForFull = (int)Math.Ceiling((needVolumeM3 / usefulVolume - currentNominalVolume) / cisternVolumePrices[0].NominalVolumeM3);
-                }
+                result.OrderBy(x => x.TotalPrice).ToList();
             }
 
-            result.tanksRecordGroups = tankRecords.OrderBy(group => group.requiredTanksGroup.Sum(x => x.CisternPrice * x.NeedCountForWork))
-                .Take(20).ToList();
+
+            result = result.OrderBy(x => x.TotalPrice).Take(needCount).ToList();
 
             return result;
-        }
-
-        class CisternNominalCountPrice
-        {
-            public int NominalVolumeM3 { get; set; }
-            public int CountForFull { get; set; }
-            public decimal Price { get; set; }
         }
     }
 }

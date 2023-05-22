@@ -9,27 +9,29 @@ export const ResultAreaMixinByGroup = {
             let content = [];
             let num = 1;
 
-            let tanksRecordGroups = data.tanksRecordGroups;
+            let samples = data.samples;
 
-            for (let group of tanksRecordGroups) {
-                let tanksGroup = group.requiredTanksGroup;
-                const recordsCount = tanksGroup.length;
-                let generalPrice = 0;
+            for (let sample of samples) {
+                let cisternRecords = sample.selectCisternRecords;
+                const recordsCount = cisternRecords.length;
+                let totalPrice = 0, totalVolume = 0;
                 let firstRecord = true;
 
-                for (let record of tanksGroup) {
-                    generalPrice += record.cisternPrice * record.needCountForWork;
+                for (let record of cisternRecords) {
+                    totalPrice += record.cistern.cisternPrice * record.cisternsNumber;
+                    totalVolume += record.cistern.nominalVolume * record.cisternsNumber;
                 }
 
-                for (let record of tanksGroup) {
+                for (let record of cisternRecords) {
                     content.push(
                         <tr>
-                            {firstRecord ? <td rowSpan={recordsCount}>{num}</td> : null}
-                            <td>{NumToFormatStr(record.nominalVolume)}</td>
-                            <td>{NumToFormatStr(record.needCountForWork)}</td>
-                            <td>{NumToFormatStr(record.cisternPrice)}</td>
-                            <td>{NumToFormatStr(record.cisternPrice * record.needCountForWork)}</td>
-                            {firstRecord ? <td rowSpan={recordsCount}>{generalPrice}</td> : null}
+                            {firstRecord ? <td rowSpan={NumToFormatStr(recordsCount)}>{num}</td> : null}
+                            <td>{NumToFormatStr(record.cistern.nominalVolume)}</td>
+                            <td>{NumToFormatStr(record.cisternsNumber)}</td>
+                            <td>{NumToFormatStr(record.cistern.cisternPrice)}</td>
+                            <td>{NumToFormatStr(record.cistern.cisternPrice * record.cisternsNumber)}</td>
+                            {firstRecord ? <td rowSpan={recordsCount}>{NumToFormatStr(totalPrice)}</td> : null}
+                            {firstRecord ? <td rowSpan={recordsCount}>{NumToFormatStr(totalVolume)}</td> : null}
                         </tr>);
 
                     firstRecord = false;
@@ -45,10 +47,10 @@ export const ResultAreaMixinByGroup = {
             <>
                 <Form>
                     <Form.Group>
-                        <Form.Label>Время отстоя, хранения, час: {this.state.loadedResult.settlingTimeHour }</Form.Label>
+                        <Form.Label>Время отстоя, хранения, час: {NumToFormatStr(this.state.loadedResult.settlingTimeHour) }</Form.Label>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Требуемая емкость РВС и отстойников, м³: {this.state.loadedResult.requiredVolume} ({Math.ceil(this.state.loadedResult.requiredVolume / this.state.loadedResult.usefulVolume )})</Form.Label>
+                        <Form.Label>Требуемая емкость РВС и отстойников, м³: {NumToFormatStr(this.state.loadedResult.requiredVolume)} ({NumToFormatStr(Math.ceil(this.state.loadedResult.requiredVolume / this.state.loadedResult.usefulVolume ))})</Form.Label>
                     </Form.Group>
                     <Form.Group>
                         <Form.Label>Полезный объем (коэф. заполнения): {this.state.loadedResult.usefulVolume }</Form.Label>
@@ -64,6 +66,7 @@ export const ResultAreaMixinByGroup = {
                             <th style={{ width: '100px' }}>Цена за штуку, руб.</th>
                             <th style={{ width: '100px' }}>Общая цена, руб.</th>
                             <th style={{ width: '100px' }}>Итого цена, руб.</th>
+                            <th style={{ width: '100px' }}>Итого объема, м³</th>
                         </tr>
                     </tbody>
                     <tbody>

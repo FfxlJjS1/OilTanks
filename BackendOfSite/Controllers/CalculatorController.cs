@@ -38,10 +38,20 @@ namespace BackendOfSite.Controllers
             public decimal TotalPrice => selectCisternRecords.Sum(x => x.TotalPrice);
 
             public float TotalVolume => selectCisternRecords.Sum(x => x.TotalVolume);
+
+            public decimal TotalPriceForVolume => ((decimal)TotalVolume) / TotalPrice;
         }
 
         public class SelectCisternRecord
         {
+            public SelectCisternRecord() { }
+
+            public SelectCisternRecord(SelectCisternRecord x)
+            {
+                cistern = x.cistern;
+                CisternsNumber = x.CisternsNumber;
+            }
+
             public SelectCister cistern { get; set; } = new SelectCister();
             public int CisternsNumber { get; set; }
 
@@ -326,21 +336,21 @@ namespace BackendOfSite.Controllers
                 // Check all tree of one of the samples for cheking
                 List<Sample> forCheckingSamplesBranch = new List<Sample>() { forCheckingSamples.First() };
                 forCheckingSamples = forCheckingSamples.Skip(1).ToList();
-                
-                while(forCheckingSamplesBranch.Count > 0)
-                { 
+
+                while (forCheckingSamplesBranch.Count > 0)
+                {
                     Sample sample = forCheckingSamplesBranch.First();
                     forCheckingSamplesBranch = forCheckingSamplesBranch.Skip(1).ToList();
 
-                    foreach(var selectCistern in selectCisterns)
+                    foreach (var selectCistern in selectCisterns)
                     {
                         Sample newSample = new Sample();
 
-                        newSample.selectCisternRecords.AddRange(sample.selectCisternRecords);
-
+                        sample.selectCisternRecords.ForEach(forCopy => newSample.selectCisternRecords.Add(new SelectCisternRecord(forCopy)));
+                        
                         var findRecord = newSample.selectCisternRecords.FirstOrDefault(x => x.cistern == selectCistern);
 
-                        if(findRecord == null)
+                        if (findRecord == null)
                         {
                             newSample.selectCisternRecords.Add(new SelectCisternRecord() { cistern = selectCistern, CisternsNumber = 1 });
                         }
@@ -349,13 +359,13 @@ namespace BackendOfSite.Controllers
                             findRecord.CisternsNumber += 1;
                         }
 
-                        if(newSample.TotalVolume > needVolumeM3)
+                        if (newSample.TotalVolume > needVolumeM3)
                         {
                             tempResult.Add(newSample);
                         }
                         else
                         {
-                            if(newSample.TotalPrice <= priceUpperBound)
+                            if (newSample.TotalPrice <= priceUpperBound)
                             {
                                 forCheckingSamplesBranch.Add(newSample);
                             }

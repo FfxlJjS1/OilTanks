@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Collections.Generic;
+using System.Security.Cryptography.Xml;
 
 namespace BackendOfSite.Controllers
 {
@@ -9,7 +10,7 @@ namespace BackendOfSite.Controllers
     [Route("api/[controller]")]
     public class StructuralAnalysisController : Controller
     {
-        readonly string[] formTypes = { "Цилиндрическая" };
+        readonly string[] formTypes = { "Цилиндрический", "Параллелепипед" };
 
         class Column
         {
@@ -46,6 +47,7 @@ namespace BackendOfSite.Controllers
             entityTable.Columns = new List<Column>()
             {
                 new Column(){ Name = "Радиус, м", Width = "50px"},
+                new Column(){ Name = "Ширина стороны, м", Width = "50px"},
                 new Column(){ Name = "Площадь дна, м", Width = "50px"},
                 new Column(){ Name = "Длина окружности, м", Width = "50px"},
                 new Column(){ Name = "Высота, м", Width = "100px"},
@@ -62,6 +64,7 @@ namespace BackendOfSite.Controllers
                 entityTable.Rows.AddRange(rowsByForm);
             }
 
+            entityTable.Rows = entityTable.Rows.OrderBy(row => Convert.ToDecimal(row[6])).ToList();
 
             EntityResponce entityResponce = new EntityResponce()
             {
@@ -93,20 +96,47 @@ namespace BackendOfSite.Controllers
                     List<string> row = new List<string>
                     {
                         radius.ToString(),
+                        "---",
                         Math.Round(radius * radius * Math.PI, 3).ToString(),
                         Math.Round(radius * Math.PI * 2, 3).ToString()
                     };
 
-                    double currHeight = Math.Round(volumeValue / Convert.ToDouble(row[1]), 3);
+                    double currHeight = Math.Round(volumeValue / Convert.ToDouble(row[2]), 3);
                     row.Add(currHeight.ToString());
-                    row.Add(Math.Round(Convert.ToDouble(row[2]) * Convert.ToDouble(row[3]), 3).ToString());
+                    row.Add(Math.Round(Convert.ToDouble(row[3]) * Convert.ToDouble(row[4]), 3).ToString());
 
-                    double currSquire = Math.Round(Convert.ToDouble(row[1]) * 2 + Convert.ToDouble(row[4]), 3);
+                    double currSquire = Math.Round(Convert.ToDouble(row[2]) * 2 + Convert.ToDouble(row[5]), 3);
                     row.Add(currSquire.ToString());
 
                     row.Add(formTypeString);
 
                     rows.Add(row);
+                }
+            }
+            else if (formTypeIndex == 1)
+            {
+                const int maxSideWidth = 30;
+
+                for (int sideAWidth = 1; sideAWidth <= maxSideWidth; sideAWidth++)
+                {
+                    for (int sideBWidth = 1; sideBWidth <= maxSideWidth; sideBWidth++)
+                    {
+                        List<string> row = new List<string>
+                        {
+                            "---",
+                            sideAWidth.ToString() + " / " + sideBWidth.ToString(),
+                            (sideAWidth * sideBWidth).ToString(),
+                            "---"
+                        };
+
+                        double currHeight = Math.Round(volumeValue / Convert.ToDouble(row[2]), 3);
+                        row.Add(currHeight.ToString());
+                        row.Add(Math.Round((sideAWidth + sideBWidth) * currHeight * 2, 3).ToString());
+                        row.Add(Math.Round((sideAWidth * sideBWidth + sideAWidth * currHeight + sideBWidth * currHeight) * 2, 3).ToString());
+                        row.Add(formTypeString);
+
+                        rows.Add(row);
+                    }
                 }
             }
 

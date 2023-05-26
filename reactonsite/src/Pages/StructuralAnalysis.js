@@ -40,7 +40,6 @@ export class StructuralAnalysis extends Component {
         this.setState({ loadedResult: null, resultIsLoading: true });
 
         const data = await CommunicationWithServer.GetStructuralAnalysisResultByForm(
-            this.state.formType,
             this.state.volumeValue,
         );
 

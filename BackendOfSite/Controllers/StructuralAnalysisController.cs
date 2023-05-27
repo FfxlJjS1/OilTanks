@@ -96,7 +96,7 @@ namespace BackendOfSite.Controllers
                     List<string> row = new List<string>
                     {
                         radius.ToString(),
-                        "---",
+                        "-1",
                         Math.Round(radius * radius * Math.PI, 3).ToString(),
                         Math.Round(radius * Math.PI * 2, 3).ToString()
                     };
@@ -123,10 +123,10 @@ namespace BackendOfSite.Controllers
                     {
                         List<string> row = new List<string>
                         {
-                            "---",
+                            "-1",
                             sideAWidth.ToString() + " / " + sideBWidth.ToString(),
                             (sideAWidth * sideBWidth).ToString(),
-                            "---"
+                            "-1"
                         };
 
                         double currHeight = Math.Round(volumeValue / Convert.ToDouble(row[2]), 3);

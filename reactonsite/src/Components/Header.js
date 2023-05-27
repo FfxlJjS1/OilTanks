@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-import { Navbar, Nav, Container, Dropdown, DropdownButton } from 'react-bootstrap'
+import { Navbar, Nav, Container, DropdownButton } from 'react-bootstrap'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 
 import logo from './logo.png'
@@ -12,9 +12,6 @@ import {CalculatorV2} from "../Pages/CalculatorV2"
 import {ParkV2} from "../Pages/ParkV2"
 import { StructuralAnalysis } from "../Pages/StructuralAnalysis"
 import DropdownItem from "react-bootstrap/esm/DropdownItem"
-import DropdownMenu from "react-bootstrap/esm/DropdownMenu"
-import DropdownContext from "react-bootstrap/esm/DropdownContext"
-import DropdownToggle from "react-bootstrap/esm/DropdownToggle"
 
 export default class Header extends Component{
     constructor(props) {

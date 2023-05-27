@@ -29,7 +29,6 @@ export const ResultTableMixinShowTable = {
             }
 
             // Sorting
-            //console.log(data);
             if (columnBySorted[0] == thIndexInColumns && columnBySorted[1] == true) {
                 columnBySorted[1] = false;
             }
@@ -37,24 +36,26 @@ export const ResultTableMixinShowTable = {
                 columnBySorted = [thIndexInColumns, true];
             }
 
-            data.rows.sort((a, b) => {
-                if (columnBySorted[1] == true) {
+            if (columnBySorted[1] == true) {
+                data.rows.sort((a, b) => {
                     if (IsNumeric(a[thIndexInColumns]) && IsNumeric(b[thIndexInColumns])) {
-                        return parseFloat(a[thIndexInColumns]) - parseFloat(b[thIndexInColumns]);
+                        return parseFloat(a[thIndexInColumns]) - parseFloat(b[thIndexInColumns]) >= 0 ? 1 : -1;
                     }
                     else {
-                        return a[thIndexInColumns] > b[thIndexInColumns];
+                        return a[thIndexInColumns] > b[thIndexInColumns] ? 1 : -1;
                     }
-                }
-                else {
+                });
+            }
+            else {
+                data.rows.sort((a, b) => {
                     if (IsNumeric(a[thIndexInColumns]) && IsNumeric(b[thIndexInColumns])) {
-                        return parseFloat(b[thIndexInColumns]) - parseFloat(a[thIndexInColumns]);
+                        return parseFloat(b[thIndexInColumns]) - parseFloat(a[thIndexInColumns]) >= 0 ? 1 : -1;
                     }
                     else {
-                        return a[thIndexInColumns] < b[thIndexInColumns];
+                        return a[thIndexInColumns] < b[thIndexInColumns] ? 1 : -1;
                     }
-                }
-            });
+                });
+            }
 
             this.setState({
                 resultTable: this.renderResultTable(),
@@ -88,7 +89,7 @@ export const ResultTableMixinShowTable = {
                     <tbody>
                         {this.state.loadedResult.rows.map((item) =>
                             <tr>{item.map((item) => 
-                                <td>{item}</td>
+                                <td>{item != "-1" ? item : "---"}</td>
                                 )}</tr>
                             )}
                     </tbody>

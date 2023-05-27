@@ -10,8 +10,8 @@ export const IsNumber = (value) => {
 export const IsNumeric = (str) => {
     if (typeof str != "string") return false // we only process strings!
 
-    const string = new String(str.replaceAll(',', '.'));
+    const floatString = str.replaceAll(',', '.');
 
-    return !isNaN(string) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
-        !isNaN(parseFloat(string)) // ...and ensure strings of whitespace fail
+    return !isNaN(floatString) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+        !isNaN(parseFloat(floatString)) // ...and ensure strings of whitespace fail
 }

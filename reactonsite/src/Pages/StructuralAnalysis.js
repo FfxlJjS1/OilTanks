@@ -7,12 +7,13 @@ import ResultTableMixinShowTable from "../Mixins/ResultTableMixinShowTable";
 export class StructuralAnalysis extends Component {
     constructor(props) {
         super(props);
-        
+
         this.state = {
             volumeValue: null, formType: null,
             minimalSquire: null, height: 0,
             formTypes: null, loadingFormTypes: false,
-            loadedResult: null, resultIsLoading: false
+            loadedResult: null, resultIsLoading: false,
+            resultTable: null, columnBySorted: [-1, true]
         };
     }
 
@@ -44,18 +45,24 @@ export class StructuralAnalysis extends Component {
         );
 
         if (data != null) {
-            this.setState({ loadedResult: data.entityTable, minimalSquire: data.minimalSquire, height: data.height});
+            this.state.loadedResult = data.entityTable;
+            this.state.minimalSquire = data.minimalSquire
+            this.state.height = data.height;
         }
 
-        this.setState({ resultIsLoading: false });
+        this.state.resultIsLoading = false;
+
+        if (!this.state.resultIsLoading && this.state.loadedResult != null) {
+            this.setState({ resultTable: this.renderResultTable() });
+        }
+        else {
+            this.setState({ resultTable: null });
+        }
     }
 
     render() {
         let formTypesSelect = !this.state.loadingFormTypes && this.state.formTypes != null
             ? this.state.formTypes.map(formType => <option>{formType}</option>)
-            : null;
-        let resultTable = !this.state.resultIsLoading && this.state.loadedResult != null
-            ? this.renderResultTable()
             : null;
 
         const handleInputVolumeValue = (event) => {
@@ -64,35 +71,35 @@ export class StructuralAnalysis extends Component {
             this.setState({ volumeValue: value && value > 0 ? parseInt(value) : "" });
         };
         const handleClick = () => this.enterAndLoadServerCalculation();
-        
+
         return (
-            <Container className="mt-2" style={{ width: '1000px'}}>
-                <Container style={{ width: '600px'}}> 
-                <Form>
-                    <Form.Group className="mb-3" controlId="formBasicEmail"
-                        value={this.state.formType}>
-                        <Form.Label>Выберите форму</Form.Label>
-                        <Form.Select disabled={this.state.formTypes == null}>
-                            {formTypesSelect}
-                        </Form.Select>
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>Введите объем, м3</Form.Label>
-                        <Form.Control type="text" placeholder="обьём м³"
-                            value={this.state.volumeValue}
-                            onInput={e => handleInputVolumeValue(e)}
-                            pattern="[0-9]*" />
-                    </Form.Group>
-                    <Button className="mb-3" variant="primary" type="button"
-                        disabled={this.state.resultIsLoading ||
-                            this.state.formTypes == null || this.state.volumeValue <= 0}
-                        onClick={!this.state.resultIsLoading ? handleClick : null}>
-                        {!this.state.resultIsLoading ? "Вычислить" : "Загружается"}
-                    </Button>
-                </Form>
+            <Container className="mt-2" style={{ width: '1000px' }}>
+                <Container style={{ width: '600px' }}>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="formBasicEmail"
+                            value={this.state.formType}>
+                            <Form.Label>Выберите форму</Form.Label>
+                            <Form.Select disabled={this.state.formTypes == null}>
+                                {formTypesSelect}
+                            </Form.Select>
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="formBasicEmail">
+                            <Form.Label>Введите объем, м3</Form.Label>
+                            <Form.Control type="text" placeholder="обьём м³"
+                                value={this.state.volumeValue}
+                                onInput={e => handleInputVolumeValue(e)}
+                                pattern="[0-9]*" />
+                        </Form.Group>
+                        <Button className="mb-3" variant="primary" type="button"
+                            disabled={this.state.resultIsLoading ||
+                                this.state.formTypes == null || this.state.volumeValue <= 0}
+                            onClick={!this.state.resultIsLoading ? handleClick : null}>
+                            {!this.state.resultIsLoading ? "Вычислить" : "Загружается"}
+                        </Button>
+                    </Form>
                 </Container>
 
-                {resultTable}
+                {this.state.resultTable}
             </Container>
         )
     }

@@ -40,7 +40,7 @@ export const ResultTableMixinShowTable = {
             data.rows.sort((a, b) => {
                 if (columnBySorted[1] == true) {
                     if (IsNumeric(a[thIndexInColumns]) && IsNumeric(b[thIndexInColumns])) {
-                        return a[thIndexInColumns] - b[thIndexInColumns];
+                        return parseFloat(a[thIndexInColumns]) - parseFloat(b[thIndexInColumns]);
                     }
                     else {
                         return a[thIndexInColumns] > b[thIndexInColumns];
@@ -48,7 +48,7 @@ export const ResultTableMixinShowTable = {
                 }
                 else {
                     if (IsNumeric(a[thIndexInColumns]) && IsNumeric(b[thIndexInColumns])) {
-                        return b[thIndexInColumns] - a[thIndexInColumns];
+                        return parseFloat(b[thIndexInColumns]) - parseFloat(a[thIndexInColumns]);
                     }
                     else {
                         return a[thIndexInColumns] < b[thIndexInColumns];

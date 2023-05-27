@@ -1,51 +1,65 @@
 import React from "react"
 import { Table, Form } from "react-bootstrap"
 
-import { NumToFormatStr } from "../FunctionalClasses/GeneralFunctions";
+import { NumToFormatStr, IsNumeric } from "../FunctionalClasses/GeneralFunctions";
 
 export const ResultTableMixinShowTable = {
     renderResultTable() {
-        const tdColumns = (data) => {
-            let content = [];
+        this.state.updateAfterSorting = false;
 
-            for (let column of data.columns) {
-                content.push(
-                    <th style={{ width: column.width }}>{column.name}</th>
-                );
-            }
+        const handleClickForSortingByColumn = (e) => {
+            let columnClickedText = e.target.childNodes[0].data;
+            let thIndexInColumns = -1;
+            let data = this.state.loadedResult;
+            let columnBySorted = this.state.columnBySorted;
 
-            content = [
-                <tr>
-                    {content}
-                </tr>
-            ];
+            for (var index = 0; index < data.columns.length; index++) {
+                const columnByIndex = data.columns[index];
+                const columnTextByIndex = columnByIndex.name;
 
-            return content;
-        }
+                if (columnTextByIndex == columnClickedText) {
+                    thIndexInColumns = index;
 
-        const tdRows = (data) => {
-            let content = [];
-
-            let rows = data.rows;
-
-            for (let row of rows) {
-                let rowContent = [];
-
-                for (let value of row) {
-                    rowContent.push(
-                        <td>{value}</td>
-                    );
+                    break;
                 }
-
-                rowContent = [
-                    <tr>
-                        {rowContent}
-                    </tr>];
-
-                content.push(rowContent);
             }
 
-            return content;
+            if (thIndexInColumns == -1) {
+                return;
+            }
+
+            // Sorting
+            //console.log(data);
+            if (columnBySorted[0] == thIndexInColumns && columnBySorted[1] == true) {
+                columnBySorted[1] = false;
+            }
+            else {
+                columnBySorted = [thIndexInColumns, true];
+            }
+
+            data.rows.sort((a, b) => {
+                if (columnBySorted[1] == true) {
+                    if (IsNumeric(a[thIndexInColumns]) && IsNumeric(b[thIndexInColumns])) {
+                        return a[thIndexInColumns] - b[thIndexInColumns];
+                    }
+                    else {
+                        return a[thIndexInColumns] > b[thIndexInColumns];
+                    }
+                }
+                else {
+                    if (IsNumeric(a[thIndexInColumns]) && IsNumeric(b[thIndexInColumns])) {
+                        return b[thIndexInColumns] - a[thIndexInColumns];
+                    }
+                    else {
+                        return a[thIndexInColumns] < b[thIndexInColumns];
+                    }
+                }
+            });
+
+            this.setState({
+                resultTable: this.renderResultTable(),
+                columnBySorted: columnBySorted
+            });
         }
 
         return (
@@ -61,10 +75,22 @@ export const ResultTableMixinShowTable = {
 
                 <Table striped bordred hover>
                     <tbody>
-                        {tdColumns(this.state.loadedResult)}
+                        <tr>
+                            {this.state.loadedResult.columns.map((column) =>
+                                <th
+                                    style={{ width: column.width }}
+                                    onClick={handleClickForSortingByColumn}
+                                    style={{cursor: 'pointer'} }
+                                >{column.name}</th>
+                                )}
+                        </tr>
                     </tbody>
                     <tbody>
-                        {tdRows(this.state.loadedResult)}
+                        {this.state.loadedResult.rows.map((item) =>
+                            <tr>{item.map((item) => 
+                                <td>{item}</td>
+                                )}</tr>
+                            )}
                     </tbody>
                 </Table>
             </>

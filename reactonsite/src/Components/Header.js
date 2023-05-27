@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-import { Navbar, Nav, Container } from 'react-bootstrap'
+import { Navbar, Nav, Container, Dropdown, DropdownButton } from 'react-bootstrap'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 
 import logo from './logo.png'
@@ -11,6 +11,10 @@ import {Park} from "../Pages/Park"
 import {CalculatorV2} from "../Pages/CalculatorV2"
 import {ParkV2} from "../Pages/ParkV2"
 import { StructuralAnalysis } from "../Pages/StructuralAnalysis"
+import DropdownItem from "react-bootstrap/esm/DropdownItem"
+import DropdownMenu from "react-bootstrap/esm/DropdownMenu"
+import DropdownContext from "react-bootstrap/esm/DropdownContext"
+import DropdownToggle from "react-bootstrap/esm/DropdownToggle"
 
 export default class Header extends Component{
     constructor(props) {
@@ -36,12 +40,15 @@ export default class Header extends Component{
                             <Nav className="me-auto">
                                 <Nav.Link href="/"> Главное меню </Nav.Link>
                                 <Nav.Link href="/cistern"> Резервуар </Nav.Link>
-                                <Nav.Link href="/calculator"> Онлайн калькулятор </Nav.Link>
-                                <Nav.Link href="/park"> Расчет по парку </Nav.Link>
-                                <Nav.Link href="/calculator_v2"> Онлайн калькулятор В2 </Nav.Link>
-                                <Nav.Link href="/parkv2"> Расчет по парку В2 </Nav.Link>
-                                <Nav.Link href="/structural_analysis"> Расчет конструкции </Nav.Link>
-
+                                
+                                <DropdownButton collapseOnSelect expand="md" bg="dark" variant="dark" title="Онлайн калькулятор">
+                                    <DropdownItem href="/calculator"> Расчет резервуара </DropdownItem>
+                                    <DropdownItem href="/park"> Расчет по парку </DropdownItem>
+                                    <DropdownItem href="/calculator_v2"> Оптимальный расчет резервуара </DropdownItem>
+                                    <DropdownItem href="/parkv2"> Оптимальный расчет по парку  </DropdownItem>
+                                    <DropdownItem href="/structural_analysis"> Расчет конструкции </DropdownItem>
+                                </DropdownButton>
+                               
                             </Nav>
                         </Navbar.Collapse>
                     </Container>

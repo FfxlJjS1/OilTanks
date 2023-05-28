@@ -42,6 +42,7 @@ export class StructuralAnalysis extends Component {
 
         const data = await CommunicationWithServer.GetStructuralAnalysisResultByForm(
             this.state.volumeValue,
+            this.state.formType,
         );
 
         if (data != null) {
@@ -79,7 +80,9 @@ export class StructuralAnalysis extends Component {
                         <Form.Group className="mb-3" controlId="formBasicEmail"
                             value={this.state.formType}>
                             <Form.Label>Выберите форму</Form.Label>
-                            <Form.Select disabled={this.state.formTypes == null}>
+                            <Form.Select disabled={this.state.formTypes == null}
+                                onChange={e => this.setState({formType: e.target.value}) }
+                            >
                                 {formTypesSelect}
                             </Form.Select>
                         </Form.Group>

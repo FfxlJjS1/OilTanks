@@ -10,7 +10,7 @@ namespace BackendOfSite.Controllers
     [Route("api/[controller]")]
     public class StructuralAnalysisController : Controller
     {
-        readonly string[] formTypes = { "Цилиндрический", "Параллелепипед" };
+        readonly string[] formTypes = { "Все", "Цилиндрический", "Параллелепипед" };
 
         class Column
         {
@@ -38,33 +38,61 @@ namespace BackendOfSite.Controllers
         }
 
         [HttpGet("AnalyseByFormVolume")]
-        public IActionResult AnalyseByFormVolume(int volumeValue)
+        public IActionResult AnalyseByFormVolume(int volumeValue, string formType)
         {
             EntityTable entityTable = new EntityTable();
+            int formTypeIndex = Array.IndexOf(formTypes, formType);
             double squire = 0f, height = 0f;
 
 
-            entityTable.Columns = new List<Column>()
+            entityTable.Columns = new List<Column>();
+
+            if (formTypeIndex == 1 || formTypeIndex == 0)
             {
-                new Column(){ Name = "Радиус, м", Width = "50px"},
-                new Column(){ Name = "Ширина стороны, м", Width = "50px"},
-                new Column(){ Name = "Площадь дна, м", Width = "50px"},
-                new Column(){ Name = "Длина окружности, м", Width = "50px"},
-                new Column(){ Name = "Высота, м", Width = "100px"},
-                new Column(){ Name = "Площадь стенок, м2", Width = "100px"},
-                new Column(){ Name = "Площадь всех материалов, м2", Width = "150px"},
-                new Column() { Name = "Форма, тип", Width="150px"}
-            };
-
-
-            for(int formTypeIndex = 0; formTypeIndex < formTypes.Length; formTypeIndex++)
+                entityTable.Columns.AddRange(new List<Column>()
+                {
+                    new Column(){ Name = "Радиус, м", Width = "50px"},
+                    new Column(){ Name = "Длина окружности, м", Width = "50px"}
+                });
+            }
+            
+            if (formTypeIndex == 2 || formTypeIndex == 0)
             {
-                List<List<string>> rowsByForm = StructualAnalyzeByForm(formTypeIndex, volumeValue);
-
-                entityTable.Rows.AddRange(rowsByForm);
+                entityTable.Columns.AddRange(new List<Column>()
+                {
+                    new Column(){ Name = "Ширина стороны, м", Width = "50px"},
+                });
             }
 
-            entityTable.Rows = entityTable.Rows.OrderBy(row => Convert.ToDecimal(row[6])).ToList();
+            entityTable.Columns.AddRange(new List<Column>(){
+                new Column(){ Name = "Площадь дна, м", Width = "50px"},
+                new Column(){ Name = "Высота, м", Width = "100px"},
+                new Column() { Name = "Площадь стенок, м2", Width = "100px" },
+                new Column() { Name = "Площадь всех материалов, м2", Width = "150px" },
+                new Column() { Name = "Вес, т.", Width = "150px" },
+                new Column() { Name = "Стоимость, руб.", Width = "150px" }
+            });
+
+            if(formTypeIndex == 0)
+            {
+                entityTable.Columns.Add(new Column() { Name = "Форма, тип", Width = "150px" });
+            }
+
+
+            if (formTypeIndex == 0)
+            {
+                for (formTypeIndex = 1; formTypeIndex < formTypes.Length; formTypeIndex++)
+                {
+                    List<List<string>> rowsByForm = StructualAnalyzeByForm(formTypeIndex, volumeValue, true);
+
+                    entityTable.Rows.AddRange(rowsByForm);
+                }
+            }
+            else
+            {
+                entityTable.Rows = StructualAnalyzeByForm(formTypeIndex, volumeValue, false);
+            }
+
 
             EntityResponce entityResponce = new EntityResponce()
             {
@@ -76,18 +104,20 @@ namespace BackendOfSite.Controllers
             return Ok(entityResponce);
         }
 
-        private List<List<string>> StructualAnalyzeByForm(int formTypeIndex, int volumeValue)
+        private List<List<string>> StructualAnalyzeByForm(int formTypeIndex, int volumeValue, bool willFullTable)
         {
             List<List<string>> rows = new List<List<string>>();
 
-            if (formTypeIndex < 0 || formTypeIndex > formTypes.Length)
+            if (formTypeIndex < 1 || formTypeIndex > formTypes.Length)
             {
                 return rows;
             }
 
+            const float metalDensityKgPerCubicMillimetr = 7900f; // Кг/мм^3
+            const decimal metalCostPerKilogram = 53000; // Руб/кг
             string formTypeString = formTypes[formTypeIndex];
 
-            if (formTypeIndex == 0)
+            if (formTypeIndex == 1)
             {
                 const int maxRadius = 30;
 
@@ -96,24 +126,40 @@ namespace BackendOfSite.Controllers
                     List<string> row = new List<string>
                     {
                         radius.ToString(),
-                        "-1",
-                        Math.Round(radius * radius * Math.PI, 3).ToString(),
                         Math.Round(radius * Math.PI * 2, 3).ToString()
                     };
 
-                    double currHeight = Math.Round(volumeValue / Convert.ToDouble(row[2]), 3);
-                    row.Add(currHeight.ToString());
-                    row.Add(Math.Round(Convert.ToDouble(row[3]) * Convert.ToDouble(row[4]), 3).ToString());
+                    if (willFullTable)
+                    {
+                        row.Add("-1");
+                    }
 
-                    double currSquire = Math.Round(Convert.ToDouble(row[2]) * 2 + Convert.ToDouble(row[5]), 3);
+                    double bottomArea = Math.Round(radius * radius * Math.PI, 3);
+                    row.Add(bottomArea.ToString());
+
+                    double currHeight = Math.Round(volumeValue / bottomArea, 3);
+                    row.Add(currHeight.ToString());
+
+                    double wallArea = Math.Round(Convert.ToDouble(row[1]) * currHeight, 3);
+                    row.Add(wallArea.ToString());
+
+                    double currSquire = Math.Round(bottomArea * 2 + wallArea, 3);
                     row.Add(currSquire.ToString());
 
-                    row.Add(formTypeString);
+                    decimal tankWeight = CalculateCylinderTankWeight(radius, currHeight, volumeValue, metalDensityKgPerCubicMillimetr);
+                    row.Add(tankWeight.ToString());
+
+                    row.Add(CalculateCylinderTankCosts(tankWeight, metalCostPerKilogram).ToString());
+
+                    if (willFullTable)
+                    {
+                        row.Add(formTypeString);
+                    }
 
                     rows.Add(row);
                 }
             }
-            else if (formTypeIndex == 1)
+            else if (formTypeIndex == 2)
             {
                 const int maxSideWidth = 30;
 
@@ -121,19 +167,34 @@ namespace BackendOfSite.Controllers
                 {
                     for (int sideBWidth = 1; sideBWidth <= maxSideWidth; sideBWidth++)
                     {
-                        List<string> row = new List<string>
-                        {
-                            "-1",
-                            sideAWidth.ToString() + " / " + sideBWidth.ToString(),
-                            (sideAWidth * sideBWidth).ToString(),
-                            "-1"
-                        };
+                        List<string> row = new List<string>();
 
-                        double currHeight = Math.Round(volumeValue / Convert.ToDouble(row[2]), 3);
+                        if (willFullTable)
+                        {
+                            row.Add("-1");
+                            row.Add("-1");
+                        }
+
+                        row.Add(sideAWidth.ToString() + " / " + sideBWidth.ToString());
+
+                        double bottomArea = (sideAWidth * sideBWidth);
+                        row.Add(bottomArea.ToString());
+
+
+                        double currHeight = Math.Round(volumeValue / bottomArea, 3);
                         row.Add(currHeight.ToString());
                         row.Add(Math.Round((sideAWidth + sideBWidth) * currHeight * 2, 3).ToString());
                         row.Add(Math.Round((sideAWidth * sideBWidth + sideAWidth * currHeight + sideBWidth * currHeight) * 2, 3).ToString());
-                        row.Add(formTypeString);
+
+                        decimal tankWeight = CalculateParallelogeamTankWeight(sideAWidth, sideBWidth, currHeight, volumeValue, metalDensityKgPerCubicMillimetr);
+                        row.Add(tankWeight.ToString());
+
+                        row.Add(CalculateParallelogramTankCosts(tankWeight, metalCostPerKilogram).ToString());
+
+                        if (willFullTable)
+                        {
+                            row.Add(formTypeString);
+                        }
 
                         rows.Add(row);
                     }
@@ -141,6 +202,26 @@ namespace BackendOfSite.Controllers
             }
 
             return rows;
+        }
+
+        private decimal CalculateParallelogeamTankWeight(int sideAWidth, int sideBWidth, double currHeight, int volumeValue, float metalDensityKgPerCubicMillimetr)
+        {
+            return -1;
+        }
+
+        private decimal CalculateParallelogramTankCosts(decimal tankWeight, decimal metalCostsPerKillogram)
+        {
+            return tankWeight * metalCostsPerKillogram;
+        }
+
+        private decimal CalculateCylinderTankWeight(int radius, double currHeight, int volumeValue, float metalDensityKgPerCubicMillimetr)
+        {
+            return -1;
+        }
+
+        private decimal CalculateCylinderTankCosts(decimal tankWeight, decimal metalCostPerKillogram)
+        {
+            return tankWeight * metalCostPerKillogram;
         }
     }
 }

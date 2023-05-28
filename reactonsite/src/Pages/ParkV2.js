@@ -87,7 +87,7 @@ export class ParkV2 extends Component {
         const handleClick = () => this.enterAndLoadServerCalculation();
 
         return (
-            <Container className="mt-2" style={{ width: '1000px' }}>
+            <Container className="mt-2" style={{ width: this.props.containerWidth }}>
                 <Container style={{ width: '600px' }}>
                     <Form>
                         <Form.Group className="mb-3" controlId="formBasicEmail"

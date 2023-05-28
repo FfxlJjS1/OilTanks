@@ -20,7 +20,7 @@ export default class Header extends Component{
 
     render() {
         return (
-            <div className={this.props.className}>
+            <div className={this.props.className} >
                 <Navbar collapseOnSelect expand="md" bg="dark" variant="dark" >
                     <Container>
                         <Navbar.Brand hrefs="/">
@@ -56,9 +56,9 @@ export default class Header extends Component{
                         <Route exact path="/cistern" element={<Cistern />} />
                         <Route exact path="/calculator" element={<Calculator />} />
                         <Route exact path="/park" element={<Park />} />
-                        <Route exact path="/calculator_v2" element={<CalculatorV2 />} />
-                        <Route exact path="/parkv2" element={<ParkV2 />} />
-                        <Route exact path="/structural_analysis" element={<StructuralAnalysis />} />
+                        <Route exact path="/calculator_v2" element={<CalculatorV2 containerWidth='1000px'/>} />
+                        <Route exact path="/parkv2" element={<ParkV2 containerWidth='1000px'/>} />
+                        <Route exact path="/structural_analysis" element={<StructuralAnalysis containerWidth='1000px'/>} />
                     </Routes>
                 </Router>
             </div>

@@ -2,7 +2,7 @@ export const NumToFormatStr = (num) => String(num).replace(/\B(?=(\d{3})+(?!\d))
 
 export const IsNumber = (value) => {
     if (value instanceof Number)
-        value = value.valueOf(); // Если это объект числа, то берём значение, которое и будет числом
+        value = value.valueOf();
 
     return isFinite(value) && value === parseInt(value, 10);
 }

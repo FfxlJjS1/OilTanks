@@ -1,7 +1,7 @@
 import React from "react"
 import { Table, Form } from "react-bootstrap"
 
-import { NumToFormatStr, IsNumeric } from "../FunctionalClasses/GeneralFunctions";
+import { IsNumeric } from "../FunctionalClasses/GeneralFunctions";
 
 export const ResultTableMixinShowTable = {
     renderResultTable() {
@@ -65,23 +65,14 @@ export const ResultTableMixinShowTable = {
 
         return (
             <>
-                <Form>
-                    <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>Минимальная площадь, м: {NumToFormatStr(this.state.minimalSquire)}</Form.Label>
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>Высота, м: {NumToFormatStr(this.state.height)}</Form.Label>
-                    </Form.Group>
-                </Form>
-
                 <Table striped bordred hover>
                     <tbody>
                         <tr>
                             {this.state.loadedResult.columns.map((column) =>
                                 <th
-                                    style={{ width: column.width }}
+                                    style={{ width: column.width,
+                                        cursor: 'pointer' }}
                                     onClick={handleClickForSortingByColumn}
-                                    style={{cursor: 'pointer'} }
                                 >{column.name}</th>
                                 )}
                         </tr>

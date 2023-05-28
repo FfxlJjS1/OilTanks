@@ -96,7 +96,7 @@ export class CalculatorV2 extends Component {
         const handleClick = () => this.enterAndLoadServerCalculation();
 
         return (
-            <Container className="mt-2" style={{ width: '1000px' }}>
+            <Container className="mt-2" style={{ width: this.props.containerWidth }}>
                 <Container style={{ width: '600px' }}>
                     <Form>
                         <Form.Group className="mb-3" controlId="formBasicEmail"
@@ -141,7 +141,7 @@ export class CalculatorV2 extends Component {
                                 }}
                             />
                         </Form.Group>
-                        <Button className="mb-3" variant="primary" type="button"
+                        <Button className="mt-3" variant="primary" type="button"
                             disabled={this.state.resultIsLoading ||
                                 this.state.oilTypes == null || this.state.cisternPurposeId == null
                                 || this.state.oilValue <= 0 || this.state.waterValue <= 0}

@@ -1,5 +1,5 @@
 import React, { Component }  from "react"
-import { Button, Container, Form } from "react-bootstrap"
+import { Button, Container, Form, Row, Col } from "react-bootstrap"
 
 import { CommunicationWithServer } from "../FunctionalClasses/CommunicationWithServer";
 import ResultTableMixinEntity from "../Mixins/ResultTableMixinEntity";
@@ -116,22 +116,25 @@ export class Calculator extends Component {
                             {cisternPurposesSelect}
                         </Form.Select>
                     </Form.Group>
-                    <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>Нефть</Form.Label>
-                        <Form.Control type="text" placeholder="обьём м³"
-                            value={this.state.oilValue}
-                            onInput={e => handleInputOilValue(e)}
-                            pattern="[0-9]*" />
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>Вода</Form.Label>
-                        <Form.Control type="text" placeholder="обьём м³"
-                            value={this.state.waterValue}
-                            onInput={e => handleInputWaterValue(e) }
-                            pattern="[0-9]*"
-                        />
-                    </Form.Group>
-                    <Button className="mb-3" variant="primary" type="button"
+                    <Form as={Row}>
+                        <Col>
+                            <Form.Label>Нефть</Form.Label>
+                            <Form.Control type="text" placeholder="обьём м³"
+                                value={this.state.oilValue}
+                                onInput={e => handleInputOilValue(e)}
+                                pattern="[0-9]*" />
+                        </Col>
+                        <Col>
+                            <Form.Label>Вода</Form.Label>
+                            <Form.Control type="text" placeholder="обьём м³"
+                                value={this.state.waterValue}
+                                onInput={e => handleInputWaterValue(e) }
+                                pattern="[0-9]*"
+                            />
+                        </Col>
+                    </Form>
+                    
+                    <Button className="mt-3" variant="primary" type="button"
                         disabled={this.state.resultIsLoading ||
                             this.state.oilTypes == null || this.state.cisternPurposeId == null
                             || this.state.oilValue <= 0 || this.state.waterValue <= 0}

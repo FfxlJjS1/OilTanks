@@ -1,5 +1,5 @@
 import React, { Component }  from "react"
-import { Button, Container, Form } from "react-bootstrap"
+import { Button, Container, Form, Row, Col  } from "react-bootstrap"
 
 import { CommunicationWithServer } from "../FunctionalClasses/CommunicationWithServer";
 import ResultTableMixinShowTable from "../Mixins/ResultTableMixinShowTable";
@@ -93,6 +93,38 @@ export class StructuralAnalysis extends Component {
                                 onInput={e => handleInputVolumeValue(e)}
                                 pattern="[0-9]*" />
                         </Form.Group>
+                        <Form as={Row} className="mb-3">
+                            <Col>
+                                <Form.Label>Радиус (Н)</Form.Label>
+                                <Form.Control type="text" placeholder="обьём м³"
+                                    value={this.state.oilValue}
+                                    onInput={e => handleInputOilValue(e)}
+                                    pattern="[0-9]*" />
+                            </Col>
+                            <Col>
+                                <Form.Label>Радиус (К)</Form.Label>
+                                <Form.Control type="text" placeholder="обьём м³"
+                                    value={this.state.waterValue}
+                                    onInput={e => handleInputWaterValue(e)}
+                                    pattern="[0-9]*" />
+                            </Col>
+                        </Form>
+                        <Form as={Row} className="mb-4">
+                            <Col>
+                                <Form.Label>Ширина (Н)</Form.Label>
+                                <Form.Control type="text" placeholder="обьём м³"
+                                    value={this.state.oilValue}
+                                    onInput={e => handleInputOilValue(e)}
+                                    pattern="[0-9]*" />
+                            </Col>
+                            <Col>
+                                <Form.Label>Ширина (К)</Form.Label>
+                                <Form.Control type="text" placeholder="обьём м³"
+                                    value={this.state.waterValue}
+                                    onInput={e => handleInputWaterValue(e)}
+                                    pattern="[0-9]*" />
+                            </Col>
+                        </Form>
                         <Button className="mb-3" variant="primary" type="button"
                             disabled={this.state.resultIsLoading ||
                                 this.state.formTypes == null || this.state.volumeValue <= 0}

@@ -94,11 +94,6 @@ namespace BackendOfSite.Controllers
             public decimal TotalPrice => cistern.CisternPrice * CisternsNumber;
 
             public float TotalVolume => cistern.NominalVolume * CisternsNumber;
-
-            public bool Equals(SelectCisternRecord other)
-            {
-                return cistern == other.cistern && CisternsNumber == other.CisternsNumber;
-            }
         }
 
         public class SelectCister
@@ -107,11 +102,6 @@ namespace BackendOfSite.Controllers
             public decimal CisternPrice { get; set; }
 
             public decimal PriceForVolume => ((decimal)NominalVolume) / CisternPrice;
-
-            public bool Equals(SelectCister other)
-            {
-                return NominalVolume == other.NominalVolume && CisternPrice == other.CisternPrice;
-            }
         }
 
         [HttpGet("GetProductParks")]
@@ -333,6 +323,7 @@ namespace BackendOfSite.Controllers
         {
             List<Sample> result = CalculateTanksForParametrs(needVolumeM3, usefulVolume, 0);
             decimal priceUpperBound = result.Min(x => x.TotalPrice);
+            decimal priceUpperBoundInTempResult = -1;
 
             List<Sample> tempResult = result.Skip(1).ToList();
 
@@ -356,7 +347,7 @@ namespace BackendOfSite.Controllers
             selectCisterns = selectCisterns.Where(cistern => cistern.NominalVolume < needVolumeM3).ToList();
 
 
-            while (result.Count < needCount && (forCheckingSamples.Count > 0 || unfinishedSamples.Count > 0 || tempResult.Count > 0))
+            while ((result.Count < needCount || needCount == 0) && (forCheckingSamples.Count > 0 || unfinishedSamples.Count > 0 || tempResult.Count > 0))
             {
                 // If checking samples is empty
                 if (forCheckingSamples.Count == 0)
@@ -364,6 +355,9 @@ namespace BackendOfSite.Controllers
                     // If infinished samples for moving to checking samples is empty, exit from while and send result
                     if (unfinishedSamples.Count == 0)
                     {
+                        result.AddRange(tempResult);
+                        tempResult.Clear();
+
                         break;
                     }
                     // If unfinished samples isn't empty, change price upper bound and move unfinished samples with less total price than price upper bount to checking samples
@@ -378,7 +372,17 @@ namespace BackendOfSite.Controllers
 
                         // Move samples with less total price than price upper bound from temp results list to result list
                         result.AddRange(tempResult.Where(x => x.TotalPrice <= priceUpperBound).ToList());
-                        tempResult = tempResult.Where(x => x.TotalPrice > priceUpperBound).OrderBy(x => x.TotalPrice).Take(needCount).ToList();
+                        tempResult = tempResult.Where(x => x.TotalPrice > priceUpperBound).OrderBy(x => x.TotalPrice).ToList();
+
+                        if (needCount > 0)
+                        {
+                            tempResult = tempResult.Take(needCount).ToList();
+
+                            if (tempResult.Count == needCount)
+                            {
+                                priceUpperBoundInTempResult = tempResult.Max(x => x.TotalPrice);
+                            }
+                        }
 
                         continue;
                     }
@@ -420,6 +424,16 @@ namespace BackendOfSite.Controllers
 
                         bool isExist = false;
 
+                        foreach(var cisternRecord in newSample.selectCisternRecords)
+                        {
+                            if(newSample.TotalVolume - cisternRecord.cistern.NominalVolume >= needVolumeM3)
+                            {
+                                isExist = true;
+
+                                break;
+                            }
+                        }
+
                         foreach (Sample tempSample in tempResult)
                             if (newSample.Equals(tempSample))
                             {
@@ -456,6 +470,16 @@ namespace BackendOfSite.Controllers
                         {
                             bool isExist = false;
 
+                            foreach (var cisternRecord in newSample.selectCisternRecords)
+                            {
+                                if (newSample.TotalVolume - cisternRecord.cistern.NominalVolume >= needVolumeM3)
+                                {
+                                    isExist = true;
+
+                                    break;
+                                }
+                            }
+
                             foreach (Sample tempSample in tempResult)
                                 if (newSample.Equals(tempSample))
                                 {
@@ -463,20 +487,22 @@ namespace BackendOfSite.Controllers
                                     break;
                                 }
 
-                            if (!isExist)
+                            if (!isExist && (priceUpperBoundInTempResult == -1 || newSample.TotalPrice < priceUpperBoundInTempResult))
                             {
                                 tempResult.Add(newSample);
                             }
                         }
                         else
                         {
-                            if (newSample.TotalPrice <= priceUpperBound)
-                            {
-                                forCheckingSamples.Add(newSample);
-                            }
-                            else
-                            {
-                                unfinishedSamples.Add(newSample);
+                            if (priceUpperBoundInTempResult == -1 || newSample.TotalPrice < priceUpperBoundInTempResult) {
+                                if (newSample.TotalPrice <= priceUpperBound)
+                                {
+                                    forCheckingSamples.Add(newSample);
+                                }
+                                else
+                                {
+                                    unfinishedSamples.Add(newSample);
+                                }
                             }
                         }
                     }
@@ -488,11 +514,27 @@ namespace BackendOfSite.Controllers
 
                 // Move samples with less total price than price upper bound from temp results list to result list
                 result.AddRange(tempResult.Where(x => x.TotalPrice <= priceUpperBound).ToList());
-                tempResult = tempResult.Where(x => x.TotalPrice > priceUpperBound).OrderBy(x => x.TotalPrice).Take(needCount).ToList();
+                tempResult = tempResult.Where(x => x.TotalPrice > priceUpperBound).OrderBy(x => x.TotalPrice).ToList();
+
+                if (needCount > 0)
+                {
+                    tempResult = tempResult.Take(needCount).ToList();
+
+                    if (tempResult.Count == needCount)
+                    {
+                        priceUpperBoundInTempResult = tempResult.Max(x => x.TotalPrice);
+                    }
+                }
             }
 
 
-            result = result.OrderBy(x => x.TotalPrice).Take(needCount).ToList();
+            result = result.OrderBy(x => x.TotalPrice).ToList();
+
+            if(needCount> 0)
+            {
+                result = result.Take(needCount).ToList();
+            }
+
 
             return result;
         }

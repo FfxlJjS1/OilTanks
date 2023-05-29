@@ -114,7 +114,7 @@ export class ParkV2 extends Component {
                                 }}
                             />
                         </Form.Group>
-                        <Button className="mb-3" variant="primary" type="button"
+                        <Button className="mt-3 mb-3" variant="primary" type="button"
                             disabled={this.state.resultIsLoading || this.state.cisternPurposes == null}
                             onClick={!this.state.resultIsLoading ? handleClick : null}>
                             {!this.state.resultIsLoading ? "Вычислить" : "Загружается"}

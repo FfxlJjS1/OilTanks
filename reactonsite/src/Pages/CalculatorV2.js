@@ -1,5 +1,5 @@
 import React, { Component }  from "react"
-import { Button, Container, Form } from "react-bootstrap"
+import { Button, Container, Form, Row, Col } from "react-bootstrap"
 
 import { CommunicationWithServer } from "../FunctionalClasses/CommunicationWithServer";
 import ResultAreaMixinByGroup from "../Mixins/ResultAreaMixinByGroup";
@@ -118,21 +118,23 @@ export class CalculatorV2 extends Component {
                                 {cisternPurposesSelect}
                             </Form.Select>
                         </Form.Group>
-                        <Form.Group className="mb-3" controlId="formBasicEmail">
-                            <Form.Label>Нефть</Form.Label>
-                            <Form.Control type="text" placeholder="обьём м³"
-                                value={this.state.oilValue}
-                                onInput={e => handleInputOilValue(e)}
-                                pattern="[0-9]*" />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="formBasicEmail">
-                            <Form.Label>Вода</Form.Label>
-                            <Form.Control type="text" placeholder="обьём м³"
-                                value={this.state.waterValue}
-                                onInput={e => handleInputWaterValue(e)}
-                                pattern="[0-9]*"
-                            />
-                        </Form.Group>
+                        <Form as={Row} className="mb-3">
+                            <Col>
+                                <Form.Label>Нефть</Form.Label>
+                                <Form.Control type="text" placeholder="обьём м³"
+                                    value={this.state.oilValue}
+                                    onInput={e => handleInputOilValue(e)}
+                                    pattern="[0-9]*" />
+                            </Col>
+                            <Col>
+                                <Form.Label>Вода</Form.Label>
+                                <Form.Control type="text" placeholder="обьём м³"
+                                    value={this.state.waterValue}
+                                    onInput={e => handleInputWaterValue(e)}
+                                    pattern="[0-9]*"
+                                />
+                            </Col>
+                        </Form>
                         <Form.Group>
                             <Form.Label>Количество элементов (полнота вычислений): {this.state.countForCalculate > 0 ? this.state.countForCalculate : "Все (не рекомендуется)"}</Form.Label>
                             <Form.Range defaultValue={this.state.countForCalculate}
@@ -141,7 +143,7 @@ export class CalculatorV2 extends Component {
                                 }}
                             />
                         </Form.Group>
-                        <Button className="mt-3" variant="primary" type="button"
+                        <Button className="mt-3 mb-3" variant="primary" type="button"
                             disabled={this.state.resultIsLoading ||
                                 this.state.oilTypes == null || this.state.cisternPurposeId == null
                                 || this.state.oilValue <= 0 || this.state.waterValue <= 0}

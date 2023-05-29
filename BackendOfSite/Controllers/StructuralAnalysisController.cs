@@ -38,11 +38,12 @@ namespace BackendOfSite.Controllers
         }
 
         [HttpGet("AnalyseByFormVolume")]
-        public IActionResult AnalyseByFormVolume(int volumeValue, string formType)
+        public IActionResult AnalyseByFormVolume(int volumeValue, string formType, string limitesAsString)
         {
             EntityTable entityTable = new EntityTable();
             int formTypeIndex = Array.IndexOf(formTypes, formType);
             double squire = 0f, height = 0f;
+            int[] limites = limitesAsString.Split(';').Select(x => Convert.ToInt32(x)).ToArray();
 
 
             entityTable.Columns = new List<Column>();
@@ -83,14 +84,14 @@ namespace BackendOfSite.Controllers
             {
                 for (formTypeIndex = 1; formTypeIndex < formTypes.Length; formTypeIndex++)
                 {
-                    List<List<string>> rowsByForm = StructualAnalyzeByForm(formTypeIndex, volumeValue, true);
+                    List<List<string>> rowsByForm = StructualAnalyzeByForm(formTypeIndex, volumeValue, limites, true);
 
                     entityTable.Rows.AddRange(rowsByForm);
                 }
             }
             else
             {
-                entityTable.Rows = StructualAnalyzeByForm(formTypeIndex, volumeValue, false);
+                entityTable.Rows = StructualAnalyzeByForm(formTypeIndex, volumeValue, limites, false);
             }
 
 
@@ -104,7 +105,7 @@ namespace BackendOfSite.Controllers
             return Ok(entityResponce);
         }
 
-        private List<List<string>> StructualAnalyzeByForm(int formTypeIndex, int volumeValue, bool willFullTable)
+        private List<List<string>> StructualAnalyzeByForm(int formTypeIndex, int volumeValue, int[] limites, bool willFullTable)
         {
             List<List<string>> rows = new List<List<string>>();
 
@@ -119,9 +120,7 @@ namespace BackendOfSite.Controllers
 
             if (formTypeIndex == 1)
             {
-                const int maxRadius = 30;
-
-                for (int radius = 1; radius <= maxRadius; radius++)
+                for (int radius = limites[0] ; radius <= limites[1]; radius++)
                 {
                     List<string> row = new List<string>
                     {
@@ -161,11 +160,9 @@ namespace BackendOfSite.Controllers
             }
             else if (formTypeIndex == 2)
             {
-                const int maxSideWidth = 30;
-
-                for (int sideAWidth = 1; sideAWidth <= maxSideWidth; sideAWidth++)
+                for (int sideAWidth = limites[2]; sideAWidth <= limites[3]; sideAWidth++)
                 {
-                    for (int sideBWidth = 1; sideBWidth <= maxSideWidth; sideBWidth++)
+                    for (int sideBWidth = limites[2]; sideBWidth <= limites[3]; sideBWidth++)
                     {
                         List<string> row = new List<string>();
 

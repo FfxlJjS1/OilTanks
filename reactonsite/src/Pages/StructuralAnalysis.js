@@ -1,5 +1,5 @@
 import React, { Component }  from "react"
-import { Button, Container, Form } from "react-bootstrap"
+import { Button, Container, Form, Row, Col } from "react-bootstrap"
 
 import { CommunicationWithServer } from "../FunctionalClasses/CommunicationWithServer";
 import ResultTableMixinShowTable from "../Mixins/ResultTableMixinShowTable";
@@ -9,8 +9,7 @@ export class StructuralAnalysis extends Component {
         super(props);
 
         this.state = {
-            volumeValue: null, formType: null,
-            minimalSquire: null, height: 0,
+            volumeValue: null, formType: null, limites: [1, 30, 1, 30],
             formTypes: null, loadingFormTypes: false,
             loadedResult: null, resultIsLoading: false,
             resultTable: null, columnBySorted: [-1, true]
@@ -43,12 +42,11 @@ export class StructuralAnalysis extends Component {
         const data = await CommunicationWithServer.GetStructuralAnalysisResultByForm(
             this.state.volumeValue,
             this.state.formType,
+            this.state.limites.map(number => String(number)).join(';'),
         );
 
         if (data != null) {
             this.state.loadedResult = data.entityTable;
-            this.state.minimalSquire = data.minimalSquire
-            this.state.height = data.height;
         }
 
         this.state.resultIsLoading = false;
@@ -71,6 +69,26 @@ export class StructuralAnalysis extends Component {
 
             this.setState({ volumeValue: value && value > 0 ? parseInt(value) : "" });
         };
+        const handleInputLimitValue = (event, index) => {
+            const value = (event.target.validity.valid) ? event.target.value : this.state.oilValue;
+
+            let limites = this.state.limites;
+
+            limites[index] =
+                index % 2 == 0
+                    ? (value && value > 0
+                        ? (parseInt(value) < limites[index + 1]
+                            ? parseInt(value)
+                            : limites[index + 1] - 1)
+                        : 1)
+                    : (value && value > 0
+                        ? (parseInt(value) > limites[index - 1]
+                            ? parseInt(value)
+                            : limites[index - 1] + 1)
+                        : 2);
+
+            this.setState({ limites: limites });
+        };
         const handleClick = () => this.enterAndLoadServerCalculation();
 
         return (
@@ -81,8 +99,7 @@ export class StructuralAnalysis extends Component {
                             value={this.state.formType}>
                             <Form.Label>Выберите форму</Form.Label>
                             <Form.Select disabled={this.state.formTypes == null}
-                                onChange={e => this.setState({formType: e.target.value}) }
-                            >
+                                onChange={e => this.setState({ formType: e.target.value })}>
                                 {formTypesSelect}
                             </Form.Select>
                         </Form.Group>
@@ -92,6 +109,42 @@ export class StructuralAnalysis extends Component {
                                 value={this.state.volumeValue}
                                 onInput={e => handleInputVolumeValue(e)}
                                 pattern="[0-9]*" />
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Радиус резервуара (нижний и верхний предел)</Form.Label>
+                            <Form as={Row} className="mb-3">
+                                <Col>
+                                    <Form.Control type="text"
+                                        value={this.state.limites[0]}
+                                        onInput={e => handleInputLimitValue(e, 0)}
+                                        pattern="[0-9]*" />
+                                </Col>
+                                <Col>
+                                    <Form.Control type="text"
+                                        value={this.state.limites[1]}
+                                        onInput={e => handleInputLimitValue(e, 1)}
+                                        pattern="[0-9]*"
+                                    />
+                                </Col>
+                            </Form>
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Ширина стенки (нижний и верхний предел)</Form.Label>
+                            <Form as={Row} className="mb-3">
+                                <Col>
+                                    <Form.Control type="text"
+                                        value={this.state.limites[2]}
+                                        onInput={e => handleInputLimitValue(e, 2)}
+                                        pattern="[0-9]*" />
+                                </Col>
+                                <Col>
+                                    <Form.Control type="text"
+                                        value={this.state.limites[3]}
+                                        onInput={e => handleInputLimitValue(e, 3)}
+                                        pattern="[0-9]*"
+                                    />
+                                </Col>
+                            </Form>
                         </Form.Group>
                         <Button className="mb-3" variant="primary" type="button"
                             disabled={this.state.resultIsLoading ||

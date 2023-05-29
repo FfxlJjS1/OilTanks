@@ -95,7 +95,7 @@ export class Park extends Component {
                             {productParksSelect}
                         </Form.Select>
                     </Form.Group>
-                    <Form.Group className="mb-3" controlId="formBasicEmail"
+                    <Form.Group className="mb-4" controlId="formBasicEmail"
                         value={this.state.tankType}
                         onChange={e => this.setState({ cisternPurposeId: e.target.value })}>
                         <Form.Label>Назначение резервуара</Form.Label>

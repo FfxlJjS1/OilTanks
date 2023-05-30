@@ -1,10 +1,71 @@
 import React from "react"
 import { Table, Form } from "react-bootstrap"
 
-import { NumToFormatStr } from "../FunctionalClasses/GeneralFunctions";
+import { NumToFormatStr, IsNumeric } from "../FunctionalClasses/GeneralFunctions";
 
 export const ResultAreaMixinByGroup = {
     renderResultArea() {
+        const columns = ["№ выборки", "Номинальный объем РВС  (отстойников), м³",
+            "Необход. кол-во в работе, шт.", "Цена за штуку, руб.",
+            "Общая цена, руб.", "Итого цена, руб.",
+            "Итого объема, м³"];
+
+        const handleClickForSortingByColumn = (e) => {
+            console.log(this.state.loadedResult);
+            let columnClickedText = e.target.childNodes[0].data;
+            let thIndexInColumns = -1;
+            let data = this.state.loadedResult.samples;
+            let columnBySorted = this.state.columnBySorted;
+
+            thIndexInColumns = columnClickedText == columns[5]
+                ? 5
+                : (columnClickedText == columns[6]
+                    ? 6
+                    : -1);
+
+            if (thIndexInColumns == -1) {
+                return;
+            }
+
+            // Sorting
+            if (columnBySorted[0] == thIndexInColumns && columnBySorted[1] == true) {
+                columnBySorted[1] = false;
+            }
+            else {
+                columnBySorted = [thIndexInColumns, true];
+            }
+
+            if (columnBySorted[1] == true) {
+                if (thIndexInColumns == 5) {
+                    data.sort((a, b) => {
+                        return parseFloat(a.totalPrice) - parseFloat(b.totalPrice) >= 0 ? 1 : -1;
+                    });
+                }
+                else if (thIndexInColumns == 6) {
+                    data.sort((a, b) => {
+                        return parseFloat(a.totalVolume) - parseFloat(b.totalVolume) >= 0 ? 1 : -1;
+                    });
+                }
+            }
+            else {
+                if (thIndexInColumns == 5) {
+                    data.sort((a, b) => {
+                            return parseFloat(b.totalPrice) - parseFloat(a.totalPrice) >= 0 ? 1 : -1;
+                    });
+                }
+                else if (thIndexInColumns == 6) {
+                    data.sort((a, b) => {
+                        return parseFloat(b.totalVolume) - parseFloat(a.totalVolume) >= 0 ? 1 : -1;
+                    });
+                }
+            }
+
+            this.setState({
+                resultArea: this.renderResultArea(),
+                columnBySorted: columnBySorted
+            });
+        }
+
         const tdRows = (data) => {
             let content = [];
             let num = 1;
@@ -47,30 +108,32 @@ export const ResultAreaMixinByGroup = {
             <>
                 <Form>
                     <Form.Group>
-                        <Form.Label>Время отстоя, хранения, час: {NumToFormatStr(this.state.loadedResult.settlingTimeHour) }</Form.Label>
+                        <Form.Label>Время отстоя, хранения, час: {NumToFormatStr(this.state.loadedResult.settlingTimeHour)}</Form.Label>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Требуемая емкость РВС и отстойников, м³: {NumToFormatStr(this.state.loadedResult.requiredVolume)} ({NumToFormatStr(Math.ceil(this.state.loadedResult.requiredVolume / this.state.loadedResult.usefulVolume ))})</Form.Label>
+                        <Form.Label>Требуемая емкость РВС и отстойников, м³: {NumToFormatStr(this.state.loadedResult.requiredVolume)} ({NumToFormatStr(Math.ceil(this.state.loadedResult.requiredVolume / this.state.loadedResult.usefulVolume))})</Form.Label>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Полезный объем (коэф. заполнения): {this.state.loadedResult.usefulVolume }</Form.Label>
+                        <Form.Label>Полезный объем (коэф. заполнения): {this.state.loadedResult.usefulVolume}</Form.Label>
                     </Form.Group>
                 </Form>
 
                 <Table striped bordred hover>
                     <tbody>
                         <tr>
-                            <th style={{ width: '50px' }}>№ выборки</th>
-                            <th style={{ width: '50px' }}>Номинальный объем РВС  (отстойников), м³</th>
-                            <th style={{ width: '50px' }}>Необход. кол-во в работе, шт.</th>
-                            <th style={{ width: '100px' }}>Цена за штуку, руб.</th>
-                            <th style={{ width: '100px' }}>Общая цена, руб.</th>
-                            <th style={{ width: '100px' }}>Итого цена, руб.</th>
-                            <th style={{ width: '100px' }}>Итого объема, м³</th>
+                            <th style={{ width: '50px' }}>{columns[0]}</th>
+                            <th style={{ width: '50px' }}>{columns[1]}</th>
+                            <th style={{ width: '50px' }}>{columns[2]}</th>
+                            <th style={{ width: '100px' }}>{columns[3]}</th>
+                            <th style={{ width: '100px' }}>{columns[4]}</th>
+                            <th style={{ width: '100px', cursor: 'pointer' }}
+                                onClick={handleClickForSortingByColumn}>{columns[5]}</th>
+                            <th style={{ width: '100px', cursor: 'pointer' }}
+                                onClick={handleClickForSortingByColumn}>{columns[6]}</th>
                         </tr>
                     </tbody>
                     <tbody>
-                        {tdRows(this.state.loadedResult)}
+                        {tdRows(this.state.loadedResult) }
                     </tbody>
                 </Table>
             </>

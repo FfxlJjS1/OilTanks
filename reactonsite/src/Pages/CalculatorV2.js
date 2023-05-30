@@ -12,7 +12,8 @@ export class CalculatorV2 extends Component {
             cisternPurposeId: null, oilType: null, oilValue: null, waterValue: null,
             cisternPurposes: null, loadingCisternPurposes: false,
             oilTypes: null, loadingOilTypes: false, countForCalculate: 20,
-            loadedResult: null, resultIsLoading: false
+            loadedResult: null, resultIsLoading: false,
+            resultArea: null, columnBySorted: [-1, true]
         };
     }
 
@@ -66,10 +67,17 @@ export class CalculatorV2 extends Component {
         );
 
         if (data != null) {
-            this.setState({ loadedResult: data });
+            this.state.loadedResult = data;
         }
 
-        this.setState({ resultIsLoading: false });
+        this.state.resultIsLoading = false;
+
+        if (!this.state.resultIsLoading && this.state.loadedResult != null) {
+            this.setState({ resultArea: this.renderResultArea() });
+        }
+        else {
+            this.setState({ resultArea: null });
+        }
     }
 
     render() {
@@ -78,9 +86,6 @@ export class CalculatorV2 extends Component {
             : null;
         let oilTypesSelect = !this.state.loadingOilTypes && this.state.oilTypes != null
             ? this.state.oilTypes.map(oilType => <option>{oilType}</option>)
-            : null;
-        let resultArea = !this.state.resultIsLoading && this.state.loadedResult != null
-            ? this.renderResultArea()
             : null;
 
         const handleInputOilValue = (event) => {
@@ -153,7 +158,7 @@ export class CalculatorV2 extends Component {
                     </Form>
                 </Container>
 
-                {resultArea}
+                {this.state.resultArea}
             </Container>
         )
     }

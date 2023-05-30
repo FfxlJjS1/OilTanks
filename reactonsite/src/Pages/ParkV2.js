@@ -13,7 +13,8 @@ export class ParkV2 extends Component {
             loadedResult: null, resultIsLoading: false,
             productParks: null, loadingProductParks: false,
             cisternPurposes: null, loadingCisternPurposes: false,
-            countForCalculate: 20
+            countForCalculate: 20,
+            resultArea: null, columnBySorted: [-1, true]
         };
     }
 
@@ -66,10 +67,17 @@ export class ParkV2 extends Component {
         );
 
         if (data != null) {
-            this.setState({ loadedResult: data });
+            this.state.loadedResult = data;
         }
 
-        this.setState({ resultIsLoading: false });
+        this.state.resultIsLoading = false;
+
+        if (!this.state.resultIsLoading && this.state.loadedResult != null) {
+            this.setState({ resultArea: this.renderResultArea() });
+        }
+        else {
+            this.setState({ resultArea: null });
+        }
     }
 
     render() {
@@ -79,9 +87,6 @@ export class ParkV2 extends Component {
             : null;
         let cisternPurposesSelect = !this.state.loadingCisternPurposes && this.state.cisternPurposes != null
             ? this.state.cisternPurposes.map(cisternPurpose => <option value={cisternPurpose.purposeCisternId}>{cisternPurpose.name}</option>)
-            : null;
-        let resultArea = !this.state.resultIsLoading && this.state.loadedResult != null
-            ? this.renderResultArea()
             : null;
 
         const handleClick = () => this.enterAndLoadServerCalculation();
@@ -122,7 +127,7 @@ export class ParkV2 extends Component {
                     </Form>
                 </Container>
 
-                {resultArea}
+                {this.state.resultArea}
             </Container>
         )
     }

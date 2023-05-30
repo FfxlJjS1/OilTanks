@@ -260,7 +260,7 @@ namespace BackendOfSite.Controllers
                     break;
             }
 
-            return needVolume;
+            return (float)Math.Round(needVolume);
         }
 
         private float CalculateUsefulVolume(int cisternPurposeId)

@@ -84,12 +84,12 @@ export class CalculatorV2 extends Component {
             : null;
 
         const handleInputOilValue = (event) => {
-            const value = (event.target.validity.valid) ? event.target.value : this.state.oilValue;
+            const value = (event.target.validity.valid) && event.target.value < 1000000000 ? event.target.value : this.state.oilValue;
 
             this.setState({ oilValue: value && value > 0 ? parseInt(value) : "" });
         };
         const handleInputWaterValue = (event) => {
-            const value = (event.target.validity.valid) ? event.target.value : this.state.waterValue;
+            const value = (event.target.validity.valid) && event.target.value < 1000000000 ? event.target.value : this.state.waterValue;
 
             this.setState({ waterValue: value && value > 0 ? parseInt(value) : "" });
         };

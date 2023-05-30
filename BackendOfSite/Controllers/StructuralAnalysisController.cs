@@ -34,14 +34,13 @@ namespace BackendOfSite.Controllers
         [HttpGet("GetFormTypes")]
         public IActionResult GetFormTypes()
         {
-            return Ok(formTypes);
+            return Ok(formTypes.Select((name, index) => new { name, index }));
         }
 
         [HttpGet("AnalyseByFormVolume")]
-        public IActionResult AnalyseByFormVolume(int volumeValue, string formType, string limitesAsString)
+        public IActionResult AnalyseByFormVolume(int volumeValue, int formTypeIndex, string limitesAsString)
         {
             EntityTable entityTable = new EntityTable();
-            int formTypeIndex = Array.IndexOf(formTypes, formType);
             double squire = 0f, height = 0f;
             int[] limites = limitesAsString.Split(';').Select(x => Convert.ToInt32(x)).ToArray();
 
@@ -186,7 +185,7 @@ namespace BackendOfSite.Controllers
                         decimal tankWeight = CalculateParallelogeamTankWeight(sideAWidth, sideBWidth, currHeight, volumeValue, metalDensityKgPerCubicMillimetr);
                         row.Add(tankWeight.ToString());
 
-                        row.Add(CalculateParallelogramTankCosts(tankWeight, metalCostPerKilogram).ToString());
+                        row.Add(CalculateParallepipedTankCosts(tankWeight, metalCostPerKilogram).ToString());
 
                         if (willFullTable)
                         {
@@ -206,7 +205,7 @@ namespace BackendOfSite.Controllers
             return -1;
         }
 
-        private decimal CalculateParallelogramTankCosts(decimal tankWeight, decimal metalCostsPerKillogram)
+        private decimal CalculateParallepipedTankCosts(decimal tankWeight, decimal metalCostsPerKillogram)
         {
             return tankWeight * metalCostsPerKillogram;
         }

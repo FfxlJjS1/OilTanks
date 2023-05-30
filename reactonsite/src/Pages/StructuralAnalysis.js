@@ -9,7 +9,7 @@ export class StructuralAnalysis extends Component {
         super(props);
 
         this.state = {
-            volumeValue: null, formType: null, limites: [1, 30, 1, 30],
+            volumeValue: null, formTypeIndex: null, limites: [1, 30, 1, 30],
             formTypes: null, loadingFormTypes: false,
             loadedResult: null, resultIsLoading: false,
             resultTable: null, columnBySorted: [-1, true]
@@ -29,7 +29,7 @@ export class StructuralAnalysis extends Component {
             this.setState({ formTypes: data });
 
             if (data != null) {
-                this.setState({ formType: data[0] });
+                this.setState({ formTypeIndex: data[0].index });
             }
         }
 
@@ -41,7 +41,7 @@ export class StructuralAnalysis extends Component {
 
         const data = await CommunicationWithServer.GetStructuralAnalysisResultByForm(
             this.state.volumeValue,
-            this.state.formType,
+            this.state.formTypeIndex,
             this.state.limites.map(number => String(number)).join(';'),
         );
 
@@ -61,11 +61,20 @@ export class StructuralAnalysis extends Component {
 
     render() {
         let formTypesSelect = !this.state.loadingFormTypes && this.state.formTypes != null
-            ? this.state.formTypes.map(formType => <option>{formType}</option>)
+            ? this.state.formTypes.map(formType => <option value={formType.index }>{formType.name}</option>)
             : null;
 
+        let isCorrentLimitesForRadius = (this.state.limites[0] < this.state.limites[1] && this.state.limites[0] > 0 && this.state.limites[0] != "" && this.state.limites[1] != "");
+        let isCorrentLimitesForParallepiped = (this.state.limites[2] < this.state.limites[3] && this.state.limites[2] > 0 && this.state.limites[2] != "" && this.state.limites[3] != "");
+
+        let isCorrectLimites = (
+            (this.state.formTypeIndex == 0 && isCorrentLimitesForRadius && isCorrentLimitesForParallepiped)
+            || (this.state.formTypeIndex == 1 && isCorrentLimitesForRadius)
+            || (this.state.formTypeIndex == 2 && isCorrentLimitesForParallepiped));
+
         const handleInputVolumeValue = (event) => {
-            const value = (event.target.validity.valid) ? event.target.value : this.state.volumeValue;
+            console.log(event.target.value);
+            const value = (event.target.validity.valid) && event.target.value < 1000000000 ? event.target.value : this.state.volumeValue;
 
             this.setState({ volumeValue: value && value > 0 ? parseInt(value) : "" });
         };
@@ -74,18 +83,7 @@ export class StructuralAnalysis extends Component {
 
             let limites = this.state.limites;
 
-            limites[index] =
-                index % 2 == 0
-                    ? (value && value > 0
-                        ? (parseInt(value) < limites[index + 1]
-                            ? parseInt(value)
-                            : limites[index + 1] - 1)
-                        : 1)
-                    : (value && value > 0
-                        ? (parseInt(value) > limites[index - 1]
-                            ? parseInt(value)
-                            : limites[index - 1] + 1)
-                        : 2);
+            limites[index] = value;
 
             this.setState({ limites: limites });
         };
@@ -96,10 +94,10 @@ export class StructuralAnalysis extends Component {
                 <Container style={{ width: '600px' }}>
                     <Form>
                         <Form.Group className="mb-3" controlId="formBasicEmail"
-                            value={this.state.formType}>
+                            value={this.state.formTypeIndex}>
                             <Form.Label>Выберите форму</Form.Label>
                             <Form.Select disabled={this.state.formTypes == null}
-                                onChange={e => this.setState({ formType: e.target.value })}>
+                                onChange={e => this.setState({ formTypeIndex: e.target.value })}>
                                 {formTypesSelect}
                             </Form.Select>
                         </Form.Group>
@@ -110,46 +108,54 @@ export class StructuralAnalysis extends Component {
                                 onInput={e => handleInputVolumeValue(e)}
                                 pattern="[0-9]*" />
                         </Form.Group>
-                        <Form.Group>
-                            <Form.Label>Радиус резервуара (нижний и верхний предел)</Form.Label>
-                            <Form as={Row} className="mb-3">
-                                <Col>
-                                    <Form.Control type="text"
-                                        value={this.state.limites[0]}
-                                        onInput={e => handleInputLimitValue(e, 0)}
-                                        pattern="[0-9]*" />
-                                </Col>
-                                <Col>
-                                    <Form.Control type="text"
-                                        value={this.state.limites[1]}
-                                        onInput={e => handleInputLimitValue(e, 1)}
-                                        pattern="[0-9]*"
-                                    />
-                                </Col>
-                            </Form>
-                        </Form.Group>
-                        <Form.Group>
-                            <Form.Label>Ширина стенки (нижний и верхний предел)</Form.Label>
-                            <Form as={Row} className="mb-3">
-                                <Col>
-                                    <Form.Control type="text"
-                                        value={this.state.limites[2]}
-                                        onInput={e => handleInputLimitValue(e, 2)}
-                                        pattern="[0-9]*" />
-                                </Col>
-                                <Col>
-                                    <Form.Control type="text"
-                                        value={this.state.limites[3]}
-                                        onInput={e => handleInputLimitValue(e, 3)}
-                                        pattern="[0-9]*"
-                                    />
-                                </Col>
-                            </Form>
-                        </Form.Group>
+
+                        {this.state.formTypeIndex == 0 || this.state.formTypeIndex == 1
+                            ? <Form.Group>
+                                <Form.Label>Радиус резервуара (нижний и верхний предел)</Form.Label>
+                                <Form as={Row} className="mb-3">
+                                    <Col>
+                                        <Form.Control type="text"
+                                            value={this.state.limites[0]}
+                                            onInput={e => handleInputLimitValue(e, 0)}
+                                            pattern="[0-9]*" />
+                                    </Col>
+                                    <Col>
+                                        <Form.Control type="text"
+                                            value={this.state.limites[1]}
+                                            onInput={e => handleInputLimitValue(e, 1)}
+                                            pattern="[0-9]*"
+                                        />
+                                    </Col>
+                                </Form>
+                            </Form.Group>
+                            : null}
+
+                        {this.state.formTypeIndex == 0 || this.state.formTypeIndex == 2
+                            ? <Form.Group>
+                                <Form.Label>Ширина стенки (нижний и верхний предел)</Form.Label>
+                                <Form as={Row} className="mb-3">
+                                    <Col>
+                                        <Form.Control type="text"
+                                            value={this.state.limites[2]}
+                                            onInput={e => handleInputLimitValue(e, 2)}
+                                            pattern="[0-9]*" />
+                                    </Col>
+                                    <Col>
+                                        <Form.Control type="text"
+                                            value={this.state.limites[3]}
+                                            onInput={e => handleInputLimitValue(e, 3)}
+                                            pattern="[0-9]*"
+                                        />
+                                    </Col>
+                                </Form>
+                            </Form.Group>
+                            : null}
+
                         <Button className="mb-3" variant="primary" type="button"
                             disabled={this.state.resultIsLoading ||
-                                this.state.formTypes == null || this.state.volumeValue <= 0}
-                            onClick={!this.state.resultIsLoading ? handleClick : null}>
+                                this.state.formTypes == null || this.state.volumeValue <= 0
+                                || !isCorrectLimites}
+                            onClick={handleClick}>
                             {!this.state.resultIsLoading ? "Вычислить" : "Загружается"}
                         </Button>
                     </Form>

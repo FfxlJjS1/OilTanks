@@ -18,6 +18,7 @@ namespace BackendOfSite.Controllers
     public class CalculatorController : ControllerBase
     {
         private readonly DbCisternContext db;
+
         readonly string[] oilTypes = { "Девонская", "Сернистая" };
         private List<SelectCister> selectCisterns = new List<SelectCister>();
 
@@ -346,7 +347,6 @@ namespace BackendOfSite.Controllers
 
             selectCisterns = selectCisterns.Where(cistern => cistern.NominalVolume < needVolumeM3).ToList();
 
-
             while ((result.Count < needCount || needCount == 0) && (forCheckingSamples.Count > 0 || unfinishedSamples.Count > 0 || tempResult.Count > 0))
             {
                 // If checking samples is empty
@@ -465,11 +465,11 @@ namespace BackendOfSite.Controllers
                             findRecord.CisternsNumber += 1;
                         }
 
+                        bool isExist = false;
+
                         newSample.UpdateTotals();
                         if (newSample.TotalVolume >= needVolumeM3)
                         {
-                            bool isExist = false;
-
                             foreach (var cisternRecord in newSample.selectCisternRecords)
                             {
                                 if (newSample.TotalVolume - cisternRecord.cistern.NominalVolume >= needVolumeM3)
@@ -497,11 +497,31 @@ namespace BackendOfSite.Controllers
                             if (priceUpperBoundInTempResult == -1 || newSample.TotalPrice < priceUpperBoundInTempResult) {
                                 if (newSample.TotalPrice <= priceUpperBound)
                                 {
-                                    forCheckingSamples.Add(newSample);
+                                    foreach(Sample forCheckingSample in forCheckingSamples)
+                                        if (forCheckingSample.Equals(newSample))
+                                        {
+                                            isExist = true;
+                                            break;
+                                        }
+
+                                    if (!isExist)
+                                    {
+                                        forCheckingSamples.Add(newSample);
+                                    }
                                 }
                                 else
                                 {
-                                    unfinishedSamples.Add(newSample);
+                                    foreach (Sample unfinishedSample in unfinishedSamples)
+                                        if (unfinishedSample.Equals(newSample))
+                                        {
+                                            isExist = true;
+                                            break;
+                                        }
+
+                                    if (!isExist)
+                                    {
+                                        unfinishedSamples.Add(newSample);
+                                    }
                                 }
                             }
                         }

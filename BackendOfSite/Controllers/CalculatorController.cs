@@ -338,14 +338,14 @@ namespace BackendOfSite.Controllers
                 x.UpdateTotals();
             });
 
-            List<Sample> forCheckingSamples = unfinishedSamples.Where(x => x.TotalPrice <= priceUpperBound).ToList();
-
-            unfinishedSamples = unfinishedSamples.Where(x => x.TotalPrice > priceUpperBound).ToList();
-
-
             needVolumeM3 /= usefulVolume;
 
             selectCisterns = selectCisterns.Where(cistern => cistern.NominalVolume < needVolumeM3).ToList();
+
+            List<Sample> forCheckingSamples = unfinishedSamples.Where(x => x.TotalPrice <= priceUpperBound).OrderBy(x => x.TotalPrice).ToList();
+
+            unfinishedSamples = unfinishedSamples.Where(x => x.TotalPrice > priceUpperBound).OrderBy(x => x.TotalPrice).ToList();
+
 
             while ((result.Count < needCount || needCount == 0) && (forCheckingSamples.Count > 0 || unfinishedSamples.Count > 0 || tempResult.Count > 0))
             {
@@ -363,7 +363,7 @@ namespace BackendOfSite.Controllers
                     // If unfinished samples isn't empty, change price upper bound and move unfinished samples with less total price than price upper bount to checking samples
                     else
                     {
-                        priceUpperBound = tempResult.First(x => x.TotalPrice > priceUpperBound).TotalPrice;
+                        priceUpperBound = tempResult.Where(x => x.TotalPrice > priceUpperBound).Min(x => x.TotalPrice);
 
                         forCheckingSamples = unfinishedSamples
                             .Where(x => x.TotalPrice <= priceUpperBound).OrderBy(x => x.TotalPriceForVolume).ToList();
@@ -393,13 +393,12 @@ namespace BackendOfSite.Controllers
                 List<Sample> forCheckingSamplesBranch = new List<Sample>() { forCheckingSamples.First() };
                 forCheckingSamples = forCheckingSamples.Skip(1).ToList();
 
-                while (forCheckingSamplesBranch.Count > 0)
                 {
                     Sample sample = forCheckingSamplesBranch.First();
                     forCheckingSamplesBranch = forCheckingSamplesBranch.Skip(1).ToList();
 
                     // For calculate temp cistern for more effencity algorithm work
-                    foreach(var selectCistern in selectCisterns)
+                    foreach (var selectCistern in selectCisterns)
                     {
                         Sample newSample = new Sample();
 
@@ -410,23 +409,24 @@ namespace BackendOfSite.Controllers
 
                         if (findRecord == null)
                         {
-                            newSample.selectCisternRecords.Add(new SelectCisternRecord() { 
-                                cistern = selectCistern, 
+                            newSample.selectCisternRecords.Add(new SelectCisternRecord()
+                            {
+                                cistern = selectCistern,
                                 CisternsNumber = (int)Math.Ceiling((needVolumeM3 - newSample.TotalVolume) / selectCistern.NominalVolume)
                             });
                         }
                         else
                         {
-                            findRecord.CisternsNumber += (int)Math.Ceiling((needVolumeM3 - newSample.TotalVolume)/findRecord.cistern.NominalVolume);
+                            findRecord.CisternsNumber += (int)Math.Ceiling((needVolumeM3 - newSample.TotalVolume) / findRecord.cistern.NominalVolume);
                         }
 
                         newSample.UpdateTotals();
 
                         bool isExist = false;
 
-                        foreach(var cisternRecord in newSample.selectCisternRecords)
+                        foreach (var cisternRecord in newSample.selectCisternRecords)
                         {
-                            if(newSample.TotalVolume - cisternRecord.cistern.NominalVolume >= needVolumeM3)
+                            if (newSample.TotalVolume - cisternRecord.cistern.NominalVolume >= needVolumeM3)
                             {
                                 isExist = true;
 
@@ -494,10 +494,11 @@ namespace BackendOfSite.Controllers
                         }
                         else
                         {
-                            if (priceUpperBoundInTempResult == -1 || newSample.TotalPrice < priceUpperBoundInTempResult) {
+                            if (priceUpperBoundInTempResult == -1 || newSample.TotalPrice < priceUpperBoundInTempResult)
+                            {
                                 if (newSample.TotalPrice <= priceUpperBound)
                                 {
-                                    foreach(Sample forCheckingSample in forCheckingSamples)
+                                    foreach (Sample forCheckingSample in forCheckingSamples)
                                         if (forCheckingSample.Equals(newSample))
                                         {
                                             isExist = true;
@@ -526,13 +527,21 @@ namespace BackendOfSite.Controllers
                             }
                         }
                     }
-
-                    // Sort for more effencity select for next calculating
-                    forCheckingSamplesBranch = forCheckingSamplesBranch.OrderBy(x => x.TotalPriceForVolume).ToList();
                 }
 
 
                 // Move samples with less total price than price upper bound from temp results list to result list
+                if(needCount > 0)
+                {
+                    int koff = 100 + needCount * 100;
+
+                    forCheckingSamples = forCheckingSamples.OrderBy(x => x.TotalPriceForVolume).Take(needCount * koff).ToList();
+                    unfinishedSamples = unfinishedSamples.OrderBy(x => x.TotalPriceForVolume).Take(needCount * koff).ToList();
+                }
+
+                forCheckingSamples = forCheckingSamples.OrderBy(x => x.TotalPrice).ToList();
+                unfinishedSamples = unfinishedSamples.OrderBy(x => x.TotalPrice).ToList();
+
                 result.AddRange(tempResult.Where(x => x.TotalPrice <= priceUpperBound).ToList());
                 tempResult = tempResult.Where(x => x.TotalPrice > priceUpperBound).OrderBy(x => x.TotalPrice).ToList();
 

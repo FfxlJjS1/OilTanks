@@ -87,10 +87,13 @@ namespace BackendOfSite.Controllers
 
                     entityTable.Rows.AddRange(rowsByForm);
                 }
+
+                entityTable.Rows = entityTable.Rows.OrderBy(row => Convert.ToDecimal(row[row.Count - 2])).ToList();
             }
             else
             {
-                entityTable.Rows = StructualAnalyzeByForm(formTypeIndex, volumeValue, limites, false);
+                entityTable.Rows = StructualAnalyzeByForm(formTypeIndex, volumeValue, limites, false)
+                    .OrderBy(row => Convert.ToDecimal(row.Last())).ToList();
             }
 
 

@@ -533,10 +533,10 @@ namespace BackendOfSite.Controllers
                 // Move samples with less total price than price upper bound from temp results list to result list
                 if(needCount > 0)
                 {
-                    int koff = 100 + needCount * 100;
+                    int countForOptimiza = 1000 + needCount * 25;
 
-                    forCheckingSamples = forCheckingSamples.OrderBy(x => x.TotalPriceForVolume).Take(needCount * koff).ToList();
-                    unfinishedSamples = unfinishedSamples.OrderBy(x => x.TotalPriceForVolume).Take(needCount * koff).ToList();
+                    forCheckingSamples = forCheckingSamples.OrderBy(x => x.TotalPriceForVolume).Take(countForOptimiza).ToList();
+                    unfinishedSamples = unfinishedSamples.OrderBy(x => x.TotalPriceForVolume).Take(countForOptimiza).ToList();
                 }
 
                 forCheckingSamples = forCheckingSamples.OrderBy(x => x.TotalPrice).ToList();

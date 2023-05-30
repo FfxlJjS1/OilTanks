@@ -1,7 +1,7 @@
 import React from "react"
 import { Table, Form } from "react-bootstrap"
 
-import { IsNumeric } from "../FunctionalClasses/GeneralFunctions";
+import { IsNumeric, NumToFormatStr } from "../FunctionalClasses/GeneralFunctions";
 
 export const ResultTableMixinShowTable = {
     renderResultTable() {
@@ -38,21 +38,21 @@ export const ResultTableMixinShowTable = {
 
             if (columnBySorted[1] == true) {
                 data.rows.sort((a, b) => {
-                    if (IsNumeric(a[thIndexInColumns]) && IsNumeric(b[thIndexInColumns])) {
-                        return parseFloat(a[thIndexInColumns]) - parseFloat(b[thIndexInColumns]) >= 0 ? 1 : -1;
+                    if (IsNumeric(a.cells[thIndexInColumns]) && IsNumeric(b.cells[thIndexInColumns])) {
+                        return parseFloat(a.cells[thIndexInColumns]) - parseFloat(b.cells[thIndexInColumns]) >= 0 ? 1 : -1;
                     }
                     else {
-                        return a[thIndexInColumns] > b[thIndexInColumns] ? 1 : -1;
+                        return a.cells[thIndexInColumns] > b.cells[thIndexInColumns] ? 1 : -1;
                     }
                 });
             }
             else {
                 data.rows.sort((a, b) => {
-                    if (IsNumeric(a[thIndexInColumns]) && IsNumeric(b[thIndexInColumns])) {
-                        return parseFloat(b[thIndexInColumns]) - parseFloat(a[thIndexInColumns]) >= 0 ? 1 : -1;
+                    if (IsNumeric(a.cells[thIndexInColumns]) && IsNumeric(b.cells[thIndexInColumns])) {
+                        return parseFloat(b.cells[thIndexInColumns]) - parseFloat(a.cells[thIndexInColumns]) >= 0 ? 1 : -1;
                     }
                     else {
-                        return a[thIndexInColumns] < b[thIndexInColumns] ? 1 : -1;
+                        return a.cells[thIndexInColumns] < b.cells[thIndexInColumns] ? 1 : -1;
                     }
                 });
             }
@@ -79,8 +79,8 @@ export const ResultTableMixinShowTable = {
                     </tbody>
                     <tbody>
                         {this.state.loadedResult.rows.map((item) =>
-                            <tr>{item.map((item) => 
-                                <td>{item != "-1" ? item : "---"}</td>
+                            <tr>{item.cells.map((item) => 
+                                <td>{item != "-1" ? NumToFormatStr(item) : "---"}</td>
                                 )}</tr>
                             )}
                     </tbody>

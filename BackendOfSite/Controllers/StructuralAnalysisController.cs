@@ -73,7 +73,7 @@ namespace BackendOfSite.Controllers
                 new Column(){ Name = "Высота, м", Width = "100px"},
                 new Column() { Name = "Толщина нижнего пояса, м", Width = "100px" },
                 new Column() { Name = "Толщина верхнего пояса, м", Width = "150px" },
-                new Column() { Name = "Общий вес, т.", Width = "150px" },
+                new Column() { Name = "Общий вес, кг.", Width = "150px" },
                 //new Column() { Name = "Общий объем, т.", Width = "150px" },
                 new Column() { Name = "Общая стоимость, руб.", Width = "150px" }
             });
@@ -181,7 +181,7 @@ namespace BackendOfSite.Controllers
             double roofSteelWeight = RoundUp(7500 * bottomArea * 0.004, 3);
 
             double totalSteelWeight = wallSteelWeight + bottomSteelWeight + roofSteelWeight;
-            row.Cells.Add(totalSteelWeight.ToString());
+            row.Cells.Add(RoundUp(totalSteelWeight, 2).ToString());
 
             row.Cells.Add(CalculateCylinderTankCosts(totalSteelWeight, metalCostPeTon).ToString());
 

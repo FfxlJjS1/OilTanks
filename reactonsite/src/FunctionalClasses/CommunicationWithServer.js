@@ -83,7 +83,7 @@ export class CommunicationWithServer {
     static async GetStructuralAnalysisResultByForm(volumeValue, formType, limites) {
         const data = this.GetRequest(this.structuralAnalysisApi + "/AnalyseByFormVolume?" +
             "volumeValue=" + volumeValue + "&" + 
-            "formType=" + formType + "&" +
+            "formTypeIndex=" + formType + "&" +
             "limitesAsString=" + limites);
 
         return data;

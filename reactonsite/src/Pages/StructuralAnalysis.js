@@ -73,8 +73,7 @@ export class StructuralAnalysis extends Component {
             || (this.state.formTypeIndex == 2 && isCorrentLimitesForParallepiped));
 
         const handleInputVolumeValue = (event) => {
-            console.log(event.target.value);
-            const value = (event.target.validity.valid) && event.target.value < 1000000000 ? event.target.value : this.state.volumeValue;
+            const value = (event.target.validity.valid) && event.target.value < 100000000000 ? event.target.value : this.state.volumeValue;
 
             this.setState({ volumeValue: value && value > 0 ? parseInt(value) : "" });
         };

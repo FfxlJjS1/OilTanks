@@ -18,10 +18,33 @@ namespace BackendOfSite.Controllers
             public string Width { get; set; } = "";
         }
 
+        class BeltInfo
+        {
+            public int beltNumber { get; set; }
+            public double Thickness { get; set; }
+        }
+
+        class Tooltip
+        {
+            public double MetalSheetWidth { get; set; }
+            public double OilDensity { get; set; }
+
+            public List<BeltInfo> beltInfos { get; set; } = new List<BeltInfo>();
+
+            public double BottomArea { get; set; }
+            public double WallSquire {get;set;}
+            public double WallSteelWeight { get; set; }
+            public double BottomSteelWeight { get; set; }
+            public double RoofSteelWeight { get; set; }
+
+            public double MetalDensityKgPerCubicMetr { get; set; }
+            public decimal MetalCostPeTon { get; set; }
+        }
+
         class Row
         {
             public List<string> Cells { get; set; } = new List<string>();
-            public string TooltipString { get; set; } = "";
+            public Tooltip TooltipInfo { get; set; } = new Tooltip();
         }
 
         class EntityTable
@@ -33,8 +56,6 @@ namespace BackendOfSite.Controllers
         class EntityResponce
         {
             public EntityTable entityTable { get; set; } = new EntityTable();
-            public double minimalSquire { get; set; }
-            public double height { get; set; }
         }
 
         [HttpGet("GetFormTypes")]
@@ -47,7 +68,6 @@ namespace BackendOfSite.Controllers
         public IActionResult AnalyseByFormVolume(int volumeValue, int formTypeIndex, string limitesAsString)
         {
             EntityTable entityTable = new EntityTable();
-            double squire = 0f, height = 0f;
             int[] limites = limitesAsString.Split(';').Select(x => Convert.ToInt32(x)).ToArray();
 
 
@@ -104,9 +124,7 @@ namespace BackendOfSite.Controllers
 
             EntityResponce entityResponce = new EntityResponce()
             {
-                entityTable = entityTable,
-                minimalSquire = squire,
-                height = height
+                entityTable = entityTable
             };
 
             return Ok(entityResponce);
@@ -121,9 +139,8 @@ namespace BackendOfSite.Controllers
                 return rows;
             }
 
-            const decimal metalDensityKgPerCubicMetr = 7500; // кг/м^3
+            const double metalDensityKgPerCubicMetr = 7500; // кг/м^3
             const decimal metalCostPeTon = 70000; // Руб/т
-            string formTypeString = formTypes[formTypeIndex];
 
             if (formTypeIndex == 1)
             {
@@ -156,7 +173,7 @@ namespace BackendOfSite.Controllers
         }
 
         // For Cylinder
-        private Row StructureAnalyseForCylinderTanks(int radius, int volumeValue, decimal metalDensityKgPerCubicMetr, decimal metalCostPeTon, bool willFullTable)
+        private Row StructureAnalyseForCylinderTanks(int radius, int volumeValue, double metalDensityKgPerCubicMetr, decimal metalCostPeTon, bool willFullTable)
         {
             Row row = new Row
             {
@@ -164,24 +181,36 @@ namespace BackendOfSite.Controllers
                         radius.ToString()
                     }
             };
+            Tooltip tooltip = new Tooltip();
 
-            double bottomArea = radius * radius * Math.PI;
+            tooltip.MetalSheetWidth = 1.5;
+            tooltip.OilDensity = 871;
 
-            double height = RoundUp(volumeValue / bottomArea, 3);
+            tooltip.MetalDensityKgPerCubicMetr = metalDensityKgPerCubicMetr;
+            tooltip.MetalCostPeTon = metalCostPeTon;
+
+            tooltip.BottomArea = RoundUp(radius * radius * Math.PI, 3);
+
+
+            double height = RoundUp(volumeValue / tooltip.BottomArea, 3);
             row.Cells.Add(height.ToString());
 
-            double lowerBeltWeight = CalculateLowerBeltWeight(volumeValue, height, radius);
+            tooltip.WallSquire = RoundUp(2 * Math.PI * radius * 1.5 * (height / 1.5), 3);
+
+            tooltip.beltInfos = CalculateBeltsThickness(volumeValue, height, radius, tooltip.MetalSheetWidth, tooltip.OilDensity);
+
+            double lowerBeltWeight = tooltip.beltInfos.First().Thickness;
             row.Cells.Add(lowerBeltWeight.ToString());
 
-            double upperBeltWeight = CalculateUpperBeltWeight(volumeValue, height, radius);
+            double upperBeltWeight = tooltip.beltInfos.Last().Thickness;
             row.Cells.Add(upperBeltWeight.ToString());
 
-            double wallSteelWeight = CalculateWallWeigtVolume(volumeValue, height, radius);
-            double bottomSteelWeight = RoundUp(7500 * bottomArea * lowerBeltWeight, 3);
-            double roofSteelWeight = RoundUp(7500 * bottomArea * 0.004, 3);
+            tooltip.WallSteelWeight = CalculateWallWeightVolume(radius, tooltip.MetalDensityKgPerCubicMetr, tooltip.beltInfos);
+            tooltip.BottomSteelWeight = RoundUp(metalDensityKgPerCubicMetr * tooltip.BottomArea * lowerBeltWeight, 3);
+            tooltip.RoofSteelWeight = RoundUp(metalDensityKgPerCubicMetr * tooltip.BottomArea * 0.004, 3);
 
-            double totalSteelWeight = wallSteelWeight + bottomSteelWeight + roofSteelWeight;
-            row.Cells.Add(RoundUp(totalSteelWeight, 2).ToString());
+            double totalSteelWeight = RoundUp(tooltip.WallSteelWeight + tooltip.BottomSteelWeight + tooltip.RoofSteelWeight, 3);
+            row.Cells.Add(totalSteelWeight.ToString());
 
             row.Cells.Add(CalculateCylinderTankCosts(totalSteelWeight, metalCostPeTon).ToString());
 
@@ -191,12 +220,10 @@ namespace BackendOfSite.Controllers
                 row.Cells.Add(formTypes[1]);
             }
 
-            return row;
-        }
 
-        private decimal CalculateCylinderTankWeight(int radius, double currHeight, int volumeValue, float metalDensityKgPerCubicMillimetr)
-        {
-            return -1;
+            row.TooltipInfo = tooltip;
+
+            return row;
         }
 
         private decimal CalculateCylinderTankCosts(double tankWeightKilogram, decimal metalCostPerKillogram)
@@ -204,33 +231,45 @@ namespace BackendOfSite.Controllers
             return (decimal)RoundUp(tankWeightKilogram / 1000 * (double)metalCostPerKillogram, 0);
         }
 
-        private double CalculateWallWeigtVolume(double volumeValue, double height, double radius)
+        private double CalculateWallWeightVolume(double radius, double metalDensityKgPerCubicMetr, List<BeltInfo> belts)
         {
             const double metalSheetWidth = 1.5;
 
-            double squire = 0,
-                result = 0,
-                weight = 0,
-                beltNumbers = RoundUp(height / metalSheetWidth, 0);
+            double squire = 2 * Math.PI * radius * metalSheetWidth,
+                result = 0;
 
-            for (int beltNumber = 1; beltNumber <= beltNumbers; beltNumber++)
+            foreach(var belt in belts)
             {
-                squire = 2 * Math.PI * radius * metalSheetWidth;
-                weight = CalculateBeltWeightByItNumber(beltNumber, volumeValue, height, radius);
-
-                result = result + RoundUp(7500 * squire * weight, 0);
+                result += RoundUp(metalDensityKgPerCubicMetr * squire * belt.Thickness, 0);
             }
 
             return result;
         }
 
-        private double CalculateBeltWeightByItNumber(int beltNumber, double volumeValue, double height, double radius)
+        private List<BeltInfo> CalculateBeltsThickness(double volumeValue, double height, double radius, double metalSheetWidth, double oilDensity)
         {
-            const double metalSheetWidth = 1.5,
-                lowerBeltWorkingConditionCoefficient = 0.7,
+            List<BeltInfo> belts = new List<BeltInfo>();
+            double beltNumbers = RoundUp(height / metalSheetWidth, 0);
+
+            for(int beltNumber = 1; beltNumber <= beltNumbers; beltNumber++)
+            {
+                BeltInfo beltInfo= new BeltInfo();
+
+                beltInfo.beltNumber = beltNumber;
+                beltInfo.Thickness = CalculateBeltThicknessByItNumber(beltNumber, volumeValue, height, radius, metalSheetWidth, oilDensity);
+
+                belts.Add(beltInfo);
+            }
+
+            return belts;
+        }
+
+        private double CalculateBeltThicknessByItNumber(int beltNumber, double volumeValue, double height, double radius, double metalSheetWidth, double oilDensity)
+        {
+            const double lowerBeltWorkingConditionCoefficient = 0.7,
                 upperBeltWorkingConditionCoefficient = 0.8;
 
-            double weight,
+            double thickness,
                 reliabilityFactor, steelDesignResistance,
                 workingConditionCoefficient;
 
@@ -242,68 +281,18 @@ namespace BackendOfSite.Controllers
                 ? lowerBeltWorkingConditionCoefficient
                 : upperBeltWorkingConditionCoefficient;
 
-            weight = RoundUp((1.1 * 871 * 9.81 *
+            thickness = RoundUp((1.1 * oilDensity * 9.81 *
                 (height - metalSheetWidth * (beltNumber - 1)) * radius)
                 / (steelDesignResistance * 1000000 * workingConditionCoefficient), 3);
 
-            weight = weight < 0.004 ? 0.004 : weight;
+            thickness = thickness < 0.004 ? 0.004 : thickness;
 
-            return weight;
-        }
-
-        private double CalculateLowerBeltWeight(double volumeValue, double height, double radius)
-        {
-            const double metalSheetWidth = 1.5,
-                lowerBeltWorkingConditionCoefficient = 0.7;
-
-            double weight,
-                reliabilityFactor, steelDesignResistance,
-                workingConditionCoefficient;
-
-            reliabilityFactor = volumeValue < 10000 ? 1.1 : 1.15;
-
-            steelDesignResistance = 325 / (reliabilityFactor * 1.025);
-
-            workingConditionCoefficient = lowerBeltWorkingConditionCoefficient;
-
-            weight = RoundUp((1.1 * 871 * 9.81 *
-                (height - metalSheetWidth * (1 - 1)) * radius)
-                / (steelDesignResistance * 1000000 * workingConditionCoefficient), 3);
-
-            weight = weight < 0.004 ? 0.004 : weight;
-
-            return weight;
-        }
-
-        private double CalculateUpperBeltWeight(double volumeValue, double height, double radius)
-        {
-            const double metalSheetWidth = 1.5,
-                upperBeltWorkingConditionCoefficient = 0.8;
-
-            double weight, beltNumbers,
-                reliabilityFactor, steelDesignResistance,
-                workingConditionCoefficient;
-
-            beltNumbers = RoundUp(height / metalSheetWidth, 0);
-
-            reliabilityFactor = volumeValue < 10000 ? 1.1 : 1.15;
-
-            steelDesignResistance = 325 / (reliabilityFactor * 1.025);
-
-            workingConditionCoefficient = upperBeltWorkingConditionCoefficient;
-
-            weight = RoundUp((1.1 * 871 * 9.81 *
-                (height - metalSheetWidth * (beltNumbers - 1)) * radius)
-                / (steelDesignResistance * 1000000 * workingConditionCoefficient), 3);
-
-            weight = weight < 0.004 ? 0.004 : weight;
-
-            return weight;
+            return thickness;
         }
 
         private double RoundUp(double flNumber, int numberAfterDot)
         {
-            return ((int)Math.Ceiling(flNumber * Math.Pow(10, numberAfterDot))) / Math.Pow(10, numberAfterDot);
+            return ((long)Math.Ceiling(flNumber * Math.Pow(10, numberAfterDot))) / Math.Pow(10, numberAfterDot);
         }
     }
 }

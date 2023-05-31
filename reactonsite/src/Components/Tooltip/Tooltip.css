@@ -4,10 +4,10 @@
 
 .tooltip-trigger {
     position: relative;
-    display: inline;
 }
 
 .tooltip-trigger .tooltip {
+    width: 100%;
     background-color: black;
     color: #fff;
     text-align: center;

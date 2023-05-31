@@ -30,21 +30,21 @@ namespace BackendOfSite.Controllers
         public class CalculatedOrder
         {
             public int SettlingTimeHour { get; set; }
-            public float RequiredVolume { get; set; }
-            public float UsefulVolume { get; set; }
+            public double RequiredVolume { get; set; }
+            public double UsefulVolume { get; set; }
             public List<Sample> Samples { get; set; } = new List<Sample>();
         }
 
         public class Sample
         {
             private decimal _totalPrice = 0;
-            private float _totalVolume = 0f;
+            private double _totalVolume = 0f;
 
             public List<SelectCisternRecord> selectCisternRecords { get; set; } = new List<SelectCisternRecord>();
 
             public decimal TotalPrice => _totalPrice;
 
-            public float TotalVolume => _totalVolume;
+            public double TotalVolume => _totalVolume;
 
             public decimal TotalPriceForVolume => ((decimal)TotalVolume) / TotalPrice;
 
@@ -58,7 +58,7 @@ namespace BackendOfSite.Controllers
             {
                 if (TotalVolume == other.TotalVolume && TotalPrice == other.TotalPrice && selectCisternRecords.Count == other.selectCisternRecords.Count)
                 {
-                    int equalRecords = 0;
+                    long equalRecords = 0;
 
                     foreach (var iteratorX in this.selectCisternRecords)
                     {
@@ -90,11 +90,11 @@ namespace BackendOfSite.Controllers
             }
 
             public SelectCister cistern { get; set; } = new SelectCister();
-            public int CisternsNumber { get; set; }
+            public long CisternsNumber { get; set; }
 
             public decimal TotalPrice => cistern.CisternPrice * CisternsNumber;
 
-            public float TotalVolume => cistern.NominalVolume * CisternsNumber;
+            public double TotalVolume => cistern.NominalVolume * CisternsNumber;
         }
 
         public class SelectCister
@@ -159,7 +159,7 @@ namespace BackendOfSite.Controllers
 
             if (maxOil != -1 && maxWater != -1)
             {
-                return Ok(CalculateByNW(cisternPurposeId, oilTypeId, (int)maxOil, (int)maxWater, needCount, groupSelect));
+                return Ok(CalculateByNW(cisternPurposeId, oilTypeId, (double)maxOil, (double)maxWater, needCount, groupSelect));
             }
             else
             {
@@ -168,7 +168,7 @@ namespace BackendOfSite.Controllers
         }
 
         [HttpGet("CalculateByValues")]
-        public IActionResult Calculate(int cisternPurposeId, string oilType, float oilValue, float waterValue, int needCount, bool groupSelect)
+        public IActionResult Calculate(int cisternPurposeId, string oilType, double oilValue, double waterValue, int needCount, bool groupSelect)
         {
             int oilTypeId = Array.IndexOf(oilTypes, oilType);
 
@@ -184,7 +184,7 @@ namespace BackendOfSite.Controllers
             return Ok(data);
         }
 
-        private CalculatedOrder CalculateByNW(int cisternPurposeId, int oilTypeId, float oilValue, float waterValue, int needCount, bool groupSelect)
+        private CalculatedOrder CalculateByNW(int cisternPurposeId, int oilTypeId, double oilValue, double waterValue, int needCount, bool groupSelect)
         {
             CalculatedOrder data = new CalculatedOrder();
 
@@ -197,7 +197,7 @@ namespace BackendOfSite.Controllers
                               }).ToList().Where(x => x.CisternPrice > 0).OrderBy(x => x.PriceForVolume).ToList();
 
             int settlingTime = CalculateSettlingTime(cisternPurposeId, oilTypeId);
-            float needVolumeM3 = CalculateNeedVolumeM3(cisternPurposeId, oilValue, waterValue, settlingTime),
+            double needVolumeM3 = CalculateNeedVolumeM3(cisternPurposeId, oilValue, waterValue, settlingTime),
                 usefulVolume = CalculateUsefulVolume(cisternPurposeId);
 
             data.SettlingTimeHour = settlingTime;
@@ -237,9 +237,9 @@ namespace BackendOfSite.Controllers
             return settlingTime;
         }
 
-        private float CalculateNeedVolumeM3(int cisternPurposeId, float oilValue, float waterValue, int settlingTime)
+        private double CalculateNeedVolumeM3(int cisternPurposeId, double oilValue, double waterValue, int settlingTime)
         {
-            float needVolume = 0;
+            double needVolume = 0;
 
             switch (cisternPurposeId)
             {
@@ -260,36 +260,36 @@ namespace BackendOfSite.Controllers
                     break;
             }
 
-            return (float)Math.Round(needVolume);
+            return Math.Round(needVolume);
         }
 
-        private float CalculateUsefulVolume(int cisternPurposeId)
+        private double CalculateUsefulVolume(int cisternPurposeId)
         {
-            float usefulVolume = 0f;
+            double usefulVolume = 0;
 
             switch (cisternPurposeId)
             {
                 case 1:
-                    usefulVolume = 0.7f;
+                    usefulVolume = 0.7;
                     break;
                 case 2:
-                    usefulVolume = 0.85f;
+                    usefulVolume = 0.85;
                     break;
                 case 3:
-                    usefulVolume = 0.9f;
+                    usefulVolume = 0.9;
                     break;
                 case 4:
-                    usefulVolume = 0.9f;
+                    usefulVolume = 0.9;
                     break;
                 case 5:
-                    usefulVolume = 0.8f;
+                    usefulVolume = 0.8;
                     break;
             }
 
             return usefulVolume;
         }
 
-        private List<Sample> CalculateTanksForParametrs(float needVolumeM3, float usefulVolume, int needCount)
+        private List<Sample> CalculateTanksForParametrs(double needVolumeM3, double usefulVolume, int needCount)
         {
             List<Sample> samples = new List<Sample>();
 
@@ -303,7 +303,7 @@ namespace BackendOfSite.Controllers
                     {
                         new SelectCisternRecord() {
                          cistern = cisternVolumePrice,
-                        CisternsNumber = (int)Math.Ceiling(needVolumeM3 / (cisternVolumePrice.NominalVolume * usefulVolume))
+                        CisternsNumber = (long)Math.Ceiling(needVolumeM3 / (cisternVolumePrice.NominalVolume * usefulVolume))
                         }
                     }
                 });
@@ -320,7 +320,7 @@ namespace BackendOfSite.Controllers
             return samples;
         }
 
-        private List<Sample> CalculateTanksForParametrsGroupSelect(float needVolumeM3, float usefulVolume, int needCount)
+        private List<Sample> CalculateTanksForParametrsGroupSelect(double needVolumeM3, double usefulVolume, int needCount)
         {
             List<Sample> result = CalculateTanksForParametrs(needVolumeM3, usefulVolume, 0);
             decimal priceUpperBound = result.Min(x => x.TotalPrice);
@@ -412,12 +412,12 @@ namespace BackendOfSite.Controllers
                             newSample.selectCisternRecords.Add(new SelectCisternRecord()
                             {
                                 cistern = selectCistern,
-                                CisternsNumber = (int)Math.Ceiling((needVolumeM3 - newSample.TotalVolume) / selectCistern.NominalVolume)
+                                CisternsNumber = (long)Math.Ceiling((needVolumeM3 - newSample.TotalVolume) / selectCistern.NominalVolume)
                             });
                         }
                         else
                         {
-                            findRecord.CisternsNumber += (int)Math.Ceiling((needVolumeM3 - newSample.TotalVolume) / findRecord.cistern.NominalVolume);
+                            findRecord.CisternsNumber += (long)Math.Ceiling((needVolumeM3 - newSample.TotalVolume) / findRecord.cistern.NominalVolume);
                         }
 
                         newSample.UpdateTotals();

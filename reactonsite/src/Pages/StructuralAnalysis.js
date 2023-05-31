@@ -51,7 +51,20 @@ export class StructuralAnalysis extends Component {
         }
 
         this.state.resultIsLoading = false;
-        this.state.descriptioWindows = null;
+
+        if (this.state.descriptioWindows != null) {
+            const descriptioWindows = this.state.descriptioWindows;
+
+            for (let index = 0; index < descriptioWindows.length; index++) {
+                let descriptioWindow = descriptioWindows[index];
+
+                if (descriptioWindow[2] != null) {
+                    descriptioWindow[2].close();
+                }
+            }
+
+            this.state.descriptioWindows = null;
+        }
 
         if (!this.state.resultIsLoading && this.state.loadedResult != null) {
             this.setState({ resultTable: this.renderResultTable() });

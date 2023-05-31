@@ -84,10 +84,10 @@ export const ResultTableMixinShowTable = {
            
             const tooltip = row.tooltipInfo;
             let tooltipWindowText = "<!DOCTYPE html>";
-            tooltipWindowText += "<Table>";
+            tooltipWindowText += "<Table border=\"2\"  cellpadding=\"7px\">";
             tooltipWindowText += "<tbody>";
             tooltipWindowText += "    <th>Наименование</th>";
-            tooltipWindowText += "    <th>Значение</th>";
+            tooltipWindowText += "    <th>Значение</th>";   
             tooltipWindowText += "    <th>Измерения</th>";
             tooltipWindowText += "</tbody>";
             tooltipWindowText += "<tbody>";

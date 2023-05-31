@@ -81,7 +81,7 @@ export const ResultTableMixinShowTable = {
 
         const rowShowing = (row) => {
             let content = [];
-           
+
             const tooltip = row.tooltipInfo;
             let tooltipWindowText = "<!DOCTYPE html>";
             tooltipWindowText += "<Table border=\"2\"  cellpadding=\"7px\">";
@@ -124,12 +124,12 @@ export const ResultTableMixinShowTable = {
             tooltipWindowText += "</tr>";
             tooltipWindowText += "<tr>";
             tooltipWindowText += "    <td>Площадь дна</td>";
-            tooltipWindowText += "    <td>" + tooltip.bottomArea +"</td>";
+            tooltipWindowText += "    <td>" + tooltip.bottomArea + "</td>";
             tooltipWindowText += "    <td>м²</td>";
             tooltipWindowText += "</tr>";
             tooltipWindowText += "<tr>";
             tooltipWindowText += "    <td>Площадь стен</td>";
-            tooltipWindowText += "    <td>" + tooltip.bottomArea +"</td>";
+            tooltipWindowText += "    <td>" + tooltip.wallSquire + "</td>";
             tooltipWindowText += "    <td>м²</td>";
             tooltipWindowText += "</tr>";
             tooltipWindowText += "<tr>";
@@ -181,7 +181,7 @@ export const ResultTableMixinShowTable = {
             tooltipWindowText += "</tbody>";
             tooltipWindowText += "</Table>";
 
-            
+
             for (let cell of row.cells) {
                 content.push(
                     <td>
@@ -253,19 +253,18 @@ export const ResultTableMixinShowTable = {
                                 break;
                             }
                         }
-                            
+
                         if (!isExists) {
                             this.state.descriptioWindows.push([identification, rowShow[0], null]);
                         }
-                        let f = identification.toString();
 
                         return (
-                            <tr identification={ f} onClick={ handleClickForOpenTheDescription}>
+                            <tr identification={identification.toString()} onClick={handleClickForOpenTheDescription}>
                                 {rowShow[1]}
                             </tr>
                         );
                     }
-                    )} 
+                    )}
                 </tbody>
             </Table>
         );

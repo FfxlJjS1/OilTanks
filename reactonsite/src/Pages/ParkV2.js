@@ -112,7 +112,7 @@ export class ParkV2 extends Component {
                             </Form.Select>
                         </Form.Group>
                         <Form.Group className="mb-4">
-                            <Form.Label>Количество элементов (полнота вычислений): {this.state.countForCalculate > 0 ? this.state.countForCalculate : "Все (не рекомендуется)"}</Form.Label>
+                            <Form.Label>Диапазон выборки (полнота вычислений): {this.state.countForCalculate > 0 ? this.state.countForCalculate : "Все (не рекомендуется)"}</Form.Label>
                             <Form.Range defaultValue={this.state.countForCalculate}
                                 onChange={e => {
                                     this.setState({ countForCalculate: e.target.value });

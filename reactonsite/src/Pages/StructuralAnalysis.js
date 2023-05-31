@@ -1,8 +1,9 @@
 import React, { Component }  from "react"
 import { Button, Container, Form, Row, Col } from "react-bootstrap"
 
-import { CommunicationWithServer } from "../FunctionalClasses/CommunicationWithServer";
 import ResultTableMixinShowTable from "../Mixins/ResultTableMixinShowTable";
+
+import { CommunicationWithServer } from "../FunctionalClasses/CommunicationWithServer";
 
 export class StructuralAnalysis extends Component {
     constructor(props) {
@@ -76,11 +77,11 @@ export class StructuralAnalysis extends Component {
 
     render() {
         let formTypesSelect = !this.state.loadingFormTypes && this.state.formTypes != null
-            ? this.state.formTypes.map(formType => <option value={formType.index }>{formType.name}</option>)
+            ? this.state.formTypes.map(formType => <option value={formType.index}>{formType.name}</option>)
             : null;
 
-        let isCorrentLimitesForRadius = (this.state.limites[0] < this.state.limites[1] && this.state.limites[0] > 0 && this.state.limites[0] != "" && this.state.limites[1] != "");
-        let isCorrentLimitesForParallepiped = (this.state.limites[2] < this.state.limites[3] && this.state.limites[2] > 0 && this.state.limites[2] != "" && this.state.limites[3] != "");
+        let isCorrentLimitesForRadius = (this.state.limites[0] != "" && this.state.limites[1] != "" && this.state.limites[0] > 0 && this.state.limites[0] < this.state.limites[1]);
+        let isCorrentLimitesForParallepiped = (this.state.limites[2] != "" && this.state.limites[3] != "" && this.state.limites[2] > 0 && this.state.limites[2] < this.state.limites[3]);
 
         let isCorrectLimites = (
             (this.state.formTypeIndex == 0 && isCorrentLimitesForRadius && isCorrentLimitesForParallepiped)
@@ -88,16 +89,16 @@ export class StructuralAnalysis extends Component {
             || (this.state.formTypeIndex == 2 && isCorrentLimitesForParallepiped));
 
         const handleInputVolumeValue = (event) => {
-            const value = (event.target.validity.valid) && event.target.value < 100000000000 ? event.target.value : this.state.volumeValue;
+            const value = (event.target.validity.valid) && event.target.value < 1000000000 ? event.target.value : this.state.volumeValue;
 
             this.setState({ volumeValue: value && value > 0 ? parseInt(value) : "" });
         };
         const handleInputLimitValue = (event, index) => {
-            const value = (event.target.validity.valid) ? event.target.value : this.state.limites[index];
+            const value = (event.target.validity.valid) && event.target.value < 10000000 ? event.target.value : this.state.limites[index];
 
             let limites = this.state.limites;
 
-            limites[index] = value;
+            limites[index] = value == "" ? "" : parseInt(value);
 
             this.setState({ limites: limites });
         };
@@ -137,7 +138,7 @@ export class StructuralAnalysis extends Component {
                                         <Form.Control type="text"
                                             value={this.state.limites[1]}
                                             onInput={e => handleInputLimitValue(e, 1)}
-                                            pattern="[0-9]*"/>
+                                            pattern="[0-9]*" />
                                     </Col>
                                 </Form>
                             </Form.Group>
@@ -157,7 +158,7 @@ export class StructuralAnalysis extends Component {
                                         <Form.Control type="text"
                                             value={this.state.limites[3]}
                                             onInput={e => handleInputLimitValue(e, 3)}
-                                            pattern="[0-9]*"/>
+                                            pattern="[0-9]*" />
                                     </Col>
                                 </Form>
                             </Form.Group>

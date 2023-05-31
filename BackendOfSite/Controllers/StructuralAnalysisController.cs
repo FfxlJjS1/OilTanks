@@ -74,7 +74,7 @@ namespace BackendOfSite.Controllers
         public IActionResult AnalyseByFormVolume(double volumeValue, int formTypeIndex, string limitesAsString)
         {
             EntityTable entityTable = new EntityTable();
-            int[] limites = limitesAsString.Split(';').Select(x => Convert.ToInt32(x)).ToArray();
+            long[] limites = limitesAsString.Split(';').Select(x => Convert.ToInt64(x)).ToArray();
 
 
             entityTable.Columns = new List<Column>();
@@ -143,7 +143,7 @@ namespace BackendOfSite.Controllers
             return Ok(entityResponce);
         }
 
-        private List<Row> StructualAnalyzeByForm(int formTypeIndex, double volumeValue, int[] limites, bool willFullTable)
+        private List<Row> StructualAnalyzeByForm(int formTypeIndex, double volumeValue, long[] limites, bool willFullTable)
         {
             List<Row> rows = new List<Row>();
 
@@ -157,7 +157,7 @@ namespace BackendOfSite.Controllers
 
             if (formTypeIndex == 1)
             {
-                for (int radius = limites[0] ; radius <= limites[1]; radius++)
+                for (long radius = limites[0] ; radius <= limites[1]; radius++)
                 {
                     Row row = StructureAnalyseForCylinderTanks(radius, volumeValue, metalDensityKgPerCubicMetr, metalCostPeTon, willFullTable);
                     
@@ -166,9 +166,9 @@ namespace BackendOfSite.Controllers
             }
             else if (formTypeIndex == 2)
             {
-                for (int length = limites[2]; length <= limites[3]; length++)
+                for (long length = limites[2]; length <= limites[3]; length++)
                 {
-                    for(int width = limites[2]; width<= length; width++)
+                    for(long width = limites[2]; width<= length; width++)
                     {
                         Row row = StructureAnalyseForParallepipedTanks(width, length, volumeValue, metalDensityKgPerCubicMetr, metalCostPeTon, willFullTable);
 
@@ -181,7 +181,7 @@ namespace BackendOfSite.Controllers
         }
 
         // For Parallepiped
-        private Row StructureAnalyseForParallepipedTanks(int width, int length, double volumeValue, double metalDensityKgPerCubicMetr, decimal  metalCostPeTon, bool willFullTable)
+        private Row StructureAnalyseForParallepipedTanks(long width, long length, double volumeValue, double metalDensityKgPerCubicMetr, decimal  metalCostPeTon, bool willFullTable)
         {
             Row row = new Row();
             Tooltip tooltip = new Tooltip();

@@ -58,7 +58,7 @@ export default class Header extends Component{
                         <Route exact path="/park" element={<Park />} />
                         <Route exact path="/calculator_v2" element={<CalculatorV2 containerWidth='1000px'/>} />
                         <Route exact path="/parkv2" element={<ParkV2 containerWidth='1000px'/>} />
-                        <Route exact path="/structural_analysis" element={<StructuralAnalysis containerWidth='1000px'/>} />
+                        <Route exact path="/structural_analysis" element={<StructuralAnalysis containerWidth='1200px'/>} />
                     </Routes>
                 </Router>
             </div>

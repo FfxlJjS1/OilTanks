@@ -9,7 +9,7 @@ export class StructuralAnalysis extends Component {
         super(props);
 
         this.state = {
-            volumeValue: null, formTypeIndex: null, limites: [1, 30, 1, 30],
+            volumeValue: null, formTypeIndex: null, limites: [1, 20, 1, 30],
             formTypes: null, loadingFormTypes: false,
             loadedResult: null, resultIsLoading: false,
             resultTable: null, columnBySorted: [-1, true],
@@ -93,7 +93,7 @@ export class StructuralAnalysis extends Component {
             this.setState({ volumeValue: value && value > 0 ? parseInt(value) : "" });
         };
         const handleInputLimitValue = (event, index) => {
-            const value = (event.target.validity.valid) ? event.target.value : this.state.oilValue;
+            const value = (event.target.validity.valid) ? event.target.value : this.state.limites[index];
 
             let limites = this.state.limites;
 
@@ -125,7 +125,7 @@ export class StructuralAnalysis extends Component {
 
                         {this.state.formTypeIndex == 0 || this.state.formTypeIndex == 1
                             ? <Form.Group>
-                                <Form.Label>Радиус резервуара (нижний и верхний предел)</Form.Label>
+                                <Form.Label>Диапазон радиуса резервуара (цилиндр)</Form.Label>
                                 <Form as={Row} className="mb-3">
                                     <Col>
                                         <Form.Control type="text"
@@ -137,8 +137,7 @@ export class StructuralAnalysis extends Component {
                                         <Form.Control type="text"
                                             value={this.state.limites[1]}
                                             onInput={e => handleInputLimitValue(e, 1)}
-                                            pattern="[0-9]*"
-                                        />
+                                            pattern="[0-9]*"/>
                                     </Col>
                                 </Form>
                             </Form.Group>
@@ -146,7 +145,7 @@ export class StructuralAnalysis extends Component {
 
                         {this.state.formTypeIndex == 0 || this.state.formTypeIndex == 2
                             ? <Form.Group>
-                                <Form.Label>Ширина стенки (нижний и верхний предел)</Form.Label>
+                                <Form.Label>Диапазон длины (параллепипед)</Form.Label>
                                 <Form as={Row} className="mb-3">
                                     <Col>
                                         <Form.Control type="text"
@@ -158,8 +157,7 @@ export class StructuralAnalysis extends Component {
                                         <Form.Control type="text"
                                             value={this.state.limites[3]}
                                             onInput={e => handleInputLimitValue(e, 3)}
-                                            pattern="[0-9]*"
-                                        />
+                                            pattern="[0-9]*"/>
                                     </Col>
                                 </Form>
                             </Form.Group>

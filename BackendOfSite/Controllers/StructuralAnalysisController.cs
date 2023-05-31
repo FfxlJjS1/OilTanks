@@ -26,21 +26,23 @@ namespace BackendOfSite.Controllers
 
         class Tooltip
         {
-            public double Radius { get; set; }
+            public double Radius { get; set; } = -1;
+            public double Width { get; set; } = -1;
+            public double Length { get; set; } = -1;
 
-            public double MetalSheetWidth { get; set; }
-            public double OilDensity { get; set; }
+            public double MetalSheetWidth { get; set; } = -1;
+            public double OilDensity { get; set; } = -1;
 
             public List<BeltInfo> beltInfos { get; set; } = new List<BeltInfo>();
 
-            public double BottomArea { get; set; }
-            public double WallSquire {get;set;}
-            public double WallSteelWeight { get; set; }
-            public double BottomSteelWeight { get; set; }
-            public double RoofSteelWeight { get; set; }
+            public double BottomArea { get; set; } = -1;
+            public double WallSquire { get; set; } = -1;
+            public double WallSteelWeight { get; set; } = -1;
+            public double BottomSteelWeight { get; set; } = -1;
+            public double RoofSteelWeight { get; set; } = -1; 
 
-            public double MetalDensityKgPerCubicMetr { get; set; }
-            public decimal MetalCostPeTon { get; set; }
+            public double MetalDensityKgPerCubicMetr { get; set; } = -1;
+            public decimal MetalCostPeTon { get; set; } = -1;
         }
 
         class Row
@@ -69,7 +71,7 @@ namespace BackendOfSite.Controllers
         }
 
         [HttpGet("AnalyseByFormVolume")]
-        public IActionResult AnalyseByFormVolume(int volumeValue, int formTypeIndex, string limitesAsString)
+        public IActionResult AnalyseByFormVolume(double volumeValue, int formTypeIndex, string limitesAsString)
         {
             EntityTable entityTable = new EntityTable();
             int[] limites = limitesAsString.Split(';').Select(x => Convert.ToInt32(x)).ToArray();
@@ -89,7 +91,8 @@ namespace BackendOfSite.Controllers
             {
                 entityTable.Columns.AddRange(new List<Column>()
                 {
-                    new Column(){ Name = "Ширина стороны, м", Width = "50px"},
+                    new Column(){ Name = "Ширина, м", Width = "50px"},
+                    new Column(){ Name = "Длина, м", Width = "50px"},
                 });
             }
 
@@ -97,9 +100,9 @@ namespace BackendOfSite.Controllers
                 new Column(){ Name = "Высота, м", Width = "100px"},
                 new Column() { Name = "Толщина нижнего пояса, м", Width = "100px" },
                 new Column() { Name = "Толщина верхнего пояса, м", Width = "150px" },
-                new Column() { Name = "Общий вес, кг.", Width = "150px" },
-                //new Column() { Name = "Общий объем, т.", Width = "150px" },
-                new Column() { Name = "Общая стоимость, руб.", Width = "150px" }
+                new Column() { Name = "Общая площадь материалов, м²", Width = "150px" },
+                new Column() { Name = "Общий вес, кг.", Width = "1000px" },
+                new Column() { Name = "Общая стоимость, руб.", Width = "1000px" }
             });
 
             if(formTypeIndex == 0)
@@ -140,7 +143,7 @@ namespace BackendOfSite.Controllers
             return Ok(entityResponce);
         }
 
-        private List<Row> StructualAnalyzeByForm(int formTypeIndex, int volumeValue, int[] limites, bool willFullTable)
+        private List<Row> StructualAnalyzeByForm(int formTypeIndex, double volumeValue, int[] limites, bool willFullTable)
         {
             List<Row> rows = new List<Row>();
 
@@ -163,27 +166,88 @@ namespace BackendOfSite.Controllers
             }
             else if (formTypeIndex == 2)
             {
-                for (int sideAWidth = limites[2]; sideAWidth <= limites[3]; sideAWidth++)
+                for (int length = limites[2]; length <= limites[3]; length++)
                 {
-                    //
+                    for(int width = limites[2]; width<= length; width++)
+                    {
+                        Row row = StructureAnalyseForParallepipedTanks(width, length, volumeValue, metalDensityKgPerCubicMetr, metalCostPeTon, willFullTable);
+
+                        rows.Add(row);
+                    }
                 }
             }
 
             return rows;
         }
 
-        private decimal CalculateParallelogeamTankWeight(int sideAWidth, int sideBWidth, double currHeight, int volumeValue, float metalDensityKgPerCubicMillimetr)
+        // For Parallepiped
+        private Row StructureAnalyseForParallepipedTanks(int width, int length, double volumeValue, double metalDensityKgPerCubicMetr, decimal  metalCostPeTon, bool willFullTable)
         {
-            return -1;
-        }
+            Row row = new Row();
+            Tooltip tooltip = new Tooltip();
 
-        private decimal CalculateParallepipedTankCosts(decimal tankWeight, decimal metalCostsPerKillogram)
-        {
-            return tankWeight * metalCostsPerKillogram;
+            double radius = RoundUp(Math.Sqrt(Math.Pow(width, 2) + Math.Pow(length, 2)), 3);
+
+            if (willFullTable)
+            {
+                row.Cells.Add("-1");
+            }
+
+            row.Cells.Add(width.ToString());
+            row.Cells.Add(length.ToString());
+
+            tooltip.Width = width;
+            tooltip.Length = length;
+
+
+            tooltip.MetalSheetWidth = 1.5;
+            tooltip.OilDensity = 871;
+
+            tooltip.MetalDensityKgPerCubicMetr = metalDensityKgPerCubicMetr;
+            tooltip.MetalCostPeTon = metalCostPeTon;
+
+            tooltip.BottomArea = RoundUp(width * length, 3);
+
+
+            double height = RoundUp(volumeValue / tooltip.BottomArea, 3);
+            row.Cells.Add(height.ToString());
+
+            tooltip.WallSquire = RoundUp(2 * 1.5 * height * (width + length), 3);
+
+            tooltip.beltInfos = CalculateBeltsThickness(volumeValue, height, radius, tooltip.MetalSheetWidth, tooltip.OilDensity);
+
+            double lowerBeltWeight = tooltip.beltInfos.First().Thickness;
+            row.Cells.Add(lowerBeltWeight.ToString());
+
+            double upperBeltWeight = tooltip.beltInfos.Last().Thickness;
+            row.Cells.Add(upperBeltWeight.ToString());
+
+            tooltip.WallSteelWeight = CalculateWallWeightVolume(radius, tooltip.MetalDensityKgPerCubicMetr, tooltip.beltInfos);
+            tooltip.BottomSteelWeight = RoundUp(metalDensityKgPerCubicMetr * tooltip.BottomArea * lowerBeltWeight, 3);
+            tooltip.RoofSteelWeight = RoundUp(metalDensityKgPerCubicMetr * tooltip.BottomArea * 0.004, 3);
+
+            double totalMetalArea = RoundUp(tooltip.BottomArea * 2 + tooltip.WallSquire, 0);
+            row.Cells.Add(totalMetalArea.ToString());
+
+            double totalSteelWeight = RoundUp(tooltip.WallSteelWeight + tooltip.BottomSteelWeight + tooltip.RoofSteelWeight, 0);
+            row.Cells.Add(totalSteelWeight.ToString());
+
+            row.Cells.Add(CalculateCylinderTankCosts(totalSteelWeight, metalCostPeTon).ToString());
+
+
+            if (willFullTable)
+            {
+                row.Cells.Add(formTypes[2]);
+            }
+
+
+            row.TooltipInfo = tooltip;
+
+            return row;
         }
 
         // For Cylinder
-        private Row StructureAnalyseForCylinderTanks(int radius, int volumeValue, double metalDensityKgPerCubicMetr, decimal metalCostPeTon, bool willFullTable)
+        private Row StructureAnalyseForCylinderTanks(double radius, double volumeValue, double metalDensityKgPerCubicMetr, decimal metalCostPeTon, bool willFullTable)
         {
             Row row = new Row
             {
@@ -191,6 +255,13 @@ namespace BackendOfSite.Controllers
                         radius.ToString()
                     }
             };
+
+            if(willFullTable)
+            {
+                row.Cells.Add("-1");
+                row.Cells.Add("-1");
+            }
+
             Tooltip tooltip = new Tooltip();
 
             tooltip.Radius = radius;
@@ -220,7 +291,10 @@ namespace BackendOfSite.Controllers
             tooltip.BottomSteelWeight = RoundUp(metalDensityKgPerCubicMetr * tooltip.BottomArea * lowerBeltWeight, 3);
             tooltip.RoofSteelWeight = RoundUp(metalDensityKgPerCubicMetr * tooltip.BottomArea * 0.004, 3);
 
-            double totalSteelWeight = RoundUp(tooltip.WallSteelWeight + tooltip.BottomSteelWeight + tooltip.RoofSteelWeight, 3);
+            double totalMetalArea = RoundUp(tooltip.BottomArea * 2 + tooltip.WallSquire, 0);
+            row.Cells.Add(totalMetalArea.ToString());
+
+            double totalSteelWeight = RoundUp(tooltip.WallSteelWeight + tooltip.BottomSteelWeight + tooltip.RoofSteelWeight, 0);
             row.Cells.Add(totalSteelWeight.ToString());
 
             row.Cells.Add(CalculateCylinderTankCosts(totalSteelWeight, metalCostPeTon).ToString());

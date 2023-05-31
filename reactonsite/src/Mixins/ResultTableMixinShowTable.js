@@ -81,23 +81,84 @@ export const ResultTableMixinShowTable = {
 
         const rowShowing = (row) => {
             let content = [];
-
+           
             const tooltip = row.tooltipInfo;
             let tooltipWindowText = "<!DOCTYPE html>";
-            tooltipWindowText += tooltip.radius != -1 ? "Радиус: " + tooltip.radius + " м<br/>" : "";
-            tooltipWindowText += "Ширина листа металла: " + tooltip.metalSheetWidth + " м<br/>";
-            tooltipWindowText += "Плотность нефти: " + tooltip.oilDensity + " кг/м³<br/>";
-
-            tooltipWindowText += "Площадь дна: " + tooltip.bottomArea + " м²<br/>";
-            tooltipWindowText += "Площадь стен: " + tooltip.wallSquire + " м²<br/>";
-            tooltipWindowText += "Вес стен: " + tooltip.wallSteelWeight + " кг<br/>";
-            tooltipWindowText += "Вес дна: " + tooltip.bottomSteelWeight + " кг<br/>";
-            tooltipWindowText += "Вес крыши: " + tooltip.roofSteelWeight + " кг<br/>";
-            tooltipWindowText += "Плотность металла: " + tooltip.metalDensityKgPerCubicMetr + " кг/м³<br/>";
-            tooltipWindowText += "Стоимость тонны метала: " + tooltip.metalCostPeTon + " руб.<br/>";
+            tooltipWindowText += "<Table>";
+            tooltipWindowText += "<tbody>";
+            tooltipWindowText += "    <th>Наименование</th>";
+            tooltipWindowText += "    <th>Значение</th>";
+            tooltipWindowText += "    <th>Измерения</th>";
+            tooltipWindowText += "</tbody>";
+            tooltipWindowText += "<tbody>";
+            tooltipWindowText += "    <td>Радиус</td>";
+            tooltipWindowText += "    <td>" + (tooltip.radius != -1 ? tooltip.radius : "---") +"</td>";
+            tooltipWindowText += "    <td>м</td>";
+            tooltipWindowText += "</tbody>";
+            tooltipWindowText += "<tbody>";
+            tooltipWindowText += "    <td>Ширина листа металла</td>";
+            tooltipWindowText += "    <td>" + tooltip.metalSheetWidth + "</td>";
+            tooltipWindowText += "    <td>м</td>";
+            tooltipWindowText += "</tbody>";
+            tooltipWindowText += "    <td>Плотность нефти</td>";
+            tooltipWindowText += "    <td>" + tooltip.oilDensity + "</td>";
+            tooltipWindowText += "    <td>кг/м³</td>";
+            tooltipWindowText += "</tbody>";
+            tooltipWindowText += "    <td>Площадь дна</td>";
+            tooltipWindowText += "    <td>" + tooltip.bottomArea +"</td>";
+            tooltipWindowText += "    <td>м²</td>";
+            tooltipWindowText += "</tbody>";
+            tooltipWindowText += "<tbody>";
+            tooltipWindowText += "    <td>Площадь стен</td>";
+            tooltipWindowText += "    <td>" + tooltip.bottomArea +"</td>";
+            tooltipWindowText += "    <td>м²</td>";
+            tooltipWindowText += "</tbody>";
+            tooltipWindowText += "<tbody>";
+            tooltipWindowText += "    <td>Вес стен</td>";
+            tooltipWindowText += "    <td>" + tooltip.wallSteelWeight + "</td>";
+            tooltipWindowText += "    <td>кг</td>";
+            tooltipWindowText += "</tbody>";
+            tooltipWindowText += "<tbody>";
+            tooltipWindowText += "    <td>Вес дна</td>";
+            tooltipWindowText += "    <td>" + tooltip.bottomSteelWeight + "</td>";
+            tooltipWindowText += "    <td>кг</td>";
+            tooltipWindowText += "</tbody>";
+            tooltipWindowText += "<tbody>";
+            tooltipWindowText += "    <td>Вес крыши</td>";
+            tooltipWindowText += "    <td>" + tooltip.roofSteelWeight + "</td>";
+            tooltipWindowText += "    <td>кг</td>";
+            tooltipWindowText += "</tbody>";
+            tooltipWindowText += "<tbody>";
+            tooltipWindowText += "    <td>Плотность металла</td>";
+            tooltipWindowText += "    <td>" + tooltip.metalDensityKgPerCubicMetr + "</td>";
+            tooltipWindowText += "    <td>кг/м³</td>";
+            tooltipWindowText += "</tbody>";
+            tooltipWindowText += "<tbody>";
+            tooltipWindowText += "    <td>Стоимость тонны метала</td>";
+            tooltipWindowText += "    <td>" + tooltip.metalCostPeTon + "</td>";
+            tooltipWindowText += "    <td>руб.</td>";
+            tooltipWindowText += "</tbody>";
+            tooltipWindowText += "</Table>";
 
             // belts
             tooltipWindowText += "Пояса: <br/>";
+
+            
+            tooltipWindowText += "Пояса: <br/>";
+            tooltipWindowText += "<Table>";
+            tooltipWindowText += "<tbody>";
+            tooltipWindowText += "    <th>Номер</th>";
+            tooltipWindowText += "    <th>Значение</th>";
+            tooltipWindowText += "    <th>Измерения</th>";
+            tooltipWindowText += "</tbody>";
+            tooltipWindowText += "<tbody>";
+            tooltipWindowText += "    <td>" + belt.beltNumber + "</td>";
+            tooltipWindowText += "    <td>" + belt.thickness + "</td>";
+            tooltipWindowText += "    <td>м</td>";
+            tooltipWindowText += "</tbody>";
+
+            tooltipWindowText += "</Table>";
+
             tooltipWindowText += tooltip.beltInfos.map((belt) => "&nbsp; Пояс №" + belt.beltNumber + ": " + belt.thickness + " м<br/>").join("");
 
             

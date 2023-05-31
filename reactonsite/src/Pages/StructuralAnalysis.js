@@ -12,7 +12,8 @@ export class StructuralAnalysis extends Component {
             volumeValue: null, formTypeIndex: null, limites: [1, 30, 1, 30],
             formTypes: null, loadingFormTypes: false,
             loadedResult: null, resultIsLoading: false,
-            resultTable: null, columnBySorted: [-1, true]
+            resultTable: null, columnBySorted: [-1, true],
+            descriptioWindows: null
         };
     }
 
@@ -50,6 +51,7 @@ export class StructuralAnalysis extends Component {
         }
 
         this.state.resultIsLoading = false;
+        this.state.descriptioWindows = null;
 
         if (!this.state.resultIsLoading && this.state.loadedResult != null) {
             this.setState({ resultTable: this.renderResultTable() });

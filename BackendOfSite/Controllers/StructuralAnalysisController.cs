@@ -26,6 +26,8 @@ namespace BackendOfSite.Controllers
 
         class Tooltip
         {
+            public double Radius { get; set; }
+
             public double MetalSheetWidth { get; set; }
             public double OilDensity { get; set; }
 
@@ -43,6 +45,8 @@ namespace BackendOfSite.Controllers
 
         class Row
         {
+            public long Identification { get; set; }
+
             public List<string> Cells { get; set; } = new List<string>();
             public Tooltip TooltipInfo { get; set; } = new Tooltip();
         }
@@ -121,6 +125,12 @@ namespace BackendOfSite.Controllers
                     .OrderBy(row => Convert.ToDecimal(row.Cells.Last())).ToList();
             }
 
+            {
+                long id = 1;
+
+                entityTable.Rows.ForEach(row => row.Identification = id++);
+            }
+
 
             EntityResponce entityResponce = new EntityResponce()
             {
@@ -183,6 +193,7 @@ namespace BackendOfSite.Controllers
             };
             Tooltip tooltip = new Tooltip();
 
+            tooltip.Radius = radius;
             tooltip.MetalSheetWidth = 1.5;
             tooltip.OilDensity = 871;
 

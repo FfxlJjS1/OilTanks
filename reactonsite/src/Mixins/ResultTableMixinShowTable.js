@@ -1,12 +1,14 @@
 import React from "react"
 import { Table, Form } from "react-bootstrap"
 
-import {TooltipTr} from "../Components/Tooltip/Tooltip"
 import { IsNumeric, NumToFormatStr } from "../FunctionalClasses/GeneralFunctions";
 
 export const ResultTableMixinShowTable = {
     renderResultTable() {
-        this.state.updateAfterSorting = false;
+        if (this.state.descriptioWindows == null) {
+            this.state.descriptioWindows = []; // [identification, description, window]
+
+        }
 
         const handleClickForSortingByColumn = (e) => {
             let columnClickedText = e.target.childNodes[0].data;
@@ -80,25 +82,25 @@ export const ResultTableMixinShowTable = {
         const rowShowing = (row) => {
             let content = [];
 
-            //console.log(row);
-
             const tooltip = row.tooltipInfo;
-            let tooltipText = "Ширина листа металла: " + tooltip.metalSheetWidth + "\n";
-            tooltipText += "Плотность нефти: " + tooltip.oilDensity + "\n";
+            let tooltipWindowText = "<!DOCTYPE html>";
+            tooltipWindowText += tooltip.radius != -1 ? "Радиус: " + tooltip.radius + " м<br/>" : "";
+            tooltipWindowText += "Ширина листа металла: " + tooltip.metalSheetWidth + " м<br/>";
+            tooltipWindowText += "Плотность нефти: " + tooltip.oilDensity + " кг/м³<br/>";
+
+            tooltipWindowText += "Площадь дна: " + tooltip.bottomArea + " м²<br/>";
+            tooltipWindowText += "Площадь стен: " + tooltip.wallSquire + " м²<br/>";
+            tooltipWindowText += "Вес стен: " + tooltip.wallSteelWeight + " кг<br/>";
+            tooltipWindowText += "Вес дна: " + tooltip.bottomSteelWeight + " кг<br/>";
+            tooltipWindowText += "Вес крыши: " + tooltip.roofSteelWeight + " кг<br/>";
+            tooltipWindowText += "Плотность металла: " + tooltip.metalDensityKgPerCubicMetr + " кг/м³<br/>";
+            tooltipWindowText += "Стоимость тонны метала: " + tooltip.metalCostPeTon + " руб.<br/>";
 
             // belts
-            tooltipText += tooltip.beltInfos.map((belt) => "Пояс №" + belt.beltNumber + ": " + belt.thickness + "\n").join("");
+            tooltipWindowText += "Пояса: <br/>";
+            tooltipWindowText += tooltip.beltInfos.map((belt) => "&nbsp; Пояс №" + belt.beltNumber + ": " + belt.thickness + " м<br/>").join("");
 
-            tooltipText += "Площадь дна: " + tooltip.bottomArea + "\n";
-            tooltipText += "Площадь стен: " + tooltip.wallSquire + "\n";
-            tooltipText += "Вес стен: " + tooltip.wallSteelWeight + "\n";
-            tooltipText += "Вес дна: " + tooltip.bottomSteelWeight + "\n";
-            tooltipText += "Вес крыши: " + tooltip.roofSteelWeight + "\n";
-            tooltipText += "Плотность металла: " + tooltip.metalDensityKgPerCubicMetr + "\n";
-            tooltipText += "Стоимость тонны метала: " + tooltip.metalCostPerTon + "\n";
-
-            console.log(tooltipText);
-
+            
             for (let cell of row.cells) {
                 content.push(
                     <td>
@@ -107,28 +109,84 @@ export const ResultTableMixinShowTable = {
                 );
             }
 
-            return [tooltipText, content];
+            return [tooltipWindowText, content];
+        }
+
+        const createNewWindow = (descriptions) => {
+            let windowForOpen = window.open("", "", "width=350, height=400");
+
+            windowForOpen.document.write(descriptions);
+
+            return windowForOpen;
+        }
+
+        const handleClickForOpenTheDescription = (event) => {
+            const identification = event.target.parentElement.attributes.identification.value;
+
+            let findDescriptionWindow = null;
+
+            for (var index = 0; index < this.state.descriptioWindows.length; index++) {
+                var descriptionWindow = this.state.descriptioWindows[index];
+
+                if (descriptionWindow[0] == identification) {
+                    findDescriptionWindow = descriptionWindow;
+
+                    break;
+                }
+            }
+
+            if (findDescriptionWindow[2] == null) {
+                let windowForOpen = createNewWindow(findDescriptionWindow[1]);
+
+                findDescriptionWindow[2] = windowForOpen;
+            }
+            else {
+                if (findDescriptionWindow[2].closed) {
+                    let newWindow = createNewWindow(findDescriptionWindow[1]);
+
+                    findDescriptionWindow[2] = newWindow;
+                }
+                else {
+                    findDescriptionWindow[2].focus();
+                }
+            }
         }
 
         return (
-            <>
-                <Table striped bordred hover>
-                    <tbody>
-                        {columnsShowing()}
-                    </tbody>
-                    <tbody>
-                        {this.state.loadedResult.rows.map(row => {
-                            const res = rowShowing(row);
+            <Table striped bordred hover>
+                <tbody>
+                    {columnsShowing()}
+                </tbody>
+                <tbody>
+                    {this.state.loadedResult.rows.map(row => {
+                        const rowShow = rowShowing(row);
+                        const identification = row.identification;
+                        let isExists = false;
 
-                            return (
-                                <TooltipTr position="right"
-                                    tooltipText={res[0]}>
-                                    {res[1]}
-                                </TooltipTr>);
-                        })}
-                    </tbody>
-                </Table>
-            </>
+                        for (var index = 0; index < this.state.descriptioWindows.length; index++) {
+                            let descriptionWindow = this.state.descriptioWindows[index];
+
+                            if (descriptionWindow[0] == identification) {
+                                isExists = true;
+
+                                break;
+                            }
+                        }
+                            
+                        if (!isExists) {
+                            this.state.descriptioWindows.push([identification, rowShow[0], null]);
+                        }
+                        let f = identification.toString();
+
+                        return (
+                            <tr identification={ f} onClick={ handleClickForOpenTheDescription}>
+                                {rowShow[1]}
+                            </tr>
+                        );
+                    }
+                    )} 
+                </tbody>
+            </Table>
         );
     }
 }

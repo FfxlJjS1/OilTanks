@@ -181,8 +181,6 @@ export const ResultTableMixinShowTable = {
             tooltipWindowText += "</tbody>";
             tooltipWindowText += "</Table>";
 
-            //tooltipWindowText += tooltip.beltInfos.map((belt) => "&nbsp; Пояс №" + belt.beltNumber + ": " + belt.thickness + " м<br/>").join("");
-
             
             for (let cell of row.cells) {
                 content.push(
